@@ -14,7 +14,7 @@ First task to execute: **P0-01**.
 
 | ID | Phase | Status | Title |
 | --- | --- | --- | --- |
-| P0-01 | 0 | TODO | Scaffold the Next.js app |
+| P0-01 | 0 | DONE | Scaffold the Next.js app |
 | P0-02 | 0 | TODO | Shared UI primitives |
 | P0-03 | 0 | TODO | Environment split |
 | P0-04 | 0 | TODO | API envelope client |
@@ -98,7 +98,7 @@ First task to execute: **P0-01**.
 | BX-09 | — | BLOCKED | bKash partial-delivery refund |
 | BX-10 | — | BLOCKED | Refresh-token revocation |
 
-Buildable tasks: 73, all `TODO`. Blocked tasks: 10.
+Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 ---
 
@@ -108,7 +108,7 @@ Buildable tasks: 73, all `TODO`. Blocked tasks: 10.
 
 - **Phase:** 0
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** none
 - **Backend dependency:** none
 - **Description:** Scaffold the TypeScript Next.js App Router app with Tailwind CSS at the root of this repository, using the `src/` directories in `FRONTEND_PLAN.md`. Do not create a nested `frontend/` package. Do not add feature pages beyond a placeholder root under `src/app/(public)` that the later marketing task replaces. Empty directories for `src/api`, `src/assets`, `src/components`, `src/hooks`, `src/lib`, `src/providers`, `src/routes`, `src/types`, `src/utils`, and `src/validation` may be created with this task only if the scaffold needs them to exist. Do not put page components in `src/routes`.
