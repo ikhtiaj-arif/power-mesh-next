@@ -1,4 +1,4 @@
-import { SiteNavbar } from "@/components/shell/site-navbar";
+import { Header } from "@/components/shell/Header";
 
 export default function PublicLayout({
   children,
@@ -7,7 +7,7 @@ export default function PublicLayout({
 }) {
   return (
     <>
-      <SiteNavbar />
+      <Header />
       {children}
     </>
   );

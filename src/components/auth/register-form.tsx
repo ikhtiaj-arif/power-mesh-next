@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/toast";
 import { useRegistration, useVerifyAccount } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type { RegisterConsumerPayload } from "@/types";
@@ -62,7 +63,20 @@ export function RegisterForm() {
             { email: pendingEmail, otp: values.otp },
             {
               onSuccess: () => {
+                toast.add({
+                  title: "Account created",
+                  description: "You are signed in.",
+                  type: "success",
+                });
                 router.push("/");
+                router.refresh();
+              },
+              onError: (error) => {
+                toast.add({
+                  title: "Could not verify the code",
+                  description: getApiErrorMessage(error, "Check the code and try again."),
+                  type: "error",
+                });
               },
             },
           );
@@ -129,6 +143,20 @@ export function RegisterForm() {
           onSuccess: (response) => {
             setPendingEmail(values.email.trim().toLowerCase());
             setDevOtp(response.data.otp ?? null);
+            toast.add({
+              title: "Check your email",
+              description: response.data.emailSent
+                ? "Enter the 6-digit code we sent you."
+                : "Email delivery is unavailable. Use the code shown on this page.",
+              type: "success",
+            });
+          },
+          onError: (error) => {
+            toast.add({
+              title: "Could not create the account",
+              description: getApiErrorMessage(error, "Try again."),
+              type: "error",
+            });
           },
         });
       })}
