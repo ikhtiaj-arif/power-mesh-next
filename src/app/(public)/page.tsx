@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,9 +43,11 @@ export default function HomePage() {
         can supply them, for a scheduled outage event.
       </p>
       <div className="mt-8 flex flex-wrap gap-3">
-        <Button size="lg">Sign in</Button>
-        <Button size="lg" variant="outline">
-          Apply as a provider
+        <Button asChild size="lg">
+          <Link href="/login">Sign in</Link>
+        </Button>
+        <Button asChild size="lg" variant="outline">
+          <Link href="/register">Create an account</Link>
         </Button>
       </div>
       <Separator className="my-12" />
