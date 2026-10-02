@@ -67,13 +67,13 @@ Nothing in the planned frontend list is built yet.
 
 **Backend (implemented):** Node.js, Express 5, TypeScript, PostgreSQL, Prisma 7, Redis, Zod, JWT, Google ID tokens, bKash Tokenized Checkout, Nodemailer, Cloudinary, Helmet, CORS, rate limiting.
 
-**Frontend (planned):** Next.js App Router, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query, Zustand for shell UI only, React Hook Form, Zod, bKash hosted checkout via the existing initiate URL.
+**Frontend (planned):** Next.js App Router under `src/`, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query inside client islands, React Hook Form, Zod, bKash hosted checkout via the existing initiate URL.
 
 ## Architecture
 
 The browser talks to the Next.js app. Next.js route handlers call the Express API and set first-party `httpOnly` cookies. Express remains the authorization authority. Next.js middleware only chooses which screen to show.
 
-Marketplace data is loaded with TanStack Query. Pages stay Server Components and hand interactive pieces (forms, tables, payment redirect) to small client components.
+Pages are static Server Components so the document stays small and fast. A button, form, or other control that must react is a Client Component inside that page. TanStack Query runs in those islands when the data has to be fresh. The page file itself does not use `"use client"`.
 
 The technical plan, API map, and folder layout are in [`docs/FRONTEND_PLAN.md`](docs/FRONTEND_PLAN.md). Decisions are in [`docs/FRONTEND_DECISIONS.md`](docs/FRONTEND_DECISIONS.md).
 
@@ -105,12 +105,24 @@ The consumer starts payment with `POST /api/v1/payments/initiate`. The UI naviga
 
 ```text
 power-mesh-client/                 # this repository
-├── AGENTS.md                      # rules for coding agents
-├── README.md                      # this file
-└── docs/
-    ├── FRONTEND_PLAN.md           # canonical frontend architecture
-    ├── FRONTEND_TASKS.md          # task tracker
-    └── FRONTEND_DECISIONS.md      # architecture decisions
+├── AGENTS.md
+├── README.md
+├── docs/
+└── src/
+    ├── api/                       # BFF handler modules
+    ├── app/
+    │   ├── (public)/              # marketing, login, registration
+    │   ├── (dashboard)/           # consumer, provider, operator, admin
+    │   └── api/                   # thin route handlers that call src/api
+    ├── assets/
+    ├── components/
+    ├── hooks/
+    ├── lib/
+    ├── providers/
+    ├── routes/                    # admin.routes, provider.routes, consumer.routes, operator.routes
+    ├── types/
+    ├── utils/
+    └── validation/
 
 ../power-mesh-server/              # sibling Express API
 ├── src/modules/                   # auth, users, providers, events, offers, requests,

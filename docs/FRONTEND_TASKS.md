@@ -111,9 +111,10 @@ Buildable tasks: 73, all `TODO`. Blocked tasks: 10.
 - **Status:** TODO
 - **Dependencies:** none
 - **Backend dependency:** none
-- **Description:** Scaffold the TypeScript Next.js App Router app with Tailwind CSS at the root of this repository. Do not create a nested `frontend/` package. Do not add feature pages beyond a placeholder root the later marketing task replaces.
+- **Description:** Scaffold the TypeScript Next.js App Router app with Tailwind CSS at the root of this repository, using the `src/` directories in `FRONTEND_PLAN.md`. Do not create a nested `frontend/` package. Do not add feature pages beyond a placeholder root under `src/app/(public)` that the later marketing task replaces. Empty directories for `src/api`, `src/assets`, `src/components`, `src/hooks`, `src/lib`, `src/providers`, `src/routes`, `src/types`, `src/utils`, and `src/validation` may be created with this task only if the scaffold needs them to exist. Do not put page components in `src/routes`.
 - **Acceptance criteria:**
-  - `frontend` installs and `next build` succeeds.
+  - The app installs from this repository and `next build` succeeds.
+  - `src/app` exists. Page files are not under `src/routes`.
   - TypeScript strictness is on.
   - No secrets and no copy of `../power-mesh-server/.env`.
 
@@ -150,7 +151,7 @@ Buildable tasks: 73, all `TODO`. Blocked tasks: 10.
 - **Status:** TODO
 - **Dependencies:** P0-03
 - **Backend dependency:** `sendResponse` and `globalErrorHandler` shapes
-- **Description:** Add `lib/api` with typed success `{ success, statusCode, message, data, meta }` and error `{ success, message, errors }`. Server fetch attaches the bearer token from the first-party cookie and does not import React.
+- **Description:** Add `src/api` with typed success `{ success, statusCode, message, data, meta }` and error `{ success, message, errors }`. Server fetch attaches the bearer token from the first-party cookie and does not import React. Thin `src/app/api/**/route.ts` files call these modules.
 - **Acceptance criteria:**
   - 400, 401, 403, 404, 409, 429, and 502 surface `message` and `errors` without throwing away the status.
   - Health-check shape is not forced into the envelope.
@@ -190,11 +191,11 @@ Buildable tasks: 73, all `TODO`. Blocked tasks: 10.
 - **Status:** TODO
 - **Dependencies:** P0-01
 - **Backend dependency:** Prisma enums in `../power-mesh-server/prisma/schema/enums.prisma`
-- **Description:** Add the TanStack Query provider, a `ListQuery` type, query-key helpers, and `types/enums.ts` copied from the live enums. Add an empty Zustand UI store with sidebar state only.
+- **Description:** Add the TanStack Query provider in `src/providers`, a `ListQuery` type, query-key helpers, and enums in `src/types` copied from the live enums. Do not add a Zustand store. Sidebar state stays local to the shell client component.
 - **Acceptance criteria:**
   - Default `refetchOnWindowFocus` is false.
   - Enums include the four roles, reservation statuses, offer statuses, event statuses, provider statuses, priority tiers, and resource types.
-  - No server entity is stored in Zustand.
+  - No server list is stored outside TanStack Query.
 
 ### P0-08 Root shell files
 
@@ -215,7 +216,7 @@ Buildable tasks: 73, all `TODO`. Blocked tasks: 10.
 - **Status:** TODO
 - **Dependencies:** P0-01
 - **Backend dependency:** `../power-mesh-server/src/modules/**/**.validation.ts` bodies that are actually mounted
-- **Description:** Add Zod schemas for login, consumer register, consumer verify, provider apply, provider verify, and the password rules. Comments must point at the backend file they mirror.
+- **Description:** Add Zod schemas under `src/validation` for login, consumer register, consumer verify, provider apply, provider verify, and the password rules. Comments must point at the backend file they mirror.
 - **Acceptance criteria:**
   - Consumer `firstName` and `lastName` are 3–10 characters.
   - Provider names are 3–50 characters.
@@ -368,7 +369,7 @@ Buildable tasks: 73, all `TODO`. Blocked tasks: 10.
 - **Acceptance criteria:**
   - Provider status and consumer profile are available from this query.
   - A 401 clears the local session flow and sends the user to login.
-  - No second profile cache in Zustand.
+  - No second profile cache outside TanStack Query.
 
 ### P1-12 Role shells and navigation
 
@@ -382,7 +383,7 @@ Buildable tasks: 73, all `TODO`. Blocked tasks: 10.
   - Consumer nav has no event-create or user-admin links.
   - Operator nav has event management and no user-admin links.
   - Admin nav has users, audit, and stats, and no event create.
-  - Sidebar collapsed state is the only Zustand use, and it works on a narrow screen via a menu button.
+  - Sidebar collapsed state is local state in the shell client component, and the menu works on a narrow screen.
 
 ---
 
@@ -451,7 +452,7 @@ Buildable tasks: 73, all `TODO`. Blocked tasks: 10.
 - **Status:** TODO
 - **Dependencies:** P3-01
 - **Backend dependency:** `GET /api/v1/event/:id`, `GET /api/v1/offer/event/:eventId` (consumer is allowed; provider is not)
-- **Description:** Event detail and the offers on that event. Start both reads together (server prefetch or parallel queries), not in a waterfall of effects.
+- **Description:** Event detail and the offers on that event. The static page renders the headings. A client island loads both reads together, not in a waterfall of effects.
 - **Acceptance criteria:**
   - Offer price, remaining capacity, and delivery window are visible.
   - No offers renders an empty state.
@@ -1162,7 +1163,7 @@ Do not implement these. If a product request matches one, leave it `BLOCKED` and
 - **Priority:** High
 - **Status:** BLOCKED
 - **Dependencies:** P4-03
-- **Backend dependency:** `src/utils/seed.ts` sets `verified: true` and does not set `Provider.status`, so the default `PENDING_EMAIL_VERIFICATION` remains. `createOffer` requires `APPROVED`.
+- **Backend dependency:** `../power-mesh-server/src/utils/seed.ts` sets `verified: true` and does not set `Provider.status`, so the default `PENDING_EMAIL_VERIFICATION` remains. `createOffer` requires `APPROVED`.
 - **Description:** One-click provider demo that can create an offer without a prior approval call.
 - **Required backend change:** seed `status: APPROVED` (and keep `verified` consistent), or document that an operator must approve first. The frontend gate in P4-01 is still required either way.
 - **Acceptance criteria:** do not locally force status to `APPROVED` in the client.

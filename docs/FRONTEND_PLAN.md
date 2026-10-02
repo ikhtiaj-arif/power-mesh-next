@@ -266,26 +266,30 @@ Service zones, standing offers, survival-quota enforcement UI, partial-kW accept
 
 ## Rendering
 
-**Decision.**
+**Decision.** ADR-002 and ADR-011. Pages are static Server Components. Interactivity is a client island inside the page.
 
-- Marketing: static. It has no session data and is the public explanation of the product.
-- Auth screens: client forms. They post to the BFF. No SEO requirement.
-- Role layouts: dynamic server layouts that read the first-party cookie and redirect. That answers "who is this", not marketplace freshness.
-- Lists and detail: dynamic. Do not use ISR. Rows change when other users act, and the API does not notify Next. Optional server prefetch dehydrates into TanStack Query; the client cache owns updates.
-- Allocation preview: client, on demand, not cached across events. The POST does not persist.
-- `/my-payments`: dynamic client page. Refetch payments before rendering success.
+- `(public)` pages, including marketing, login, and registration, are static. The page renders the heading and layout. The form or the Google button is `"use client"`.
+- `(dashboard)` pages are static documents too. Middleware sends the wrong role away, so the page file does not call `cookies()` and does not opt the whole route into dynamic rendering.
+- Lists, forms, pay buttons, allocation preview, and the payment-status check are Client Components mounted by those static pages. TanStack Query lives in the island that needs fresh rows. The API has no cache-tag webhook, so those islands refetch. The surrounding page does not.
+- Do not mark a `page.tsx` or `layout.tsx` with `"use client"`. Do not use ISR for marketplace rows.
 
-`loading.tsx` and `error.tsx` wrap each role segment. API errors stay inside the page (`isError`) so a 403 does not replace the whole shell.
+`loading.tsx` and `error.tsx` wrap each role segment. API errors stay inside the client island (`isError`) so a 403 does not replace the whole shell.
 
 ## Server and client components
 
 **Decision.** ADR-002.
 
-Server by default: root layout, marketing, session redirect, initial prefetch.
+A `page.tsx` file is a static Server Component. It imports client pieces only for the controls that need them:
 
-Client only for React Hook Form, TanStack Query hooks, sidebar, dialogs, toasts, table filters, `window.location` to `bkashURL`, Google Identity Services, the profile file input, and the small Zustand UI store.
+- forms (React Hook Form)
+- buttons that mutate or navigate after a click
+- TanStack Query lists and the payment-status check
+- dialogs, toasts, table filters, sidebar toggle
+- `window.location` assignment to `bkashURL`
+- Google Identity Services
+- the profile file input
 
-`app/**/page.tsx` stays a server component that renders one feature client entry (`EventsBrowser`, `OfferForm`, `PaymentReturn`). `lib/api` does not import React.
+`src/api` and `src/lib` do not import React. `src/providers` holds the Query provider, and the root layout mounts it. That provider is a client boundary. The pages under it stay server components.
 
 ## State
 
@@ -293,17 +297,16 @@ Client only for React Hook Form, TanStack Query hooks, sidebar, dialogs, toasts,
 
 | State | Where |
 | --- | --- |
-| Role used for navigation | first-party cookie, read in the server layout and middleware |
-| User profile and every API resource | TanStack Query |
+| Role used for navigation | middleware, then the path maps in `src/routes` |
+| User profile and every API resource | TanStack Query, inside the client island that renders it |
 | `page`, `limit`, `status`, `searchTerm`, `eventId`, payment `status` | URL search params |
-| Dialog open, wizard step, row selected before submit | local React state |
-| Sidebar collapsed | Zustand |
+| Dialog open, wizard step, sidebar collapsed, row selected before submit | local React state in that client component |
 
 Query keys include scope and list params, for example `['reservations', 'mine', { page, status }]`. Mutations invalidate the specific keys they change.
 
 Cache: `staleTime` 5 minutes for `['me']`, 60 seconds for events and offers, 15 seconds for reservations and delivery, 0 for the payment-return refetch. `refetchOnWindowFocus` is off except payment return and in-progress delivery. `gcTime` 10 minutes.
 
-Do not store JWTs, OTPs, payment gateway payloads, or server lists in Zustand.
+There is no Zustand store and no `store/` directory. Do not put JWTs, OTPs, payment payloads, or server lists in module scope.
 
 ## Security
 
@@ -341,9 +344,8 @@ sequenceDiagram
 
 **Decision.** ADR-008. Rate limits dominate.
 
-- One `['me']` fetch for the shell.
-- Prefetch the active list on the server and dehydrate it so the client does not repeat the request.
-- The event page starts event detail, offers, and the caller's request together. Do not chain them in nested effects.
+- One `['me']` fetch inside the shell client island.
+- The event client island loads event detail, offers, and the caller's request together. Do not chain them in nested effects, and do not prefetch them in the static page.
 - Keep API pagination (limit 10). Do not virtualize until a screen drops paging.
 - Admin home calls `dashboard-stats` once. No chart library.
 - Split role routes. Load Google and the payment return module only on those routes.
@@ -352,7 +354,7 @@ sequenceDiagram
 
 ## Payment
 
-**Fact.** The implemented provider is bKash Tokenized Checkout (`src/app/lib/bkash.ts`, `src/modules/payment/payment.service.ts`). Currency `BDT`. Server README, video guide, Postman, and `.env.example` agree. Stripe code is absent. SSLCommerz appears in `files/` and the stale root schema only.
+**Fact.** The implemented provider is bKash Tokenized Checkout (`../power-mesh-server/src/app/lib/bkash.ts`, `../power-mesh-server/src/modules/payment/payment.service.ts`). Currency `BDT`. Server README, video guide, Postman, and `.env.example` agree. Stripe code is absent. SSLCommerz appears in `../files/` and the stale root schema only.
 
 **Decision.** ADR-007. The UI implements this sequence and no other gateway:
 
@@ -379,62 +381,68 @@ There is no webhook POST. `bkash.queryPayment` is exported and unused. Refund ex
 
 `server.ts` seeds when `NODE_ENV=development` or `RUN_SEEDS=true`. Passwords come from `SEED_*` env vars. These are development accounts.
 
-**Blocker.** `src/utils/seed.ts` sets the provider `verified: true` and does not set `status`, so the default remains `PENDING_EMAIL_VERIFICATION`. `createOffer` requires `APPROVED`. **Decision.** Demo buttons post the four accounts to the same login route and are enabled only when `NEXT_PUBLIC_DEMO_LOGIN=true`. The provider home shows the real status. Approval is an operator or admin action. The frontend does not patch the seed (`BX-07`).
+**Blocker.** `../power-mesh-server/src/utils/seed.ts` sets the provider `verified: true` and does not set `status`, so the default remains `PENDING_EMAIL_VERIFICATION`. `createOffer` requires `APPROVED`. **Decision.** Demo buttons post the four accounts to the same login route and are enabled only when `NEXT_PUBLIC_DEMO_LOGIN=true`. The provider home shows the real status. Approval is an operator or admin action. The frontend does not patch the seed (`BX-07`).
 
 ## Folder structure
 
-**Decision.** ADR-009.
+**Decision.** ADR-009 and ADR-011. The Next.js app is this repository. Source is under `src/`. There is no `features/` directory and no `store/` directory.
 
 ```text
-power-mesh-client/          # this repository; Next.js app root
+src/
+  api/                         # BFF modules: login, logout, refresh, proxy, envelope
   app/
-    (public)/page.tsx
-    (auth)/login/page.tsx
-    (auth)/register/page.tsx
-    (auth)/register/verify/page.tsx
-    (auth)/provider/apply/page.tsx
-    (auth)/provider/verify/page.tsx
-    (dashboard)/layout.tsx
-    (dashboard)/consumer/...
-    (dashboard)/provider/...
-    (dashboard)/operator/...
-    (dashboard)/admin/...
-    (dashboard)/my-payments/page.tsx
-    api/auth/login/route.ts
-    api/auth/logout/route.ts
-    api/auth/refresh/route.ts
-    api/proxy/[...path]/route.ts
-  components/ui/
-  components/shell/
-  components/states/
-  features/
-    auth/ events/ offers/ requests/
-    reservations/ payments/ delivery/
-    providers/ admin/ account/
+    (public)/                  # marketing, login, consumer register, provider apply
+      login/page.tsx
+      register/page.tsx
+      register/verify/page.tsx
+      provider/apply/page.tsx
+      provider/verify/page.tsx
+    (dashboard)/
+      consumer/...
+      provider/...
+      operator/...
+      admin/...
+      my-payments/page.tsx     # URL stays /my-payments
+    api/                       # thin route.ts files that call src/api
+      auth/login/route.ts
+      auth/logout/route.ts
+      auth/refresh/route.ts
+      proxy/[...path]/route.ts
+  assets/
+  components/                  # ui, shell, states, and screen components
   hooks/
-  lib/api/
-  lib/session/
-  schemas/
-  providers/query-provider.tsx
-  store/ui-store.ts
-  types/enums.ts
-  middleware.ts
+  lib/                         # session cookie helpers; no React imports
+  providers/                   # Query provider
+  routes/
+    admin.routes.ts
+    provider.routes.ts
+    consumer.routes.ts
+    operator.routes.ts
+  types/
+  utils/
+  validation/                  # Zod mirrors of mounted API bodies
 ```
 
-No `services/` directory. The BFF and `lib/api` are the service layer. Shared allocation UI can live under a feature used by both operator and admin routes; event create stays operator-only.
+`middleware.ts` stays at the project root, which is the Next.js convention.
+
+`src/routes` holds path, label, and role metadata for navigation. It does not replace `src/app`. `consumer.routes.ts` and `operator.routes.ts` exist because the API has four roles. Do not collapse those files into the admin or provider map.
+
+Next.js serves route handlers only from `app/`. Implement the BFF in `src/api`, and keep `src/app/api/**/route.ts` as a short call into `src/api` so the handler still runs. There is no `services/` directory.
+
+Shared allocation UI is a component mounted by both the operator page and the admin page. Event create stays on the operator page.
 
 ## App Router
 
 **Decision.** ADR-001.
 
-- `app/layout.tsx` — html, font, query provider, toaster. No role logic.
-- `(public)` and `(auth)` layouts — no sidebar. Route groups do not change the URL.
-- `(dashboard)/layout.tsx` — session check and shell. Homes: `/consumer`, `/provider`, `/operator`, `/admin`.
+- `src/app/layout.tsx` — html, font, Query provider, toaster. No role logic. The file stays a Server Component. The provider and toaster are client children.
+- `(public)` layout — no sidebar. Marketing, login, and registration live here. There is no `(auth)` route group.
+- `(dashboard)/layout.tsx` — static shell. It does not call `cookies()`. Middleware already redirected. The sidebar toggle is a client island. Links come from `src/routes`.
 - `loading.tsx` and `error.tsx` on `(dashboard)` and each role segment.
 - Root `not-found.tsx`.
-- Dynamic segments only where the API has an id: `events/[id]`, `reservations/[id]`, `admin/users/[id]`.
-- `(dashboard)/my-payments/page.tsx` is the URL `/my-payments`, which is what the bKash redirect uses.
-- `middleware.ts` protects `/consumer`, `/provider`, `/operator`, `/admin`, and `/my-payments`. It sends a signed-in user away from `/login`. It does not protect marketing or the auth forms.
+- Dynamic URL segments only where the API has an id: `events/[id]`, `reservations/[id]`, `admin/users/[id]`. The page file is still a Server Component. The interactive panel inside it is the client island.
+- `(dashboard)/my-payments/page.tsx` is the URL `/my-payments`. The page is static. The status check is a client island.
+- `middleware.ts` protects `/consumer`, `/provider`, `/operator`, `/admin`, and `/my-payments`. It sends a signed-in user away from `/login`. It does not protect `(public)` pages.
 
 Admin event pages are read-only plus allocate. Operator event pages include create and status changes.
 
@@ -442,13 +450,13 @@ Admin event pages are read-only plus allocate. Operator event pages include crea
 
 **Decision.**
 
-- The BFF is the only browser entry from the first commit. Switching later from stored Bearer tokens to cookies would rewrite every caller.
-- Operator and admin stay separate shells. Shared operations components are mounted twice with different actions visible.
-- List parameters go through one `ListQuery` type.
-- Enums and Zod mirrors live in `types/enums.ts` and `schemas/` so a future OpenAPI generator can replace those files. No OpenAPI spec is published today.
-- New dashboards are new feature folders and query keys, not a larger store.
-- A later socket can invalidate `['reservations', id]`. Do not add a socket client now.
-- A second payment provider, if the API ever grows one, stays behind `features/payments` so the return page URL remains `/my-payments`.
+- The BFF is the only browser entry from the first commit. Handler code lives in `src/api`. Switching later from stored Bearer tokens to cookies would rewrite every caller.
+- Operator and admin stay separate shells and separate files under `src/routes`. Shared allocation components are mounted by both pages. Event create stays on the operator page.
+- List parameters go through one `ListQuery` type in `src/types`.
+- Enums live in `src/types`. Zod mirrors live in `src/validation`. A later OpenAPI generator can replace those files. No OpenAPI spec is published today.
+- New screens are new pages under `src/app` plus components. They are not a new top-level feature tree.
+- A later socket can invalidate `['reservations', id]` from the client island that owns that query. Do not add a socket client now.
+- A second payment provider, if the API ever grows one, stays behind the payment client component so the return page URL remains `/my-payments`.
 
 **Future.** Websockets, a workflow engine, a chart platform, and a multi-gateway adapter are not justified by the current API.
 
@@ -474,7 +482,7 @@ Admin event pages are read-only plus allocate. Operator event pages include crea
 
 ## Implementation order
 
-1. Next.js app, Tailwind, shadcn, env split, typed envelope, BFF login / logout / refresh / proxy.
+1. Next.js app under `src/`, Tailwind, shadcn, env split, typed envelope in `src/api`, BFF login / logout / refresh / proxy.
 2. Middleware, role shells, `['me']`, demo login.
 3. Consumer and provider registration, OTP verify, Google consumer login.
 4. Profile and avatar.

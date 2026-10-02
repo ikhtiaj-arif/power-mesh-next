@@ -7,35 +7,35 @@ Decisions for the PowerMesh Next.js app. Facts that motivated them are in `FRONT
 ## ADR-001 — Next.js App Router
 
 - **Status:** Accepted
-- **Context:** The frontend is a new app against a role-split Express API. Screens differ by authentication, SEO, and data freshness. The bKash return URL is a fixed path, `/my-payments`.
-- **Decision:** Use the Next.js App Router. Marketing is a static route. Authenticated areas use route groups `(public)`, `(auth)`, and `(dashboard)` so layouts differ without changing URLs. Role homes are real segments: `/consumer`, `/provider`, `/operator`, `/admin`. Dynamic segments exist only for ids the API already uses. `loading.tsx`, `error.tsx`, and root `not-found.tsx` are part of the shell from the start.
-- **Reasoning:** Route groups give each role a layout while `/my-payments` stays the path the API already redirects to. The Pages Router would not match the component and rendering model in ADR-002.
-- **Consequences:** Middleware and layouts must agree on those four prefixes. Adding a role later means a new segment and a nav map, not a flag inside one dashboard.
-- **Alternatives considered:** A single `/dashboard` with client-side role switching was rejected because `ADMIN` and `OPERATOR` are not the same permission set, and a shared page would keep rendering actions the API rejects.
+- **Context:** The frontend is a new app against a role-split Express API. Screens differ by who may open them. The bKash return URL is a fixed path, `/my-payments`.
+- **Decision:** Use the Next.js App Router with source under `src/app`. Route groups are `(public)` and `(dashboard)` only. Marketing, login, and both registration flows live in `(public)`. Role homes are real segments under `(dashboard)`: `/consumer`, `/provider`, `/operator`, `/admin`. Dynamic segments exist only for ids the API already uses. `loading.tsx`, `error.tsx`, and root `not-found.tsx` are part of the shell from the start. Navigation metadata lives in `src/routes`, not in the route group folders.
+- **Reasoning:** Two groups keep the public shell and the dashboard shell apart without adding an `(auth)` group that does not change the URL. `/my-payments` stays the path the API already redirects to because route groups do not affect the URL.
+- **Consequences:** Middleware and `src/routes` must agree on the four prefixes. Login is a `(public)` page. Adding a role later means a new segment and a new file in `src/routes`.
+- **Alternatives considered:** A separate `(auth)` group was the earlier plan and is superseded by this two-group layout. A single `/dashboard` with client-side role switching was rejected because `ADMIN` and `OPERATOR` are not the same permission set.
 
-## ADR-002 — Server Components by default
-
-- **Status:** Accepted
-- **Context:** Most pages are data plus a few interactive controls. Marketplace lists are private and change often. Marketing is public and stable.
-- **Decision:** Server Components are the default. `page.tsx` files stay server components and render a client island for the interactive part. A Client Component is allowed only for interactivity, browser APIs, React state, TanStack Query, Zustand, React Hook Form, Google Identity Services, file upload, or assigning `window.location` to a bKash URL.
-- **Reasoning:** Shipping query and form code on every route increases hydration cost without helping static or layout code. The event page can start parallel server reads instead of nesting client effects.
-- **Consequences:** `lib/api` must not import React, so route handlers and server components can share it. Developers will be tempted to mark a whole page `"use client"` when only the table is interactive. Reviewers should push the client boundary down.
-- **Alternatives considered:** Client-only dashboards (every page fetches in the browser) were rejected because they prevent a server prefetch and make the session cookie harder to keep off the client. Full SSR without TanStack Query was rejected because mutations, pagination, and the payment return need a client cache.
-
-## ADR-003 — TanStack Query and Zustand
+## ADR-002 — Static pages, client islands
 
 - **Status:** Accepted
-- **Context:** The API is the owner of users, events, offers, requests, reservations, payments, and delivery. The UI also has a small amount of chrome state.
-- **Decision:** TanStack Query holds every API resource, including `['me']`. Query keys include scope and list params. Zustand holds sidebar collapsed state and nothing else. URL search params hold `page`, `limit`, `status`, `searchTerm`, `eventId`, and the payment return `status`. Dialogs and in-progress form steps use local React state.
-- **Reasoning:** Copying server rows into a global store creates two caches that drift, and it invites putting tokens next to them. The API already pages and filters with query strings, so the URL is the right place for that state.
-- **Consequences:** Mutations must invalidate specific keys. `staleTime` is 5 minutes for `me`, 60 seconds for events and offers, 15 seconds for reservations and delivery, and 0 for the payment-return refetch. `refetchOnWindowFocus` is off except payment return and in-progress delivery, because the API allows 200 requests per 15 minutes. `gcTime` is 10 minutes.
-- **Alternatives considered:** Redux or a global Zustand domain store was rejected as a second server cache. Putting filters only in component state was rejected because back navigation and shared links would drop them.
+- **Context:** Pages should stay fast. Most of a screen is content. Buttons, forms, and live lists are the parts that need the browser.
+- **Decision:** Every `page.tsx` and `layout.tsx` is a static Server Component. Do not add `"use client"` to those files. Interactive pieces are Client Components rendered inside the page: forms, buttons that mutate, dialogs, table filters, the sidebar toggle, TanStack Query lists, Google sign-in, the profile file input, and the control that sets `window.location` to `bkashURL`. Middleware performs the role redirect so dashboard pages do not call `cookies()` and do not become dynamic by reading the session.
+- **Reasoning:** A static page ships less JavaScript. Hydration is limited to the control the user actually touches. Reading the session cookie inside the page would force that route to render dynamically on every request, which works against the static page.
+- **Consequences:** `src/api` and `src/lib` must not import React. Reviewers should reject a page whose first line is `"use client"` when only a button needs it. Fresh marketplace data lives in the client island, not in a static HTML snapshot, because the API does not push cache tags.
+- **Alternatives considered:** Marking the whole dashboard page `"use client"` was rejected because the static shell does not need to hydrate. Prefetching every list in a dynamic Server Component was the earlier plan. It is superseded here so the page document stays static and the live region is the island.
+
+## ADR-003 — TanStack Query, no global UI store
+
+- **Status:** Accepted
+- **Context:** The API is the owner of users, events, offers, requests, reservations, payments, and delivery. The folder layout has no `store/` directory.
+- **Decision:** TanStack Query holds every API resource, including `['me']`, inside the client island that renders it. Query keys include scope and list params. URL search params hold `page`, `limit`, `status`, `searchTerm`, `eventId`, and the payment return `status`. Dialogs, wizard steps, and sidebar collapsed state use local React state in that client component. Do not add Zustand unless a later decision says a value must be shared across islands that cannot use the URL.
+- **Reasoning:** Copying server rows into a global store creates two caches that drift. The sidebar state belongs to one shell component, so a store would be an extra layer. The API already pages and filters with query strings, so the URL is the right place for that state.
+- **Consequences:** Mutations must invalidate specific keys. `staleTime` is 5 minutes for `me`, 60 seconds for events and offers, 15 seconds for reservations and delivery, and 0 for the payment-return refetch. `refetchOnWindowFocus` is off except payment return and in-progress delivery, because the API allows 200 requests per 15 minutes. `gcTime` is 10 minutes. The earlier Zustand sidebar store is superseded.
+- **Alternatives considered:** Redux or a Zustand domain store was rejected as a second server cache. A Zustand store only for the sidebar was the earlier plan. It is superseded because that state does not leave the shell client component.
 
 ## ADR-004 — Authentication and token handling
 
 - **Status:** Accepted
 - **Context:** Login, verify, Google login, and refresh return JWTs in `httpOnly` cookies and in the JSON body. Those cookies are `SameSite=None` and `Secure=false`, which browsers drop. There is no refresh-token revocation. `checkAuth` trusts the JWT role and rejects only `BLOCKED` users. Logout is public and clears cookies without matching flags.
-- **Decision:** The browser never stores access or refresh tokens in `localStorage`, `sessionStorage`, Zustand, or a readable cookie. The Next.js server keeps first-party `httpOnly` cookies (`SameSite=Lax`, `Secure` in production) and attaches `Authorization: Bearer` when it calls Express. The response to the browser after login is the user profile from `GET /api/v1/users/me`, not the tokens. Middleware reads the cookie only to redirect. Express remains the authorization authority. Google's client secret stays on the API. The frontend public env holds the Google client id only.
+- **Decision:** The browser never stores access or refresh tokens in `localStorage`, `sessionStorage`, or a readable cookie. The Next.js server keeps first-party `httpOnly` cookies (`SameSite=Lax`, `Secure` in production) and attaches `Authorization: Bearer` when it calls Express. The response to the browser after login is the user profile from `GET /api/v1/users/me`, not the tokens. Middleware reads the cookie only to redirect. Dashboard pages do not read it. Express remains the authorization authority. Google's client secret stays on the API. The frontend public env holds the Google client id only.
 - **Reasoning:** Readable token storage is the XSS path the JSON body creates. Treating middleware as authorization would hide 403s until a request fails, and it would drift from route rules. Using `/auth/me` would drop provider and operator profiles.
 - **Consequences:** Every authenticated browser call goes through the Next server (ADR-005). Demo login uses the same path as password login. A token copied from a direct API response is still valid until expiry; the app must not be the thing that copies it into the page. Soft-deleted users can still pass `checkAuth`; the UI must not claim that soft-delete kills the session.
 - **Alternatives considered:** Calling Express from the browser with `credentials: "include"` was rejected because the API cookie flags are invalid in browsers and, on a cross-site production host, those cookies would not be visible to Next middleware anyway. Bearer tokens in `localStorage` were rejected because of XSS.
@@ -44,7 +44,7 @@ Decisions for the PowerMesh Next.js app. Facts that motivated them are in `FRONT
 
 - **Status:** Accepted
 - **Context:** The Express origin and the Next origin differ in production (and by port locally). The API already returns tokens to whoever calls login. Payment and auth routes are rate-limited.
-- **Decision:** Browser code calls only same-origin Next routes: `/api/auth/login`, `/api/auth/logout`, `/api/auth/refresh`, and `/api/proxy/[...path]`. Those handlers call Express with `API_URL`. Auth handlers strip tokens from the body they return and set the first-party cookies. State-changing handlers reject a mismatched `Origin`. No extra CSRF token while cookies stay `SameSite=Lax`.
+- **Decision:** Browser code calls only same-origin Next routes: `/api/auth/login`, `/api/auth/logout`, `/api/auth/refresh`, and `/api/proxy/[...path]`. The implementation lives in `src/api`. `src/app/api/**/route.ts` is a thin mount, because Next.js only executes route handlers that sit under `app/`. Those handlers call Express with `API_URL`. Auth handlers strip tokens from the body they return and set the first-party cookies. State-changing handlers reject a mismatched `Origin`. No extra CSRF token while cookies stay `SameSite=Lax`.
 - **Reasoning:** Introducing the BFF later means rewriting every caller. Doing it first lets Server Components and middleware see the session without putting the JWT in JavaScript. `SameSite=Lax` blocks cross-site POST from attaching the cookie, which covers the CSRF case for this app.
 - **Consequences:** `API_URL` is server-only. The proxy must stream status codes and the `{ success, message, data, meta }` / `{ success, message, errors }` envelopes through unchanged. 429 responses must be shown, not retried in a loop. Cookie `Secure` must be on when the site is HTTPS.
 - **Alternatives considered:** A rewrite in `next.config` that forwards cookies untouched was rejected because the API's `Set-Cookie` attributes are not browser-safe; the auth handlers need to reissue cookies. A public Express URL in `NEXT_PUBLIC_API_URL` was rejected with ADR-004.
@@ -65,25 +65,34 @@ Decisions for the PowerMesh Next.js app. Facts that motivated them are in `FRONT
 - **Decision:** The frontend integrates that bKash flow only. The return page is exactly `/my-payments`. The query string is a hint. The page renders success, cancel, or failure only after reading `GET /payments/my-payments` or `GET /payments/:id`. The UI never builds a bKash payload and never stores `BKASH_*`. Partial delivery copy says a refund was recorded locally. Staff refunds stay on the reservation status override, which is the only path that attempts `bkash.refundPayment`.
 - **Reasoning:** A SSLCommerz or Stripe screen would call endpoints that do not exist. Silently editing the old drafts would hide a real conflict between the assignment notes and the product that was built.
 - **Consequences:** `FRONTEND_URL` on the API must be the Next origin so the callback lands on `/my-payments`. Sandbox bKash must be available to finish a payment test. Gateway partial refund remains blocked (`BX-09`).
-- **Alternatives considered:** Implementing SSLCommerz in the frontend was rejected. Adding a multi-gateway adapter now was rejected; `features/payments` is the only seam if the API adds another provider later.
+- **Alternatives considered:** Implementing SSLCommerz in the frontend was rejected. Adding a multi-gateway adapter now was rejected. The payment client component is the only seam if the API adds another provider later.
 
 ## ADR-008 — Performance and caching
 
 - **Status:** Accepted
 - **Context:** Express allows 200 requests per 15 minutes per IP, and 30 on auth, provider, and payments. Lists already default to 10 rows. Admin stats are counts, not time series. There is no websocket and no cache-tag webhook.
-- **Decision:** Do not use ISR for marketplace data. Prefetch the active list on the server and dehydrate it into TanStack Query. Keep one `['me']` query for the shell. Debounce search. Leave `refetchOnWindowFocus` off except where ADR-003 allows it. Do not add a chart library or list virtualization in the first build. Use `next/font` and `next/image`. Code-split Google and the payment return by route.
+- **Decision:** Do not use ISR for marketplace data, and do not bake personalized rows into the static page. The page stays static. The client island loads its list once through TanStack Query. Keep one `['me']` query for the shell island. Debounce search. Leave `refetchOnWindowFocus` off except where ADR-003 allows it. Do not add a chart library or list virtualization in the first build. Use `next/font` and `next/image`. Code-split Google and the payment return island by route.
 - **Reasoning:** The rate limit and duplicate waterfalls will hurt before bundle size does. Caching personalized reservation data on a static page would show another user's state or stale payment status.
 - **Consequences:** A very large admin user list stays on API pagination. If a later task removes pagination, virtualization can be reconsidered then. Dashboard "charts" are stat cards bound to `dashboard-stats`.
 - **Alternatives considered:** Client refetch on every focus was rejected because of the 200-request budget. SWR instead of TanStack Query was rejected to keep one server-state library (ADR-003).
 
-## ADR-009 — Feature-oriented frontend layout
+## ADR-009 — `src` layout
 
 - **Status:** Accepted
-- **Context:** The API is already modular (`auth`, `event`, `offer`, `request`, `reservation`, `payment`, `delivery`, `provider`, `admin`, `user`). The UI follows those workflows.
-- **Decision:** This repository is the Next.js app root. `features/<domain>` holds the screens and hooks for that API module. `components/ui` is shadcn. `components/shell` and `components/states` are shared chrome. `lib/api` plus `app/api` are the only service layer. Zod mirrors live in `schemas`. Enums live in `types/enums.ts`. `store/ui-store.ts` is the only Zustand store. Shared hooks live in `hooks` only when two features use them. Do not add a nested `frontend/` package.
-- **Reasoning:** A type-based root (`components`, `hooks`, `services` for everything) splits one reservation flow across too many trees. A second services folder would duplicate the BFF client.
-- **Consequences:** A feature may import shared UI and `lib/api`. It should not import another feature's page. Allocation UI used by operator and admin should sit in one feature module and be mounted by both routes, rather than copied.
-- **Alternatives considered:** Colocation of every component under `app/` was rejected because client islands and Zod schemas would be awkward to share with route handlers. A generic `services/` directory was rejected above.
+- **Context:** The API is modular. The frontend source needs one agreed tree: `api`, `app`, `assets`, `components`, `hooks`, `lib`, `providers`, `routes`, `types`, `utils`, and `validation`.
+- **Decision:** This repository is the Next.js app root, with source under `src/`. `src/app` holds pages and layouts. `src/api` holds BFF modules. `src/components` holds shared UI and screen components. `src/hooks` holds shared hooks. `src/lib` holds non-React helpers. `src/providers` holds the Query provider. `src/routes` holds one path map per role. `src/types` holds enums and shared types. `src/utils` holds pure helpers. `src/validation` holds Zod mirrors. `src/assets` holds static files that are imported by the app. There is no `features/` tree, no `schemas/` tree, and no `store/` tree.
+- **Reasoning:** A second `services/` or `features/` tree would split the same screen across two conventions. Path maps in `src/routes` stay out of `src/app` so navigation labels do not get mixed with page files.
+- **Consequences:** A screen component may import `src/components`, `src/hooks`, and types. It should not import another page. Allocation UI used by operator and admin is one component mounted by both pages. Zod stays in `src/validation`, not beside the page.
+- **Alternatives considered:** A `features/` directory per API module was the earlier plan. It is superseded by this `src` tree. Colocating every component under `src/app` was rejected because Zod, path maps, and BFF modules are not pages.
+
+## ADR-011 — Route groups and role path maps
+
+- **Status:** Accepted
+- **Context:** The app needs a public shell and a dashboard shell. The requested path maps are `admin.routes` and `provider.routes`. The API also has consumer and operator.
+- **Decision:** `src/app` contains `(public)` and `(dashboard)` only. `src/routes` contains `admin.routes.ts`, `provider.routes.ts`, `consumer.routes.ts`, and `operator.routes.ts`. Each file exports that role's paths and labels. Dashboard nav reads the file that matches the session role. These files are not Next.js route handlers and do not contain `page.tsx`.
+- **Reasoning:** `(public)` covers marketing and auth screens without a third group. Four route files match the four roles. Omitting consumer and operator would leave their nav without a home while admin and provider had one.
+- **Consequences:** Adding a link means editing the role file and adding a page under `src/app/(dashboard)/<role>`. Admin links must not include event create. Operator links must not include user admin.
+- **Alternatives considered:** Only `admin.routes` and `provider.routes` would match the two names called out first, and would leave consumer and operator without the same pattern. That alternative is rejected. Putting path strings only inside `page.tsx` files would scatter the nav.
 
 ## ADR-010 — Backend source of truth
 

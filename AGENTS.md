@@ -45,17 +45,17 @@ Allowed statuses in `docs/FRONTEND_TASKS.md`: `TODO`, `IN_PROGRESS`, `BLOCKED`, 
 
 These are the current decisions. Deviate only when the live API makes the rule wrong, and document the deviation in `docs/FRONTEND_DECISIONS.md`.
 
-- Next.js App Router, TypeScript, Tailwind CSS, shadcn/ui. Mobile-first, accessible UI.
-- Server Components are the default. A component is a Client Component only when it needs interactivity, browser APIs, React state, TanStack Query, Zustand, React Hook Form, a file input, or the bKash redirect.
-- React Hook Form and Zod for forms. Keep Zod rules aligned with the mounted backend body schemas (consumer names are 3–10 characters; provider names are 3–50; password requires 8+ characters with lower, upper, digit, and symbol; OTP is 6 digits). TanStack Form is not part of the current decision.
-- TanStack Query owns API and server state. Zustand stores genuine client-global UI state only (sidebar collapsed). Do not copy query results, JWTs, OTPs, or payment payloads into Zustand.
+- Next.js App Router, TypeScript, Tailwind CSS, shadcn/ui. Mobile-first, accessible UI. Source lives under `src/`.
+- Pages stay static Server Components. Do not put `"use client"` on `page.tsx` or `layout.tsx`. A button, form, dialog, table filter, file input, Google button, or bKash redirect is a Client Component rendered inside that static page.
+- React Hook Form and Zod for forms. Zod files live in `src/validation`. Keep them aligned with the mounted backend body schemas (consumer names are 3–10 characters; provider names are 3–50; password requires 8+ characters with lower, upper, digit, and symbol; OTP is 6 digits). TanStack Form is not part of the current decision.
+- TanStack Query owns API state, and it runs inside the client islands that need fresh data. Do not copy query results, JWTs, or OTPs into a global store. Sidebar open or collapsed state stays local to the shell client component. There is no `store/` directory and no Zustand module unless a later decision adds one.
 - URL search params hold list filters and pagination (`page`, `limit`, `status`, `searchTerm`, `eventId`) and the payment return hint.
-- Authentication uses a same-origin Next.js BFF. The browser receives first-party `httpOnly` cookies. JavaScript never stores access or refresh tokens in `localStorage`, `sessionStorage`, or Zustand.
+- Authentication uses a same-origin Next.js BFF. Handler logic lives in `src/api`. Thin `src/app/api/**/route.ts` files mount those handlers, because Next only runs route handlers under `app/`. The browser receives first-party `httpOnly` cookies. JavaScript never stores access or refresh tokens in `localStorage`, `sessionStorage`, or a global store.
 - The backend remains the authorization authority. Next.js middleware only redirects for navigation. A forced URL must still fail with 401 or 403 from Express.
 - Role homes stay separate: `/consumer`, `/provider`, `/operator`, `/admin`. `ADMIN` cannot create or update outage events. `OPERATOR` cannot manage users, audit logs, or dashboard stats.
 - The payment UI integrates bKash Tokenized Checkout only. The return route is exactly `/my-payments`. The query `status` is a hint. Show success only after `GET /api/v1/payments/my-payments` or `GET /api/v1/payments/:id`.
 - Session profile comes from `GET /api/v1/users/me`, which includes consumer, provider, and operator profiles. `GET /api/v1/auth/me` includes only the consumer profile.
-- Organize by feature under `features/`, with shared UI in `components/`. The Next.js app lives at the root of this repository, not in a nested `frontend/` folder. Do not add a second `services/` layer beside `lib/api` and the BFF routes.
+- App Router pages live in `src/app`. Route groups are only `(public)` and `(dashboard)`. Path maps live in `src/routes` (`admin.routes`, `provider.routes`, and the matching `consumer.routes` and `operator.routes` files the four roles require). Do not add a `features/` tree or a nested `frontend/` package. Do not add a second `services/` layer beside `src/api` and `src/lib`.
 - Prefer the simplest component that meets the task. Do not add chart platforms, websocket clients, virtualized tables, or a multi-gateway payment abstraction until a task needs them.
 - Performance: respect the API rate limits (200 requests / 15 min globally, 30 / 15 min on auth, provider, and payments). One `['me']` query per shell. Debounce search. `refetchOnWindowFocus` stays off except payment return and in-progress delivery.
 - Accessibility: labeled controls, keyboard focus, text for status that is not color alone, and readable API errors (`message` and `errors` rendered as text).
