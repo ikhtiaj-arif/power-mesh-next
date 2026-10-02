@@ -13,6 +13,8 @@ export const loginSchema = z.object({
   password: passwordSchema,
 });
 
+const optionalText = z.string().trim();
+
 export const registerSchema = z.object({
   firstName: z
     .string()
@@ -24,6 +26,25 @@ export const registerSchema = z.object({
     .max(10, "Last name must be at most 10 characters."),
   email: z.string().email("Enter a valid email."),
   password: passwordSchema,
+  organizationName: optionalText,
+  criticalLoadKw: z
+    .string()
+    .trim()
+    .refine(
+      (value) => value === "" || Number.isFinite(Number(value)),
+      "Enter a number of kilowatts.",
+    )
+    .refine(
+      (value) => value === "" || Number(value) >= 0,
+      "Critical load cannot be negative.",
+    ),
+  address: optionalText,
+  contactPerson: optionalText,
+  contactPhone: optionalText,
+});
+
+export const verifyEmailSchema = z.object({
+  otp: z.string().length(6, "Enter the 6-digit code."),
 });
 
 export type LoginValues = z.infer<typeof loginSchema>;

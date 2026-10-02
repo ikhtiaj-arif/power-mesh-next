@@ -14,7 +14,8 @@ export default function RegisterPage() {
         <CardHeader>
           <CardTitle>Create an account</CardTitle>
           <CardDescription>
-            Register as a consumer. Names must be 3 to 10 characters.
+            Register as a consumer. First and last name must be 3 to 10
+            characters. A 6-digit code confirms the email.
           </CardDescription>
         </CardHeader>
         <CardContent>

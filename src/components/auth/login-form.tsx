@@ -1,15 +1,24 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { GoogleLogin } from "@react-oauth/google";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useGoogleLogin, useLogin } from "@/hooks";
+import { getApiErrorMessage } from "@/lib/api-error";
 import { loginSchema, type LoginValues } from "@/validation/auth";
 
+const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
 export function LoginForm() {
+  const router = useRouter();
+  const login = useLogin();
+  const googleLogin = useGoogleLogin();
   const {
     register,
     handleSubmit,
@@ -19,12 +28,22 @@ export function LoginForm() {
     defaultValues: { email: "", password: "" },
   });
 
+  const errorMessage = login.error
+    ? getApiErrorMessage(login.error, "Could not sign in.")
+    : googleLogin.error
+      ? getApiErrorMessage(googleLogin.error, "Could not sign in with Google.")
+      : null;
+
   return (
     <form
       className="flex flex-col gap-4"
       noValidate
       onSubmit={handleSubmit((values) => {
-        console.log("login", values);
+        login.mutate(values, {
+          onSuccess: () => {
+            router.push("/");
+          },
+        });
       })}
     >
       <div className="flex flex-col gap-2">
@@ -53,9 +72,37 @@ export function LoginForm() {
           <p className="text-sm text-destructive">{errors.password.message}</p>
         ) : null}
       </div>
-      <Button type="submit" className="mt-2">
-        Sign in
+      {errorMessage ? (
+        <p className="text-sm text-destructive" role="alert">
+          {errorMessage}
+        </p>
+      ) : null}
+      <Button type="submit" className="mt-2" disabled={login.isPending}>
+        {login.isPending ? "Signing in..." : "Sign in"}
       </Button>
+      {googleClientId ? (
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={(response) => {
+              if (!response.credential) {
+                return;
+              }
+
+              googleLogin.mutate(
+                { idToken: response.credential },
+                {
+                  onSuccess: () => {
+                    router.push("/");
+                  },
+                },
+              );
+            }}
+            onError={() => {
+              googleLogin.reset();
+            }}
+          />
+        </div>
+      ) : null}
       <p className="text-sm text-muted-foreground">
         New here?{" "}
         <Link href="/register" className="font-medium text-foreground underline-offset-4 hover:underline">
