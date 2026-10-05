@@ -11,6 +11,7 @@ import { EventStatusActions } from "@/components/modules/events/event-status-act
 import { EventStatusBadge } from "@/components/modules/events/event-status-badge";
 import { UpdateEventForm } from "@/components/modules/events/update-event-form";
 import { EventRequestPanel } from "@/components/modules/requests/event-request-panel";
+import { EventReservationPanel } from "@/components/modules/reservations/event-reservation-panel";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -107,10 +108,13 @@ export function EventDetail({
             </p>
           ) : null}
           {!canManage ? (
-            <EventRequestPanel
-              eventId={event.id}
-              eventStatus={event.status}
-            />
+            <>
+              <EventRequestPanel
+                eventId={event.id}
+                eventStatus={event.status}
+              />
+              <EventReservationPanel eventId={event.id} />
+            </>
           ) : null}
           <EventStatusActions
             event={event}

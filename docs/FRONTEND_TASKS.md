@@ -43,8 +43,8 @@ First task to execute: **P0-01**.
 | P3-03 | 3 | DONE | Create capacity request |
 | P3-04 | 3 | DONE | Update or cancel a request |
 | P3-05 | 3 | DONE | My requests |
-| P3-06 | 3 | TODO | Create reservation |
-| P3-07 | 3 | TODO | My reservations and cancel |
+| P3-06 | 3 | DONE | Create reservation |
+| P3-07 | 3 | DONE | My reservations and cancel |
 | P3-08 | 3 | TODO | Consumer home |
 | P4-01 | 4 | TODO | Provider approval gate |
 | P4-02 | 4 | TODO | My offers |
@@ -500,7 +500,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-02, P3-03
 - **Backend dependency:** `POST /api/v1/reservation/create` with `{ offerId, requestId }`. This path does not update `OutageEvent.allocatedKw` and does not check price. Operator allocation is a different path (P5-08).
 - **Description:** From an offer and the caller's pending request, create a reservation.
@@ -513,7 +513,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-06
 - **Backend dependency:** `GET /api/v1/reservation/my-reservations`, `PATCH /api/v1/reservation/cancel/:id` only from `ALLOCATED` or `PAYMENT_PENDING`
 - **Description:** Reservation list and detail from the owned list. Cancel when the status allows it. Do not rely on `GET /reservation/:id` for authorization; that route does not check ownership.

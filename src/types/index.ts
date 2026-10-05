@@ -53,3 +53,16 @@ export type {
   UpdateRequestPayload,
 } from "./request";
 export { PRIORITY_TIERS } from "./request";
+export type {
+  CapacityOffer,
+  OfferListParams,
+  OfferStatus,
+} from "./offer";
+export type {
+  CreateReservationPayload,
+  PaymentStatus,
+  Reservation,
+  ReservationListParams,
+  ReservationStatus,
+} from "./reservation";
+export { CANCELABLE_RESERVATION_STATUSES } from "./reservation";

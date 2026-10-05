@@ -1,10 +1,19 @@
-import { ComingSoon } from "@/components/modules/dashboard/coming-soon";
+import { Suspense } from "react";
+
+import { MyReservationsList } from "@/components/modules/reservations";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ConsumerReservationsPage() {
   return (
-    <ComingSoon
-      title="Reservations"
-      description="Review allocated reservations and delivery status."
-    />
+    <Suspense
+      fallback={
+        <div className="space-y-3 p-1">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-40 w-full" />
+        </div>
+      }
+    >
+      <MyReservationsList basePath="/consumer/reservations" />
+    </Suspense>
   );
 }

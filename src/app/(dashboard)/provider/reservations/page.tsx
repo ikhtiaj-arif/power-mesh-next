@@ -1,10 +1,5 @@
-import { ComingSoon } from "@/components/modules/dashboard/coming-soon";
+import { ProviderReservationsList } from "@/components/modules/reservations";
 
 export default function ProviderReservationsPage() {
-  return (
-    <ComingSoon
-      title="Reservations"
-      description="See allocations made against your offers."
-    />
-  );
+  return <ProviderReservationsList />;
 }
