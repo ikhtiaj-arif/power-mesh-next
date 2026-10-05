@@ -69,7 +69,9 @@ function shouldAttemptRefresh(request: unknown): boolean {
     request.includes("/auth/login") ||
     request.includes("/auth/register") ||
     request.includes("/auth/google-login") ||
-    request.includes("/auth/verify-email")
+    request.includes("/auth/verify-email") ||
+    request.includes("/provider/apply-as-provider") ||
+    request.includes("/provider/verify-email")
   );
 }
 

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { RegisterForm } from "@/components/auth/register-form";
 import {
   Card,
@@ -20,6 +22,15 @@ export default function RegisterPage() {
         </CardHeader>
         <CardContent>
           <RegisterForm />
+          <p className="mt-4 text-sm text-muted-foreground">
+            Supplying backup power?{" "}
+            <Link
+              href="/register/provider"
+              className="font-medium text-foreground underline-offset-4 hover:underline"
+            >
+              Apply as a provider
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </main>

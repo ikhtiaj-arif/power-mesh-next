@@ -43,9 +43,48 @@ export const registerSchema = z.object({
   contactPhone: optionalText,
 });
 
+export const resourceTypes = [
+  "GENERATOR",
+  "SOLAR_BESS",
+  "BATTERY",
+  "MICROGRID",
+  "OTHER",
+] as const;
+
+export const providerApplySchema = z.object({
+  firstName: z
+    .string()
+    .min(3, "First name must be at least 3 characters.")
+    .max(50, "First name must be at most 50 characters."),
+  lastName: z
+    .string()
+    .min(3, "Last name must be at least 3 characters.")
+    .max(50, "Last name must be at most 50 characters."),
+  email: z.string().email("Enter a valid email."),
+  password: passwordSchema,
+  companyName: z.string().min(2, "Company name is required."),
+  licenseNumber: z.string().min(2, "License number is required."),
+  resourceType: z.enum(resourceTypes, {
+    required_error: "Select a resource type.",
+  }),
+  capacityKw: z
+    .string()
+    .trim()
+    .min(1, "Capacity is required.")
+    .refine(
+      (value) => Number.isInteger(Number(value)) && Number(value) > 0,
+      "Capacity must be a positive whole number.",
+    ),
+  address: z.string().min(2, "Address is required."),
+  contactPerson: z.string().min(2, "Contact person is required."),
+  contactPhone: z.string().min(2, "Contact phone is required."),
+  bankAccountNumber: optionalText,
+});
+
 export const verifyEmailSchema = z.object({
   otp: z.string().length(6, "Enter the 6-digit code."),
 });
 
 export type LoginValues = z.infer<typeof loginSchema>;
 export type RegisterValues = z.infer<typeof registerSchema>;
+export type ProviderApplyValues = z.infer<typeof providerApplySchema>;
