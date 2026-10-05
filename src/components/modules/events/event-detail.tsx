@@ -10,6 +10,7 @@ import {
 import { EventStatusActions } from "@/components/modules/events/event-status-actions";
 import { EventStatusBadge } from "@/components/modules/events/event-status-badge";
 import { UpdateEventForm } from "@/components/modules/events/update-event-form";
+import { EventRequestPanel } from "@/components/modules/requests/event-request-panel";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -104,6 +105,12 @@ export function EventDetail({
               This scheduled window has started or passed, so the schedule is
               locked. Use status actions if you need to cancel it.
             </p>
+          ) : null}
+          {!canManage ? (
+            <EventRequestPanel
+              eventId={event.id}
+              eventStatus={event.status}
+            />
           ) : null}
           <EventStatusActions
             event={event}

@@ -40,9 +40,9 @@ First task to execute: **P0-01**.
 | P2-03 | 2 | TODO | Profile photo upload |
 | P3-01 | 3 | DONE | Available events |
 | P3-02 | 3 | TODO | Event detail and offers |
-| P3-03 | 3 | TODO | Create capacity request |
-| P3-04 | 3 | TODO | Update or cancel a request |
-| P3-05 | 3 | TODO | My requests |
+| P3-03 | 3 | DONE | Create capacity request |
+| P3-04 | 3 | DONE | Update or cancel a request |
+| P3-05 | 3 | DONE | My requests |
 | P3-06 | 3 | TODO | Create reservation |
 | P3-07 | 3 | TODO | My reservations and cancel |
 | P3-08 | 3 | TODO | Consumer home |
@@ -462,7 +462,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-02
 - **Backend dependency:** `POST /api/v1/request/create`. Event must be `SCHEDULED` or `CONFIRMED`. One row per consumer and event.
 - **Description:** Form for `requestedKw`, `maxPricePerKwh`, and `priorityTier`.
@@ -475,7 +475,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-03, P3-05
 - **Backend dependency:** update and cancel only while `PENDING`. Cancel sets `CANCELLED` and does not free the unique pair.
 - **Description:** Edit and cancel controls on the caller's pending request.
@@ -488,7 +488,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-12, P0-07
 - **Backend dependency:** `GET /api/v1/request/my-requests`
 - **Description:** List the consumer's requests with status and priority filters in the URL.

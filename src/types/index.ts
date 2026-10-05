@@ -44,3 +44,12 @@ export type {
   VerifyProviderEmailPayload,
   VerifyProviderEmailResult,
 } from "./provider";
+export type {
+  CapacityRequest,
+  CreateRequestPayload,
+  PriorityTier,
+  RequestListParams,
+  RequestStatus,
+  UpdateRequestPayload,
+} from "./request";
+export { PRIORITY_TIERS } from "./request";
