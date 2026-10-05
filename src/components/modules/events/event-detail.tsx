@@ -3,7 +3,10 @@
 import Link from "next/link";
 
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
-import { formatEventDate } from "@/components/modules/events/event-datetime";
+import {
+  formatEventDate,
+  isEventScheduleEditable,
+} from "@/components/modules/events/event-datetime";
 import { EventStatusActions } from "@/components/modules/events/event-status-actions";
 import { EventStatusBadge } from "@/components/modules/events/event-status-badge";
 import { UpdateEventForm } from "@/components/modules/events/update-event-form";
@@ -30,6 +33,7 @@ export function EventDetail({
 }) {
   const detail = useGetEventById(eventId);
   const event = detail.data;
+  const canEditSchedule = Boolean(event && isEventScheduleEditable(event));
 
   return (
     <div className="space-y-6">
@@ -94,7 +98,13 @@ export function EventDetail({
             </CardContent>
           </Card>
 
-          {canManage ? <UpdateEventForm event={event} /> : null}
+          {canManage && canEditSchedule ? <UpdateEventForm event={event} /> : null}
+          {canManage && event.status === "SCHEDULED" && !canEditSchedule ? (
+            <p className="text-sm text-muted-foreground">
+              This scheduled window has started or passed, so the schedule is
+              locked. Use status actions if you need to cancel it.
+            </p>
+          ) : null}
           <EventStatusActions
             event={event}
             basePath={basePath}

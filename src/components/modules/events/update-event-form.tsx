@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import {
   toApiDateTime,
   toDateTimeLocalValue,
+  isEventScheduleEditable,
 } from "@/components/modules/events/event-datetime";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,7 +45,7 @@ export function UpdateEventForm({ event }: { event: OutageEvent }) {
     },
   });
 
-  if (event.status !== "SCHEDULED") {
+  if (!isEventScheduleEditable(event)) {
     return null;
   }
 
@@ -53,7 +54,8 @@ export function UpdateEventForm({ event }: { event: OutageEvent }) {
       <CardHeader>
         <CardTitle>Edit event</CardTitle>
         <CardDescription>
-          Only SCHEDULED events owned by you can be updated.
+          Only upcoming SCHEDULED events can be updated. Past or in-progress
+          windows are locked.
         </CardDescription>
       </CardHeader>
       <CardContent>

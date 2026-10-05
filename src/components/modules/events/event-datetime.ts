@@ -25,3 +25,13 @@ export function toDateTimeLocalValue(value: string | null | undefined) {
 export function toApiDateTime(value: string) {
   return new Date(value).toISOString();
 }
+
+/** Upcoming SCHEDULED events only — mirrors updateEvent rules on the API. */
+export function isEventScheduleEditable(event: {
+  status: string;
+  scheduledStart: string;
+}) {
+  return (
+    event.status === "SCHEDULED" && new Date(event.scheduledStart) > new Date()
+  );
+}

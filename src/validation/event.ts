@@ -15,6 +15,10 @@ export const createEventSchema = z
       .positive("Survival quota must be positive."),
     notes: z.string().max(1000, "Notes must be at most 1000 characters.").optional(),
   })
+  .refine((data) => new Date(data.scheduledStart) > new Date(), {
+    message: "scheduledStart must be in the future.",
+    path: ["scheduledStart"],
+  })
   .refine(
     (data) => new Date(data.scheduledEnd) > new Date(data.scheduledStart),
     {
@@ -43,6 +47,10 @@ export const updateEventSchema = z
       .int("Survival quota must be a whole number.")
       .positive("Survival quota must be positive."),
     notes: z.string().max(1000, "Notes must be at most 1000 characters.").optional(),
+  })
+  .refine((data) => new Date(data.scheduledStart) > new Date(), {
+    message: "scheduledStart must be in the future.",
+    path: ["scheduledStart"],
   })
   .refine(
     (data) => new Date(data.scheduledEnd) > new Date(data.scheduledStart),
