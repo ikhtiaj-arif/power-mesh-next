@@ -61,6 +61,38 @@ export type ProviderProfile = {
   deletedAt: string | null;
 };
 
+export type ProviderUserSummary = {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  status: string;
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ProviderWithUser = ProviderProfile & {
+  user: ProviderUserSummary;
+};
+
+export type GetAllProvidersParams = {
+  /** Accepted by the API schema, but skip is not applied (BX-08). */
+  page?: number;
+  limit?: number;
+  status?: ProviderStatus;
+};
+
+export type ApproveProviderPayload = {
+  providerId: string;
+};
+
+export type RejectProviderPayload = {
+  providerId: string;
+  rejectionReason: string;
+};
+
 export type VerifyProviderEmailResult = {
   accessToken: string;
   refreshToken: string;

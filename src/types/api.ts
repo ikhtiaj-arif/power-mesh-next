@@ -13,6 +13,15 @@ export type ApiResponse<T> = {
   meta?: ApiMeta;
 };
 
+export type PaginatedApiResponse<T> = ApiResponse<T> & {
+  meta: ApiMeta;
+};
+
+export type PaginatedData<T> = {
+  data: T;
+  meta: ApiMeta;
+};
+
 export type ApiErrorBody = {
   success: false;
   message: string;

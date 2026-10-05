@@ -1,10 +1,5 @@
-import { ComingSoon } from "@/components/modules/dashboard/coming-soon";
+import { ProviderQueue } from "@/components/modules/approve-provider";
 
 export default function AdminProvidersPage() {
-  return (
-    <ComingSoon
-      title="Providers"
-      description="Review provider applications from the admin shell."
-    />
-  );
+  return <ProviderQueue basePath="/admin/providers" />;
 }

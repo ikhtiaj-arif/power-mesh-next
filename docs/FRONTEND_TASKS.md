@@ -56,8 +56,8 @@ First task to execute: **P0-01**.
 | P5-03 | 5 | TODO | Update event |
 | P5-04 | 5 | TODO | Event status transitions |
 | P5-05 | 5 | TODO | Soft-delete event |
-| P5-06 | 5 | TODO | Provider queue |
-| P5-07 | 5 | TODO | Approve or reject a provider |
+| P5-06 | 5 | DONE | Provider queue |
+| P5-07 | 5 | DONE | Approve or reject a provider |
 | P5-08 | 5 | TODO | Allocation preview and approve |
 | P5-09 | 5 | TODO | Reservation status override |
 | P5-10 | 5 | TODO | Operator payment list |
@@ -78,7 +78,7 @@ First task to execute: **P0-01**.
 | P8-05 | 8 | TODO | Soft-delete a user |
 | P8-06 | 8 | TODO | Audit log |
 | P8-07 | 8 | TODO | Admin allocation without event writes |
-| P8-08 | 8 | TODO | Admin provider approval entry |
+| P8-08 | 8 | DONE | Admin provider approval entry |
 | P9-01 | 9 | TODO | Mobile navigation and accessibility |
 | P9-02 | 9 | TODO | Empty, error, and loading states |
 | P9-03 | 9 | TODO | Cross-role browser pass |
@@ -674,7 +674,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-12
 - **Backend dependency:** `GET /api/v1/provider/all-providers`. Paging is not applied (BX-08). Do not build page controls that pretend skip works.
 - **Description:** Operator and, later, admin view of providers. Show status. If the array is large, still render it with a note that the API returns an unpaged list.
@@ -687,7 +687,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-06
 - **Backend dependency:** `PATCH /api/v1/provider/approve-provider` and `reject-provider`. Reject reason 3–500 characters. A rejected provider has no re-apply API.
 - **Description:** Approve and reject actions. Reject requires a reason.
@@ -965,7 +965,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 8
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-06, P5-07, P8-01
 - **Backend dependency:** same provider approve routes as the operator
 - **Description:** Link the provider queue into the admin shell, reusing P5-06 and P5-07 components.

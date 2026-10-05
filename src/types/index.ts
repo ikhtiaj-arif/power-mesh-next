@@ -2,6 +2,8 @@ export type {
   ApiErrorBody,
   ApiMeta,
   ApiResponse,
+  PaginatedApiResponse,
+  PaginatedData,
 } from "./api";
 export type {
   AuthProvider,
@@ -21,9 +23,14 @@ export type {
 export type {
   ApplyAsProviderPayload,
   ApplyAsProviderResult,
+  ApproveProviderPayload,
+  GetAllProvidersParams,
   ProviderProfile,
   ProviderRegistrationDetails,
   ProviderStatus,
+  ProviderUserSummary,
+  ProviderWithUser,
+  RejectProviderPayload,
   ResourceType,
   VerifyProviderEmailPayload,
   VerifyProviderEmailResult,

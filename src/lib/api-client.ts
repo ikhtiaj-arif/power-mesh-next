@@ -76,12 +76,41 @@ function shouldAttemptRefresh(request: unknown): boolean {
   );
 }
 
+type ApiClientOptions<R extends ResponseType = "json"> = FetchOptions<R> & {
+  /** Axios-style alias; mapped to ofetch `query`. */
+  params?: FetchOptions<R>["query"];
+};
+
+function normalizeOptions<R extends ResponseType>(options?: ApiClientOptions<R>) {
+  if (!options) {
+    return undefined;
+  }
+
+  const { params, query, ...rest } = options;
+  const rawQuery = query ?? params;
+  const normalizedQuery =
+    rawQuery && typeof rawQuery === "object" && !Array.isArray(rawQuery)
+      ? Object.fromEntries(
+          Object.entries(rawQuery as Record<string, unknown>).filter(
+            ([, value]) => value !== undefined && value !== null && value !== "",
+          ),
+        )
+      : rawQuery;
+
+  return {
+    ...rest,
+    query: normalizedQuery,
+  } as FetchOptions<R>;
+}
+
 async function request<T, R extends ResponseType = "json">(
   fetchRequest: FetchRequest,
-  options?: FetchOptions<R>,
+  options?: ApiClientOptions<R>,
 ): Promise<MappedResponseType<R, T>> {
+  const normalized = normalizeOptions(options);
+
   try {
-    return await httpClient<T, R>(fetchRequest, options);
+    return await httpClient<T, R>(fetchRequest, normalized);
   } catch (error) {
     if (!isUnauthorized(error) || !shouldAttemptRefresh(fetchRequest)) {
       throw error;
@@ -91,10 +120,15 @@ async function request<T, R extends ResponseType = "json">(
       throw error;
     }
 
-    return httpClient<T, R>(fetchRequest, options);
+    return httpClient<T, R>(fetchRequest, normalized);
   }
 }
 
-const apiClient = request as $Fetch;
+const apiClient = request as $Fetch & {
+  <T = unknown, R extends ResponseType = "json">(
+    request: FetchRequest,
+    options?: ApiClientOptions<R>,
+  ): Promise<MappedResponseType<R, T>>;
+};
 
 export default apiClient;
