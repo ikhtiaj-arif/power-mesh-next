@@ -1,12 +1,12 @@
 "use client";
 
+import { googleLogout } from "@react-oauth/google";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
-import { USER_QUERY_KEY, useGetMe, useLogout } from "@/hooks";
+import { useGetMe, useLogout } from "@/hooks";
 import type { UserRole } from "@/types";
 
 const dashboardRoutes: Record<UserRole, string> = {
@@ -19,23 +19,22 @@ const dashboardRoutes: Record<UserRole, string> = {
 export function Header() {
   const { data, isError } = useGetMe();
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
-  const queryClient = useQueryClient();
   const router = useRouter();
 
-  const user = isError ? undefined : data?.data;
+  const user = isError || data == null ? undefined : data.data;
   const role = user?.role;
 
   const handleLogout = () => {
     logout(undefined, {
       onSuccess: () => {
-        queryClient.removeQueries({ queryKey: USER_QUERY_KEY });
+        googleLogout();
         toast.add({
           title: "Signed out",
           description: "You have been logged out.",
           type: "success",
         });
-        router.push("/login");
-        router.refresh();
+        // Stay on a public page that does not mount the Google iframe.
+        router.push("/");
       },
       onError: () => {
         toast.add({

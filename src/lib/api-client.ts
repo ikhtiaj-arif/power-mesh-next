@@ -56,34 +56,23 @@ function isUnauthorized(error: unknown): boolean {
   return (status.status ?? status.statusCode) === 401;
 }
 
-function isRefreshRequest(request: unknown): boolean {
-  return typeof request === "string" && request.includes(REFRESH_PATH);
+/** Session probes and auth endpoints must not start a refresh loop. */
+function shouldAttemptRefresh(request: unknown): boolean {
+  if (typeof request !== "string") {
+    return true;
+  }
+
+  return !(
+    request.includes(REFRESH_PATH) ||
+    request.includes("/auth/me") ||
+    request.includes("/auth/logout") ||
+    request.includes("/auth/login") ||
+    request.includes("/auth/register") ||
+    request.includes("/auth/google-login") ||
+    request.includes("/auth/verify-email")
+  );
 }
 
-/**
- * The app's only HTTP client.
- *
- * On a 401 it refreshes the access token once and replays the request, so an
- * access-token expiry is invisible instead of dumping the user on the login
- * page. Only one retry is ever attempted: the replay goes through
- * `httpClient`, which has no retry logic, so a second 401 propagates as an
- * ordinary error rather than looping.
- *
- * DELIBERATELY DOES NOT REDIRECT ON FAILURE. A 401 is only a reason to leave
- * the page when a protected page cannot render, and that layer knows the
- * current route: AuthGuard sends the user to /login and preserves where they
- * were. Redirecting from here would also fire on public pages (a stray 401 from
- * a marketing endpoint would throw someone out of the site) and would race the
- * guard's own redirect.
- *
- * `as $Fetch` is what keeps `apiClient<T>(url, options)` identical at every
- * call site, generics and per-call overrides included; the implementation below
- * is written against that same signature rather than through `any`.
- *
- * Only the callable form is implemented, which is all the codebase uses. The
- * cast means `apiClient.raw`, `.native` and `.create` would still typecheck and
- * then fail at runtime, so reach for `httpClient` if a future caller needs one.
- */
 async function request<T, R extends ResponseType = "json">(
   fetchRequest: FetchRequest,
   options?: FetchOptions<R>,
@@ -91,7 +80,7 @@ async function request<T, R extends ResponseType = "json">(
   try {
     return await httpClient<T, R>(fetchRequest, options);
   } catch (error) {
-    if (!isUnauthorized(error) || isRefreshRequest(fetchRequest)) {
+    if (!isUnauthorized(error) || !shouldAttemptRefresh(fetchRequest)) {
       throw error;
     }
 
