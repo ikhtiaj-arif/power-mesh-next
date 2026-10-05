@@ -43,11 +43,11 @@ export default function HomePage() {
         can supply them, for a scheduled outage event.
       </p>
       <div className="mt-8 flex flex-wrap gap-3">
-        <Button asChild size="lg">
-          <Link href="/login">Sign in</Link>
+        <Button size="lg" render={<Link href="/login" />}>
+          Sign in
         </Button>
-        <Button asChild size="lg" variant="outline">
-          <Link href="/register">Create an account</Link>
+        <Button size="lg" variant="outline" render={<Link href="/register" />}>
+          Create an account
         </Button>
       </div>
       <Separator className="my-12" />

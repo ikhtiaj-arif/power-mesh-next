@@ -1,14 +1,15 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GoogleLogin } from "@react-oauth/google";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/toast";
 import { useGoogleLogin, useLogin } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { loginSchema, type LoginValues } from "@/validation/auth";
@@ -41,7 +42,19 @@ export function LoginForm() {
       onSubmit={handleSubmit((values) => {
         login.mutate(values, {
           onSuccess: () => {
+            toast.add({
+              title: "Signed in",
+              description: "Welcome back.",
+              type: "success",
+            });
             router.push("/");
+          },
+          onError: (error) => {
+            toast.add({
+              title: "Could not sign in",
+              description: getApiErrorMessage(error, "Check your email and password."),
+              type: "error",
+            });
           },
         });
       })}
@@ -81,27 +94,34 @@ export function LoginForm() {
         {login.isPending ? "Signing in..." : "Sign in"}
       </Button>
       {googleClientId ? (
-        <div className="flex justify-center">
-          <GoogleLogin
-            onSuccess={(response) => {
-              if (!response.credential) {
-                return;
-              }
-
-              googleLogin.mutate(
-                { idToken: response.credential },
-                {
-                  onSuccess: () => {
-                    router.push("/");
-                  },
+        <GoogleSignInButton
+          disabled={googleLogin.isPending || login.isPending}
+          onSuccess={(idToken) => {
+            googleLogin.mutate(
+              { idToken },
+              {
+                onSuccess: () => {
+                  toast.add({
+                    title: "Signed in",
+                    description: "Welcome back.",
+                    type: "success",
+                  });
+                  router.push("/");
                 },
-              );
-            }}
-            onError={() => {
-              googleLogin.reset();
-            }}
-          />
-        </div>
+                onError: (error) => {
+                  toast.add({
+                    title: "Could not sign in with Google",
+                    description: getApiErrorMessage(error, "Try again."),
+                    type: "error",
+                  });
+                },
+              },
+            );
+          }}
+          onError={() => {
+            googleLogin.reset();
+          }}
+        />
       ) : null}
       <p className="text-sm text-muted-foreground">
         New here?{" "}
