@@ -68,5 +68,7 @@ export function useGetMe() {
     queryKey: USER_QUERY_KEY,
     queryFn: getMe,
     retry: false,
+    // An anonymous visit is a normal 401, not a hard failure for public pages.
+    throwOnError: false,
   });
 }
