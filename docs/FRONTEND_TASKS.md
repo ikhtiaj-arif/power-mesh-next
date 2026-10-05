@@ -38,7 +38,7 @@ First task to execute: **P0-01**.
 | P2-01 | 2 | TODO | View profile |
 | P2-02 | 2 | TODO | Edit profile |
 | P2-03 | 2 | TODO | Profile photo upload |
-| P3-01 | 3 | TODO | Available events |
+| P3-01 | 3 | DONE | Available events |
 | P3-02 | 3 | TODO | Event detail and offers |
 | P3-03 | 3 | TODO | Create capacity request |
 | P3-04 | 3 | TODO | Update or cancel a request |
@@ -51,11 +51,11 @@ First task to execute: **P0-01**.
 | P4-03 | 4 | TODO | Create offer |
 | P4-04 | 4 | TODO | Update or soft-delete an offer |
 | P4-05 | 4 | TODO | Provider reservations |
-| P5-01 | 5 | TODO | Operator events list |
-| P5-02 | 5 | TODO | Create event |
-| P5-03 | 5 | TODO | Update event |
-| P5-04 | 5 | TODO | Event status transitions |
-| P5-05 | 5 | TODO | Soft-delete event |
+| P5-01 | 5 | DONE | Operator events list |
+| P5-02 | 5 | DONE | Create event |
+| P5-03 | 5 | DONE | Update event |
+| P5-04 | 5 | DONE | Event status transitions |
+| P5-05 | 5 | DONE | Soft-delete event |
 | P5-06 | 5 | DONE | Provider queue |
 | P5-07 | 5 | DONE | Approve or reject a provider |
 | P5-08 | 5 | TODO | Allocation preview and approve |
@@ -436,7 +436,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-12, P0-06, P0-07
 - **Backend dependency:** `GET /api/v1/event/available` (any role; `SCHEDULED` or `CONFIRMED`; `scheduledEnd` in the future)
 - **Description:** Paginated event list using URL search params. Default sort matches the API (`scheduledStart` asc) unless the user changes it.
@@ -612,7 +612,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-12
 - **Backend dependency:** `GET /api/v1/event/my-events` (owner). `GET /event/all` is available but my-events is the operator's own book.
 - **Description:** List the operator's events with status filters.
@@ -624,7 +624,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-01
 - **Backend dependency:** `POST /api/v1/event/create`. End after start. `survivalQuotaKw <= totalCapacityKw`. Initial status `SCHEDULED`. Quota is stored and not used by allocation; the form may still collect it because the API requires it.
 - **Description:** Create form. Helper text states that survival quota is recorded and not applied by the allocator.
@@ -637,7 +637,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-02
 - **Backend dependency:** update only while `SCHEDULED` and only for the owning operator
 - **Description:** Edit schedule, capacity, quota, and notes on the operator's scheduled event.
@@ -649,7 +649,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-01
 - **Backend dependency:** `SCHEDULED` to `CONFIRMED` or `CANCELLED`; `CONFIRMED` to `IN_PROGRESS` or `CANCELLED`; `IN_PROGRESS` to `COMPLETED`
 - **Description:** Actions that offer only the legal next statuses.
@@ -662,7 +662,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** Low
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-01
 - **Backend dependency:** soft-delete only from `SCHEDULED` when no active offers or pending/allocated requests exist. It sets `CANCELLED`.
 - **Description:** Confirm dialog for soft-delete on scheduled events.

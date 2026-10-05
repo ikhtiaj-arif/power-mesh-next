@@ -21,6 +21,15 @@ export type {
   VerifyEmailResult,
 } from "./auth";
 export type {
+  CreateEventPayload,
+  EventListParams,
+  OutageEvent,
+  OutageEventStatus,
+  UpdateEventPayload,
+  UpdateEventStatusPayload,
+} from "./event";
+export { EVENT_STATUS_TRANSITIONS } from "./event";
+export type {
   ApplyAsProviderPayload,
   ApplyAsProviderResult,
   ApproveProviderPayload,

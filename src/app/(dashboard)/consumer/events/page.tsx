@@ -1,10 +1,19 @@
-import { ComingSoon } from "@/components/modules/dashboard/coming-soon";
+import { Suspense } from "react";
+
+import { AvailableEventsList } from "@/components/modules/events";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ConsumerEventsPage() {
   return (
-    <ComingSoon
-      title="Events"
-      description="Browse scheduled outage events available to consumers."
-    />
+    <Suspense
+      fallback={
+        <div className="space-y-3 p-1">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-40 w-full" />
+        </div>
+      }
+    >
+      <AvailableEventsList basePath="/consumer/events" />
+    </Suspense>
   );
 }

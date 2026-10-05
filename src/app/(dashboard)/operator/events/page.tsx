@@ -1,10 +1,5 @@
-import { ComingSoon } from "@/components/modules/dashboard/coming-soon";
+import { OperatorEventsList } from "@/components/modules/events";
 
 export default function OperatorEventsPage() {
-  return (
-    <ComingSoon
-      title="Events"
-      description="Create and manage outage events you own."
-    />
-  );
+  return <OperatorEventsList basePath="/operator/events" />;
 }
