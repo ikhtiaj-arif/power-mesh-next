@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -10,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
-import { useApplyAsProvider, useVerifyProviderEmail } from "@/hooks";
+import { useApplyAsProvider, useGoToRoleHome, useVerifyProviderEmail } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { cn } from "@/lib/utils";
 import type { ApplyAsProviderPayload } from "@/types";
@@ -35,7 +34,7 @@ function optionalText(value: string) {
 }
 
 export function ProviderApplyForm() {
-  const router = useRouter();
+  const goToRoleHome = useGoToRoleHome();
   const apply = useApplyAsProvider();
   const verification = useVerifyProviderEmail();
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
@@ -75,7 +74,7 @@ export function ProviderApplyForm() {
           verification.mutate(
             { email: pendingEmail, otp: values.otp },
             {
-              onSuccess: (response) => {
+              onSuccess: async (response) => {
                 toast.add({
                   title: "Email verified",
                   description:
@@ -83,7 +82,7 @@ export function ProviderApplyForm() {
                     "Your application is pending approval.",
                   type: "success",
                 });
-                router.push("/");
+                await goToRoleHome();
               },
               onError: (error) => {
                 toast.add({

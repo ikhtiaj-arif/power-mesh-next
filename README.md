@@ -116,6 +116,9 @@ power-mesh-client/                 # this repository
     │   └── api/                   # thin route handlers that call src/api
     ├── assets/
     ├── components/
+    │   ├── ui/
+    │   ├── shell/
+    │   └── modules/               # dashboard commons + feature modules
     ├── hooks/
     ├── lib/
     ├── providers/

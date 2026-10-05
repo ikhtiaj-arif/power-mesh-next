@@ -65,6 +65,7 @@ function shouldAttemptRefresh(request: unknown): boolean {
   return !(
     request.includes(REFRESH_PATH) ||
     request.includes("/auth/me") ||
+    request.includes("/users/me") ||
     request.includes("/auth/logout") ||
     request.includes("/auth/login") ||
     request.includes("/auth/register") ||

@@ -1,4 +1,4 @@
-import { ProviderApplyForm } from "@/components/auth/provider-apply-form";
+import { ProviderApplyForm } from "@/components/modules/auth/provider-apply-form";
 import {
   Card,
   CardContent,

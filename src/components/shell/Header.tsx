@@ -7,14 +7,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { useGetMe, useLogout } from "@/hooks";
-import type { UserRole } from "@/types";
-
-const dashboardRoutes: Record<UserRole, string> = {
-  ADMIN: "/admin",
-  OPERATOR: "/admin",
-  PROVIDER: "/provider",
-  CONSUMER: "/dashboard",
-};
+import { getRoleHome } from "@/routes";
 
 export function Header() {
   const { data, isError } = useGetMe();
@@ -57,7 +50,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="xs"
-              render={<Link href={dashboardRoutes[role]} />}
+              render={<Link href={getRoleHome(role)} />}
             >
               Dashboard
             </Button>

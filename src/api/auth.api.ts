@@ -44,5 +44,5 @@ export function userLogout() {
 }
 
 export function getMe() {
-  return apiClient<ApiResponse<User>>("/auth/me", { method: "GET" });
+  return apiClient<ApiResponse<User>>("/users/me", { method: "GET" });
 }
