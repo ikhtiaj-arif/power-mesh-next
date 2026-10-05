@@ -74,6 +74,16 @@ export type User = {
   updatedAt: string;
   status: UserStatus;
   consumer: ConsumerProfile | null;
+  provider?: {
+    id: string;
+    status: string;
+    companyName: string;
+    verified: boolean;
+  } | null;
+  operator?: {
+    id: string;
+    isAdmin: boolean;
+  } | null;
 };
 
 export type VerifyEmailResult = AuthTokens & {

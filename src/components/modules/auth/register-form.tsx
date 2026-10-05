@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -10,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
-import { useRegistration, useVerifyAccount } from "@/hooks";
+import { useGoToRoleHome, useRegistration, useVerifyAccount } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type { RegisterConsumerPayload } from "@/types";
 import {
@@ -25,7 +24,7 @@ function optionalText(value: string) {
 }
 
 export function RegisterForm() {
-  const router = useRouter();
+  const goToRoleHome = useGoToRoleHome();
   const registration = useRegistration();
   const verification = useVerifyAccount();
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
@@ -62,14 +61,13 @@ export function RegisterForm() {
           verification.mutate(
             { email: pendingEmail, otp: values.otp },
             {
-              onSuccess: () => {
+              onSuccess: async () => {
                 toast.add({
                   title: "Account created",
                   description: "You are signed in.",
                   type: "success",
                 });
-                router.push("/");
-                router.refresh();
+                await goToRoleHome();
               },
               onError: (error) => {
                 toast.add({

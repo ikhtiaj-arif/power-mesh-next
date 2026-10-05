@@ -65,11 +65,14 @@ function shouldAttemptRefresh(request: unknown): boolean {
   return !(
     request.includes(REFRESH_PATH) ||
     request.includes("/auth/me") ||
+    request.includes("/users/me") ||
     request.includes("/auth/logout") ||
     request.includes("/auth/login") ||
     request.includes("/auth/register") ||
     request.includes("/auth/google-login") ||
-    request.includes("/auth/verify-email")
+    request.includes("/auth/verify-email") ||
+    request.includes("/provider/apply-as-provider") ||
+    request.includes("/provider/verify-email")
   );
 }
 

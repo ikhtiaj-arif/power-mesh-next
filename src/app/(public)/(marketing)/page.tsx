@@ -49,6 +49,13 @@ export default function HomePage() {
         <Button size="lg" variant="outline" render={<Link href="/register" />}>
           Create an account
         </Button>
+        <Button
+          size="lg"
+          variant="secondary"
+          render={<Link href="/register/provider" />}
+        >
+          Apply as a provider
+        </Button>
       </div>
       <Separator className="my-12" />
       <div className="grid gap-4 sm:grid-cols-2">

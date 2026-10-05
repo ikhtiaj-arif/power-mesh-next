@@ -2,22 +2,21 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
-import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
+import { GoogleSignInButton } from "@/components/modules/auth/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
-import { useGoogleLogin, useLogin } from "@/hooks";
+import { useGoogleLogin, useGoToRoleHome, useLogin } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { loginSchema, type LoginValues } from "@/validation/auth";
 
 const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 export function LoginForm() {
-  const router = useRouter();
+  const goToRoleHome = useGoToRoleHome();
   const login = useLogin();
   const googleLogin = useGoogleLogin();
   const {
@@ -41,13 +40,13 @@ export function LoginForm() {
       noValidate
       onSubmit={handleSubmit((values) => {
         login.mutate(values, {
-          onSuccess: () => {
+          onSuccess: async () => {
             toast.add({
               title: "Signed in",
               description: "Welcome back.",
               type: "success",
             });
-            router.push("/");
+            await goToRoleHome();
           },
           onError: (error) => {
             toast.add({
@@ -100,13 +99,13 @@ export function LoginForm() {
             googleLogin.mutate(
               { idToken },
               {
-                onSuccess: () => {
+                onSuccess: async () => {
                   toast.add({
                     title: "Signed in",
                     description: "Welcome back.",
                     type: "success",
                   });
-                  router.push("/");
+                  await goToRoleHome();
                 },
                 onError: (error) => {
                   toast.add({

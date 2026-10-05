@@ -409,7 +409,19 @@ src/
       auth/refresh/route.ts
       proxy/[...path]/route.ts
   assets/
-  components/                  # ui, shell, states, and screen components
+  components/
+    ui/                        # shadcn primitives
+    shell/                     # public header, dashboard shell, auth guard
+    modules/
+      dashboard/               # shared dashboard widgets (stats, charts, tables)
+      auth/
+      approve-provider/
+      profile/
+      payments/
+      consumer/
+      provider/
+      operator/
+      admin/
   hooks/
   lib/                         # session cookie helpers; no React imports
   providers/                   # Query provider

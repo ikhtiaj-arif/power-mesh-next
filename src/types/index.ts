@@ -18,3 +18,13 @@ export type {
   VerifyEmailPayload,
   VerifyEmailResult,
 } from "./auth";
+export type {
+  ApplyAsProviderPayload,
+  ApplyAsProviderResult,
+  ProviderProfile,
+  ProviderRegistrationDetails,
+  ProviderStatus,
+  ResourceType,
+  VerifyProviderEmailPayload,
+  VerifyProviderEmailResult,
+} from "./provider";
