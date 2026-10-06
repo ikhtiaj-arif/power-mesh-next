@@ -5,12 +5,10 @@ import { AdminUsersList } from "@/components/modules/admin/admin-users-list";
 import { Skeleton } from "@/components/ui/skeleton";
 import { adminUsersKey } from "@/hooks/admin.hook";
 import { dehydratePrefetchedQuery } from "@/lib/isr/hydrate";
-import {
-  ADMIN_LIST_REVALIDATE_SECONDS,
-  getAdminUsersISR,
-} from "@/lib/isr/admin";
+import { getAdminUsersISR } from "@/lib/isr/admin";
 
-export const revalidate = ADMIN_LIST_REVALIDATE_SECONDS;
+/** Must be a numeric literal for Next.js segment config static analysis. */
+export const revalidate = 60;
 
 const defaultParams = {
   page: 1,

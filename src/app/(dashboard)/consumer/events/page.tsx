@@ -5,12 +5,10 @@ import { AvailableEventsList } from "@/components/modules/events";
 import { Skeleton } from "@/components/ui/skeleton";
 import { availableEventsKey } from "@/hooks/event.hook";
 import { dehydratePrefetchedQuery } from "@/lib/isr/hydrate";
-import {
-  EVENTS_REVALIDATE_SECONDS,
-  getAvailableEventsISR,
-} from "@/lib/isr/events";
+import { getAvailableEventsISR } from "@/lib/isr/events";
 
-export const revalidate = EVENTS_REVALIDATE_SECONDS;
+/** Must be a numeric literal for Next.js segment config static analysis. */
+export const revalidate = 60;
 
 const defaultParams = {
   page: 1,

@@ -5,12 +5,10 @@ import { OperatorPaymentsList } from "@/components/modules/payments/operator-pay
 import { Skeleton } from "@/components/ui/skeleton";
 import { allPaymentsKey } from "@/hooks/payment.hook";
 import { dehydratePrefetchedQuery } from "@/lib/isr/hydrate";
-import {
-  getAllPaymentsISR,
-  OPS_LIST_REVALIDATE_SECONDS,
-} from "@/lib/isr/requests-payments";
+import { getAllPaymentsISR } from "@/lib/isr/requests-payments";
 
-export const revalidate = OPS_LIST_REVALIDATE_SECONDS;
+/** Must be a numeric literal for Next.js segment config static analysis. */
+export const revalidate = 60;
 
 const defaultParams = {
   page: 1,

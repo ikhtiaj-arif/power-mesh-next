@@ -6,10 +6,10 @@ import { dehydratePrefetchedQuery } from "@/lib/isr/hydrate";
 import {
   getProviderByIdISR,
   getProviderStaticParams,
-  PROVIDERS_REVALIDATE_SECONDS,
 } from "@/lib/isr/providers";
 
-export const revalidate = PROVIDERS_REVALIDATE_SECONDS;
+/** Must be a numeric literal for Next.js segment config static analysis. */
+export const revalidate = 120;
 
 export async function generateStaticParams() {
   return getProviderStaticParams();

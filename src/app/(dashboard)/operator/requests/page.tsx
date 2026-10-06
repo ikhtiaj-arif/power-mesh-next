@@ -5,12 +5,10 @@ import { AllRequestsList } from "@/components/modules/requests/all-requests-list
 import { Skeleton } from "@/components/ui/skeleton";
 import { allRequestsKey } from "@/hooks/request.hook";
 import { dehydratePrefetchedQuery } from "@/lib/isr/hydrate";
-import {
-  getAllRequestsISR,
-  OPS_LIST_REVALIDATE_SECONDS,
-} from "@/lib/isr/requests-payments";
+import { getAllRequestsISR } from "@/lib/isr/requests-payments";
 
-export const revalidate = OPS_LIST_REVALIDATE_SECONDS;
+/** Must be a numeric literal for Next.js segment config static analysis. */
+export const revalidate = 60;
 
 const defaultParams = {
   page: 1,
