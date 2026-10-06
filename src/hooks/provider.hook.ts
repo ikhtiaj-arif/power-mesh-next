@@ -6,6 +6,7 @@ import {
   rejectProvider,
   verifyProviderEmail,
 } from "@/api";
+import { revalidateProvidersCache } from "@/app/actions/revalidate";
 import { USER_QUERY_KEY } from "@/hooks/auth.hook";
 import type { GetAllProvidersParams } from "@/types";
 import {
@@ -64,6 +65,7 @@ export function useApproveProvider() {
     onSuccess: (response) => {
       void queryClient.invalidateQueries({ queryKey: PROVIDERS_QUERY_KEY });
       queryClient.setQueryData(providerDetailKey(response.data.id), response.data);
+      void revalidateProvidersCache();
     },
   });
 }
@@ -76,6 +78,7 @@ export function useRejectProvider() {
     onSuccess: (response) => {
       void queryClient.invalidateQueries({ queryKey: PROVIDERS_QUERY_KEY });
       queryClient.setQueryData(providerDetailKey(response.data.id), response.data);
+      void revalidateProvidersCache();
     },
   });
 }
