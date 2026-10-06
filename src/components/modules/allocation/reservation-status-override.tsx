@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 import { ReservationStatusBadge } from "@/components/modules/reservations/reservation-status-badge";
 import { Button } from "@/components/ui/button";
@@ -11,54 +12,70 @@ import { useUpdateReservationStatus } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type { PaymentStatus, Reservation, ReservationStatus } from "@/types";
 import { PAYMENT_GATEWAY_STATUSES, RESERVATION_STATUS_OPTIONS } from "@/types";
+import {
+  updateReservationStatusSchema,
+  type UpdateReservationStatusValues,
+} from "@/validation/admin";
 
 export function ReservationStatusOverride({ reservation }: { reservation: Reservation }) {
-  const [status, setStatus] = useState<ReservationStatus>(reservation.status);
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | "">(
-    reservation.paymentStatus ?? "",
-  );
-  const [resolution, setResolution] = useState("");
-
   const update = useUpdateReservationStatus(reservation.id);
-
-  function submit() {
-    const confirmed = window.confirm(
-      `Set reservation ${reservation.id.slice(0, 8)}… to ${status}? This may release capacity, record refunds, or open incidents depending on the status.`,
-    );
-    if (!confirmed) {
-      return;
-    }
-
-    update.mutate(
-      {
-        status,
-        ...(paymentStatus ? { paymentStatus } : {}),
-        ...(resolution.trim() ? { resolution: resolution.trim() } : {}),
-      },
-      {
-        onSuccess: (response) => {
-          const payment = response.data.payment;
-          toast.add({
-            title: "Reservation updated",
-            description: payment
-              ? `Status ${response.data.status}. Payment gateway: ${payment.gatewayStatus}.`
-              : `Status is now ${response.data.status}.`,
-            type: "success",
-          });
-        },
-        onError: (error) => {
-          toast.add({
-            title: "Update failed",
-            description: getApiErrorMessage(error, "Could not update reservation."),
-            type: "error",
-          });
-        },
-      },
-    );
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<UpdateReservationStatusValues>({
+    resolver: zodResolver(updateReservationStatusSchema),
+    defaultValues: {
+      status: reservation.status,
+      paymentStatus: (reservation.paymentStatus ?? "") as PaymentStatus | "",
+      resolution: "",
+    },
+  });
 
   return (
-    <div className="rounded-lg border p-4 space-y-3">
+    <form
+      className="rounded-lg border p-4 space-y-3"
+      noValidate
+      onSubmit={handleSubmit((values) => {
+        const confirmed = window.confirm(
+          `Set reservation ${reservation.id.slice(0, 8)}… to ${values.status}? This may release capacity, record refunds, or open incidents depending on the status.`,
+        );
+        if (!confirmed) {
+          return;
+        }
+
+        update.mutate(
+          {
+            status: values.status as ReservationStatus,
+            ...(values.paymentStatus
+              ? { paymentStatus: values.paymentStatus as PaymentStatus }
+              : {}),
+            ...(values.resolution?.trim()
+              ? { resolution: values.resolution.trim() }
+              : {}),
+          },
+          {
+            onSuccess: (response) => {
+              const payment = response.data.payment;
+              toast.add({
+                title: "Reservation updated",
+                description: payment
+                  ? `Status ${response.data.status}. Payment gateway: ${payment.gatewayStatus}.`
+                  : `Status is now ${response.data.status}.`,
+                type: "success",
+              });
+            },
+            onError: (error) => {
+              toast.add({
+                title: "Update failed",
+                description: getApiErrorMessage(error, "Could not update reservation."),
+                type: "error",
+              });
+            },
+          },
+        );
+      })}
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="font-mono text-xs text-muted-foreground">{reservation.id}</p>
@@ -75,8 +92,7 @@ export function ReservationStatusOverride({ reservation }: { reservation: Reserv
           <select
             id={`status-${reservation.id}`}
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            value={status}
-            onChange={(e) => setStatus(e.target.value as ReservationStatus)}
+            {...register("status")}
           >
             {RESERVATION_STATUS_OPTIONS.map((value) => (
               <option key={value} value={value}>
@@ -84,14 +100,16 @@ export function ReservationStatusOverride({ reservation }: { reservation: Reserv
               </option>
             ))}
           </select>
+          {errors.status ? (
+            <p className="text-sm text-destructive">{errors.status.message}</p>
+          ) : null}
         </div>
         <div className="space-y-1">
           <Label htmlFor={`payment-${reservation.id}`}>Payment status (optional)</Label>
           <select
             id={`payment-${reservation.id}`}
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            value={paymentStatus}
-            onChange={(e) => setPaymentStatus(e.target.value as PaymentStatus | "")}
+            {...register("paymentStatus")}
           >
             <option value="">Leave unchanged</option>
             {PAYMENT_GATEWAY_STATUSES.map((value) => (
@@ -100,16 +118,21 @@ export function ReservationStatusOverride({ reservation }: { reservation: Reserv
               </option>
             ))}
           </select>
+          {errors.paymentStatus ? (
+            <p className="text-sm text-destructive">{errors.paymentStatus.message}</p>
+          ) : null}
         </div>
         <div className="space-y-1 sm:col-span-1">
           <Label htmlFor={`resolution-${reservation.id}`}>Resolution note</Label>
           <Input
             id={`resolution-${reservation.id}`}
-            value={resolution}
             maxLength={1000}
             placeholder="Optional (max 1000 chars)"
-            onChange={(e) => setResolution(e.target.value)}
+            {...register("resolution")}
           />
+          {errors.resolution ? (
+            <p className="text-sm text-destructive">{errors.resolution.message}</p>
+          ) : null}
         </div>
       </div>
 
@@ -119,9 +142,9 @@ export function ReservationStatusOverride({ reservation }: { reservation: Reserv
         only when no payment row exists.
       </p>
 
-      <Button type="button" size="sm" disabled={update.isPending} onClick={submit}>
+      <Button type="submit" size="sm" disabled={update.isPending}>
         {update.isPending ? "Saving…" : "Update status"}
       </Button>
-    </div>
+    </form>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { Badge } from "@/components/ui/badge";
@@ -23,13 +24,25 @@ import {
   useSoftDeleteAdminUser,
 } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
+import {
+  blockUserSchema,
+  type BlockUserValues,
+} from "@/validation/admin";
 
 export function AdminUserDetail({ userId }: { userId: string }) {
   const detail = useGetAdminUserById(userId);
   const user = detail.data;
   const block = useBlockAdminUser(userId);
   const softDelete = useSoftDeleteAdminUser(userId);
-  const [blockReason, setBlockReason] = useState("");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<BlockUserValues>({
+    resolver: zodResolver(blockUserSchema),
+    defaultValues: { reason: "" },
+  });
 
   const isBlocked = user?.status === "BLOCKED";
 
@@ -45,21 +58,35 @@ export function AdminUserDetail({ userId }: { userId: string }) {
       if (!confirmed) {
         return;
       }
+      void handleSubmit((values) => {
+        block.mutate(
+          {
+            isBlocked: true,
+            ...(values.reason?.trim() ? { reason: values.reason.trim() } : {}),
+          },
+          {
+            onSuccess: () => {
+              toast.add({ title: "User blocked", type: "success" });
+            },
+            onError: (error) => {
+              toast.add({
+                title: "Action failed",
+                description: getApiErrorMessage(error, "Could not update user."),
+                type: "error",
+              });
+            },
+          },
+        );
+      })();
+      return;
     }
+
     block.mutate(
-      {
-        isBlocked: nextBlocked,
-        ...(nextBlocked && blockReason.trim() ? { reason: blockReason.trim() } : {}),
-      },
+      { isBlocked: false },
       {
         onSuccess: () => {
-          toast.add({
-            title: nextBlocked ? "User blocked" : "User unblocked",
-            type: "success",
-          });
-          if (!nextBlocked) {
-            setBlockReason("");
-          }
+          toast.add({ title: "User unblocked", type: "success" });
+          reset({ reason: "" });
         },
         onError: (error) => {
           toast.add({
@@ -152,10 +179,12 @@ export function AdminUserDetail({ userId }: { userId: string }) {
                     <Label htmlFor="block-reason">Block reason (optional, max 500)</Label>
                     <Input
                       id="block-reason"
-                      value={blockReason}
                       maxLength={500}
-                      onChange={(e) => setBlockReason(e.target.value)}
+                      {...register("reason")}
                     />
+                    {errors.reason ? (
+                      <p className="text-sm text-destructive">{errors.reason.message}</p>
+                    ) : null}
                   </div>
                 ) : null}
                 <div className="flex flex-wrap gap-2">

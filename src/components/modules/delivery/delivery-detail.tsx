@@ -1,7 +1,9 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
+import { useForm } from "react-hook-form";
 
 import { formatEventDate } from "@/components/modules/events/event-datetime";
 import { DeliveryStatusBadge } from "@/components/modules/delivery/delivery-status-badge";
@@ -29,6 +31,12 @@ import {
 } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { DELIVERY_WINDOW_RESERVATION_STATUSES } from "@/types";
+import {
+  consumerDisputeSchema,
+  providerReportSchema,
+  type ConsumerDisputeValues,
+  type ProviderReportValues,
+} from "@/validation/delivery";
 
 type DeliveryDetailProps = {
   reservationId: string;
@@ -48,9 +56,17 @@ export function DeliveryDetail({
   const confirm = useConsumerConfirmDelivery();
   const dispute = useConsumerDisputeDelivery();
 
-  const [reportKw, setReportKw] = useState("");
-  const [disputeReason, setDisputeReason] = useState("");
   const [showDispute, setShowDispute] = useState(false);
+
+  const reportForm = useForm<ProviderReportValues>({
+    resolver: zodResolver(providerReportSchema),
+    defaultValues: { actualDeliveredKw: 0 },
+  });
+
+  const disputeForm = useForm<ConsumerDisputeValues>({
+    resolver: zodResolver(consumerDisputeSchema),
+    defaultValues: { disputeReason: "" },
+  });
 
   const reservation = detail.data;
   const delivery = reservation?.delivery ?? null;
@@ -208,30 +224,21 @@ export function DeliveryDetail({
                 {canReport ? (
                   <form
                     className="flex flex-wrap items-end gap-3"
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      const parsed = Number(reportKw);
-                      if (!Number.isInteger(parsed) || parsed < 0) {
-                        toast.add({
-                          title: "Invalid kilowatts",
-                          description: "Enter a whole number ≥ 0.",
-                          type: "error",
-                        });
-                        return;
-                      }
+                    noValidate
+                    onSubmit={reportForm.handleSubmit((values) => {
                       report.mutate(
                         {
                           reservationId,
-                          payload: { actualDeliveredKw: parsed },
+                          payload: { actualDeliveredKw: values.actualDeliveredKw },
                         },
                         {
                           onSuccess: (data) => {
                             toast.add({
                               title: "Report saved",
-                              description: `Stored ${data.actualDeliveredKw ?? parsed} kW. Delivery is not confirmed until the consumer accepts.`,
+                              description: `Stored ${data.actualDeliveredKw ?? values.actualDeliveredKw} kW. Delivery is not confirmed until the consumer accepts.`,
                               type: "success",
                             });
-                            setReportKw("");
+                            reportForm.reset({ actualDeliveredKw: 0 });
                           },
                           onError: (error) => {
                             toast.add({
@@ -245,7 +252,7 @@ export function DeliveryDetail({
                           },
                         },
                       );
-                    }}
+                    })}
                   >
                     <div className="space-y-2">
                       <Label htmlFor="actual-kw">Actual delivered kW</Label>
@@ -253,9 +260,13 @@ export function DeliveryDetail({
                         id="actual-kw"
                         inputMode="numeric"
                         placeholder="e.g. 50"
-                        value={reportKw}
-                        onChange={(event) => setReportKw(event.target.value)}
+                        {...reportForm.register("actualDeliveredKw")}
                       />
+                      {reportForm.formState.errors.actualDeliveredKw ? (
+                        <p className="text-sm text-destructive">
+                          {reportForm.formState.errors.actualDeliveredKw.message}
+                        </p>
+                      ) : null}
                     </div>
                     <Button type="submit" disabled={report.isPending}>
                       {report.isPending ? "Saving…" : "Submit report"}
@@ -331,16 +342,13 @@ export function DeliveryDetail({
                     ) : (
                       <form
                         className="space-y-3"
-                        onSubmit={(event) => {
-                          event.preventDefault();
-                          if (disputeReason.trim().length < 5) {
-                            return;
-                          }
+                        noValidate
+                        onSubmit={disputeForm.handleSubmit((values) => {
                           dispute.mutate(
                             {
                               reservationId,
                               payload: {
-                                disputeReason: disputeReason.trim(),
+                                disputeReason: values.disputeReason,
                               },
                             },
                             {
@@ -351,7 +359,7 @@ export function DeliveryDetail({
                                     "Delivery is DISPUTED. Reservation status is unchanged.",
                                   type: "success",
                                 });
-                                setDisputeReason("");
+                                disputeForm.reset({ disputeReason: "" });
                                 setShowDispute(false);
                               },
                               onError: (error) => {
@@ -366,7 +374,7 @@ export function DeliveryDetail({
                               },
                             },
                           );
-                        }}
+                        })}
                       >
                         <div className="space-y-2">
                           <Label htmlFor="dispute-reason">Dispute reason</Label>
@@ -374,16 +382,12 @@ export function DeliveryDetail({
                             id="dispute-reason"
                             rows={3}
                             className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                            value={disputeReason}
-                            onChange={(event) =>
-                              setDisputeReason(event.target.value)
-                            }
                             placeholder="At least 5 characters."
+                            {...disputeForm.register("disputeReason")}
                           />
-                          {disputeReason.trim().length > 0 &&
-                          disputeReason.trim().length < 5 ? (
+                          {disputeForm.formState.errors.disputeReason ? (
                             <p className="text-sm text-destructive">
-                              Reason must be at least 5 characters.
+                              {disputeForm.formState.errors.disputeReason.message}
                             </p>
                           ) : null}
                         </div>
@@ -391,10 +395,7 @@ export function DeliveryDetail({
                           <Button
                             type="submit"
                             variant="destructive"
-                            disabled={
-                              dispute.isPending ||
-                              disputeReason.trim().length < 5
-                            }
+                            disabled={dispute.isPending}
                           >
                             {dispute.isPending ? "Submitting…" : "Submit dispute"}
                           </Button>
@@ -403,7 +404,7 @@ export function DeliveryDetail({
                             variant="outline"
                             onClick={() => {
                               setShowDispute(false);
-                              setDisputeReason("");
+                              disputeForm.reset({ disputeReason: "" });
                             }}
                           >
                             Cancel
