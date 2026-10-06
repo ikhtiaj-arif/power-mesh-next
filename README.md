@@ -185,6 +185,8 @@ Confirm the API's `FRONTEND_URL` and bKash callback configuration point at the r
 
 These are development seed accounts from `../power-mesh-server/.env.example`, the server README, and `VIDEO_GUIDE.md`. They are created when seeding runs. They are not production credentials.
 
+The API and UI use **four** roles (`CONSUMER`, `PROVIDER`, `OPERATOR`, `ADMIN`). If a rubric asks for three roles, map them as Consumer / Provider / Admin; Operator is the fourth ops role required by the live API for event create and allocation.
+
 | Role | Email | Password |
 | --- | --- | --- |
 | Admin | `admin@powermesh.com` | `Admin@123` |
@@ -192,7 +194,19 @@ These are development seed accounts from `../power-mesh-server/.env.example`, th
 | Provider | `provider@powermesh.com` | `Provider@123` |
 | Consumer | `consumer@powermesh.com` | `Consumer@123` |
 
+One-click demo login buttons for all four roles appear on `/login` when `NEXT_PUBLIC_DEMO_LOGIN=true` (set this for evaluation builds; keep `false` in production).
+
 The seeded provider can log in and still cannot create an offer until an operator or admin approves them. The seed sets `verified: true` and leaves provider status at the schema default `PENDING_EMAIL_VERIFICATION`. Offer creation requires `APPROVED`.
+
+### Rendering (SSG / ISR / SSR)
+
+Set matching `ISR_SERVICE_TOKEN` on both the Next app and the Express API so ISR catalog pages can prefetch at build/revalidate time. Without it, those pages still work via client TanStack Query.
+
+| Method | Routes |
+| --- | --- |
+| SSG | `/`, `/login`, `/register`, `/register/provider` |
+| ISR | providers queues/details, admin events/users/audit, operator requests/payments, consumer available events |
+| SSR | personalized “mine” pages, profiles, allocation, delivery, `/my-payments`, role homes that prefetch session data |
 
 ## Development workflow
 
