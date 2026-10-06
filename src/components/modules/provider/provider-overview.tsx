@@ -1,105 +1,118 @@
-import { BarChart } from "@/components/modules/dashboard/bar-chart";
-import { LineChart } from "@/components/modules/dashboard/line-chart";
+"use client";
+
+import Link from "next/link";
+
+import { ProviderStatusBadge } from "@/components/modules/approve-provider/provider-status-badge";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
-import { OverviewTable } from "@/components/modules/dashboard/overview-table";
-import { ProgressList } from "@/components/modules/dashboard/progress-list";
-import { StatCard } from "@/components/modules/dashboard/stat-card";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetMe } from "@/hooks";
+import { getApiErrorMessage } from "@/lib/api-error";
+import type { ProviderStatus } from "@/types";
+
+const statusCopy: Record<ProviderStatus, { title: string; body: string }> = {
+  PENDING_EMAIL_VERIFICATION: {
+    title: "Verify your email",
+    body: "Complete provider email verification before an operator can review your application. Offer creation stays disabled until you are APPROVED.",
+  },
+  PENDING_APPROVAL: {
+    title: "Awaiting operator approval",
+    body: "Your provider profile is under review. You can browse the dashboard, but publishing capacity requires APPROVED status.",
+  },
+  APPROVED: {
+    title: "Approved provider",
+    body: "You can publish offers for available outage events and manage reservations allocated against them.",
+  },
+  REJECTED: {
+    title: "Application rejected",
+    body: "Your provider application was not approved. Offer links stay hidden until an operator approves a valid profile.",
+  },
+};
 
 export function ProviderOverview() {
+  const me = useGetMe();
+  const user = me.data?.data;
+  const provider = user?.provider;
+  const status = provider?.status as ProviderStatus | undefined;
+
   return (
     <div className="space-y-6">
       <OverviewHeader
         title="Provider overview"
-        description="Monitor offers, allocations, and delivery check-ins."
+        description="Approval status from `/users/me` controls whether you can publish offers."
       />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          title="Live offers"
-          value="3"
-          trend="+1"
-          trendUp
-          description="Published capacity for open events"
-        />
-        <StatCard
-          title="Allocated kW"
-          value="220"
-          trend="+18%"
-          trendUp
-          description="Reserved against your offers"
-        />
-        <StatCard
-          title="Pending delivery"
-          value="2"
-          trend="Needs check-in"
-          trendUp={false}
-          description="Reservations awaiting provider action"
-        />
-        <StatCard
-          title="Approval status"
-          value="Pending"
-          description="Offers require an approved provider profile"
-        />
-      </div>
-      <div className="grid gap-4 xl:grid-cols-2">
-        <BarChart
-          title="Offer pipeline"
-          subtitle="Offered vs allocated kilowatts"
-          primaryLabel="Offered"
-          secondaryLabel="Allocated"
-          series={[
-            { label: "Q1", primary: 120, secondary: 80 },
-            { label: "Q2", primary: 150, secondary: 110 },
-            { label: "Q3", primary: 90, secondary: 70 },
-            { label: "Q4", primary: 180, secondary: 140 },
-          ]}
-        />
-        <LineChart
-          title="Utilization"
-          subtitle="Allocated capacity over recent weeks"
-          labels={["W1", "W2", "W3", "W4", "W5", "W6"]}
-          current={[40, 55, 48, 70, 66, 82]}
-          previous={[30, 42, 50, 58, 60, 68]}
-        />
-      </div>
-      <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
-        <OverviewTable
-          title="Upcoming deliveries"
-          subtitle="Reservations that need check-in or kW report"
-          columns={["Event", "kW", "Status", "Window"]}
-          rows={[
-            {
-              id: "1",
-              primary: "Uttara industrial cut",
-              secondary: "80 kW",
-              status: "DELIVERY_PENDING",
-              meta: "Tonight 10pm",
-            },
-            {
-              id: "2",
-              primary: "Motijheel feeder",
-              secondary: "45 kW",
-              status: "PAYMENT_COMPLETED",
-              meta: "Tomorrow 1pm",
-            },
-            {
-              id: "3",
-              primary: "Dhanmondi backup",
-              secondary: "30 kW",
-              status: "ALLOCATED",
-              meta: "Fri 8pm",
-            },
-          ]}
-        />
-        <ProgressList
-          title="Delivery readiness"
-          subtitle="Progress across open reservations"
-          items={[
-            { label: "Payment received", value: 80 },
-            { label: "Check-in complete", value: 40 },
-            { label: "kW reported", value: 20 },
-          ]}
-        />
-      </div>
+
+      {me.isPending ? (
+        <Skeleton className="h-40 w-full rounded-xl" />
+      ) : null}
+
+      {me.isError ? (
+        <p className="text-sm text-destructive" role="alert">
+          {getApiErrorMessage(me.error, "Could not load your profile.")}
+        </p>
+      ) : null}
+
+      {!me.isPending && !provider ? (
+        <p className="text-sm text-muted-foreground">
+          No provider profile on this account.
+        </p>
+      ) : null}
+
+      {provider && status && statusCopy[status] ? (
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between gap-3">
+            <div>
+              <CardTitle>{statusCopy[status].title}</CardTitle>
+              <CardDescription>
+                {provider.companyName} · {statusCopy[status].body}
+              </CardDescription>
+            </div>
+            <ProviderStatusBadge status={status} />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {status === "REJECTED" && provider.rejectionReason ? (
+              <p className="text-sm">
+                <span className="text-muted-foreground">Rejection reason: </span>
+                <span className="font-medium">{provider.rejectionReason}</span>
+              </p>
+            ) : null}
+
+            {status === "APPROVED" ? (
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" render={<Link href="/provider/offers" />}>
+                  My offers
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  render={<Link href="/provider/offers/new" />}
+                >
+                  Create offer
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  render={<Link href="/provider/reservations" />}
+                >
+                  Reservations
+                </Button>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Offer create links appear here once your provider status is
+                APPROVED. The client does not call approve on your behalf.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }
