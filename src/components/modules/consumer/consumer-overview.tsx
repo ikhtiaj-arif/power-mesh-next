@@ -1,106 +1,172 @@
-import { BarChart } from "@/components/modules/dashboard/bar-chart";
-import { LineChart } from "@/components/modules/dashboard/line-chart";
+"use client";
+
+import Link from "next/link";
+
+import { formatEventDate } from "@/components/modules/events/event-datetime";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { OverviewTable } from "@/components/modules/dashboard/overview-table";
-import { ProgressList } from "@/components/modules/dashboard/progress-list";
+import { ReservationStatusBadge } from "@/components/modules/reservations/reservation-status-badge";
+import { RequestStatusBadge } from "@/components/modules/requests/request-status-badge";
 import { StatCard } from "@/components/modules/dashboard/stat-card";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  useGetAvailableEvents,
+  useGetMyRequests,
+  useGetMyReservations,
+} from "@/hooks";
+import { getApiErrorMessage } from "@/lib/api-error";
+
+function formatMoney(value: number | string) {
+  const n = typeof value === "string" ? Number(value) : value;
+  return `৳${Number.isFinite(n) ? n.toLocaleString() : "0"}`;
+}
 
 export function ConsumerOverview() {
+  const events = useGetAvailableEvents({ page: 1, limit: 5 });
+  const requests = useGetMyRequests({ page: 1, limit: 5 });
+  const reservations = useGetMyReservations({ page: 1, limit: 5 });
+
+  const eventTotal = events.data?.meta?.total ?? 0;
+  const requestRows = requests.data?.data ?? [];
+  const requestTotal = requests.data?.meta?.total ?? 0;
+  const reservationRows = reservations.data?.data ?? [];
+  const reservationTotal = reservations.data?.meta?.total ?? 0;
+
+  const pendingRequests = requestRows.filter((r) => r.status === "PENDING").length;
+  const activeReservations = reservationRows.filter((r) =>
+    ["ALLOCATED", "PAYMENT_PENDING", "PAYMENT_COMPLETED", "DELIVERY_PENDING"].includes(
+      r.status,
+    ),
+  ).length;
+
+  const isLoading = events.isPending || requests.isPending || reservations.isPending;
+  const isError = events.isError || requests.isError || reservations.isError;
+  const isEmptyAccount =
+    !isLoading &&
+    !isError &&
+    eventTotal === 0 &&
+    requestTotal === 0 &&
+    reservationTotal === 0;
+
   return (
     <div className="space-y-6">
       <OverviewHeader
         title="Consumer overview"
-        description="Track backup requests, reservations, and payment progress."
+        description="Your open events, requests, and reservations from live list endpoints."
       />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          title="Open requests"
-          value="4"
-          trend="+1 this week"
-          trendUp
-          description="Capacity requests awaiting allocation"
-        />
-        <StatCard
-          title="Active reservations"
-          value="2"
-          trend="Stable"
-          trendUp
-          description="Reserved kilowatts for upcoming outages"
-        />
-        <StatCard
-          title="Payments due"
-          value="৳12,400"
-          trend="-8%"
-          trendUp={false}
-          description="Pending bKash checkouts"
-        />
-        <StatCard
-          title="Delivered kW"
-          value="180"
-          trend="+24 kW"
-          trendUp
-          description="Confirmed deliveries this month"
-        />
-      </div>
+
+      {isLoading ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="h-28 rounded-xl" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            title="Available events"
+            value={String(eventTotal)}
+            description="Outage windows open for requests"
+          />
+          <StatCard
+            title="My requests"
+            value={String(requestTotal)}
+            description={`${pendingRequests} pending on this page`}
+          />
+          <StatCard
+            title="My reservations"
+            value={String(reservationTotal)}
+            description={`${activeReservations} in-flight on this page`}
+          />
+          <StatCard
+            title="Quick links"
+            value="Browse"
+            description="Events, requests, reservations"
+          />
+        </div>
+      )}
+
+      {isError ? (
+        <p className="text-sm text-destructive" role="alert">
+          {getApiErrorMessage(
+            events.error ?? requests.error ?? reservations.error,
+            "Could not load your dashboard data.",
+          )}
+        </p>
+      ) : null}
+
+      {isEmptyAccount ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Get started</CardTitle>
+            <CardDescription>
+              You have not joined any outage events yet. Browse available events to submit a
+              capacity request when you need backup power.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button render={<Link href="/consumer/events" />}>Browse available events</Button>
+          </CardContent>
+        </Card>
+      ) : null}
+
       <div className="grid gap-4 xl:grid-cols-2">
-        <BarChart
-          title="Request pipeline"
-          subtitle="Requests vs fulfilled capacity by week"
-          primaryLabel="Requested"
-          secondaryLabel="Fulfilled"
-          series={[
-            { label: "W1", primary: 40, secondary: 28 },
-            { label: "W2", primary: 55, secondary: 42 },
-            { label: "W3", primary: 36, secondary: 30 },
-            { label: "W4", primary: 62, secondary: 48 },
-          ]}
+        <OverviewTable
+          title="Latest requests"
+          subtitle="Most recent from my-requests"
+          columns={["Event", "kW", "Status", "Priority"]}
+          rows={requestRows.map((row) => ({
+            id: row.id,
+            primary: row.event
+              ? formatEventDate(row.event.scheduledStart)
+              : row.eventId.slice(0, 8),
+            secondary: `${row.requestedKw} kW`,
+            status: row.status,
+            meta: row.priorityTier,
+          }))}
+          emptyMessage="No requests yet."
+          statusRenderer={(status) => (
+            <RequestStatusBadge status={status as never} />
+          )}
         />
-        <LineChart
-          title="Spend flow"
-          subtitle="Current month vs previous month"
-          labels={["Week 1", "Week 2", "Week 3", "Week 4"]}
-          current={[8, 12, 10, 16]}
-          previous={[6, 9, 11, 13]}
+        <OverviewTable
+          title="Latest reservations"
+          subtitle="Most recent from my-reservations"
+          columns={["Event", "kW", "Status", "Amount"]}
+          rows={reservationRows.map((row) => ({
+            id: row.id,
+            primary: row.offer?.event
+              ? formatEventDate(row.offer.event.scheduledStart)
+              : row.id.slice(0, 8),
+            secondary: `${row.allocatedKw} kW`,
+            status: row.status,
+            meta: formatMoney(row.totalAmount),
+          }))}
+          emptyMessage="No reservations yet."
+          statusRenderer={(status) => (
+            <ReservationStatusBadge status={status as never} />
+          )}
         />
       </div>
-      <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
-        <OverviewTable
-          title="Recent reservations"
-          subtitle="Latest consumer bookings"
-          columns={["Event", "Capacity", "Status", "Amount"]}
-          rows={[
-            {
-              id: "1",
-              primary: "Mirpur feeder outage",
-              secondary: "40 kW",
-              status: "PAYMENT_PENDING",
-              meta: "৳4,800",
-            },
-            {
-              id: "2",
-              primary: "Gulshan hospital window",
-              secondary: "60 kW",
-              status: "PAYMENT_COMPLETED",
-              meta: "৳7,200",
-            },
-            {
-              id: "3",
-              primary: "Banani night cut",
-              secondary: "25 kW",
-              status: "DELIVERY_PENDING",
-              meta: "৳3,000",
-            },
-          ]}
-        />
-        <ProgressList
-          title="Fulfillment"
-          subtitle="Delivery stages for active bookings"
-          items={[
-            { label: "Payment completed", value: 75, hint: "3 of 4" },
-            { label: "Provider check-in", value: 50, hint: "2 of 4" },
-            { label: "Delivery confirmed", value: 25, hint: "1 of 4" },
-          ]}
-        />
+
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" size="sm" render={<Link href="/consumer/events" />}>
+          Events
+        </Button>
+        <Button variant="outline" size="sm" render={<Link href="/consumer/requests" />}>
+          My requests
+        </Button>
+        <Button variant="outline" size="sm" render={<Link href="/consumer/reservations" />}>
+          My reservations
+        </Button>
       </div>
     </div>
   );

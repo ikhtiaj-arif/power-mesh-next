@@ -1,10 +1,38 @@
-import { ComingSoon } from "@/components/modules/dashboard/coming-soon";
+import { Suspense } from "react";
+import { HydrationBoundary } from "@tanstack/react-query";
 
-export default function AdminUsersPage() {
+import { AdminUsersList } from "@/components/modules/admin/admin-users-list";
+import { Skeleton } from "@/components/ui/skeleton";
+import { adminUsersKey } from "@/hooks/admin.hook";
+import { dehydratePrefetchedQuery } from "@/lib/isr/hydrate";
+import { getAdminUsersISR } from "@/lib/isr/admin";
+
+/** Must be a numeric literal for Next.js segment config static analysis. */
+export const revalidate = 60;
+
+const defaultParams = {
+  page: 1,
+  limit: 10,
+  searchTerm: undefined,
+  role: undefined,
+  status: undefined,
+};
+
+export default async function AdminUsersPage() {
+  const data = await getAdminUsersISR(defaultParams);
+
   return (
-    <ComingSoon
-      title="Users"
-      description="List, block, and soft-delete platform users."
-    />
+    <HydrationBoundary state={dehydratePrefetchedQuery(adminUsersKey(defaultParams), data)}>
+      <Suspense
+        fallback={
+          <div className="space-y-3 p-1">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-40 w-full" />
+          </div>
+        }
+      >
+        <AdminUsersList />
+      </Suspense>
+    </HydrationBoundary>
   );
 }

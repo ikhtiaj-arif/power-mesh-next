@@ -1,10 +1,23 @@
-import { ComingSoon } from "@/components/modules/dashboard/coming-soon";
+import { HydrationBoundary } from "@tanstack/react-query";
 
-export default function ProviderReservationsPage() {
+import { ProviderReservationsList } from "@/components/modules/reservations";
+import { USER_QUERY_KEY } from "@/hooks/auth.hook";
+import {
+  createSsrQueryClient,
+  dehydrateSsrClient,
+  setSsrQueryData,
+} from "@/lib/ssr/query-client";
+import { getMeSSR } from "@/lib/ssr/queries";
+
+export const dynamic = "force-dynamic";
+
+export default async function ProviderReservationsPage() {
+  const queryClient = createSsrQueryClient();
+  setSsrQueryData(queryClient, USER_QUERY_KEY, await getMeSSR());
+
   return (
-    <ComingSoon
-      title="Reservations"
-      description="See allocations made against your offers."
-    />
+    <HydrationBoundary state={dehydrateSsrClient(queryClient)}>
+      <ProviderReservationsList />
+    </HydrationBoundary>
   );
 }

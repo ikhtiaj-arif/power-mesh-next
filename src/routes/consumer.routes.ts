@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   ListChecks,
   Package,
+  User,
 } from "lucide-react";
 
 import type { NavGroup } from "./types";
@@ -19,6 +20,7 @@ export const consumerNav: NavGroup[] = [
       { title: "Requests", href: "/consumer/requests", icon: ListChecks },
       { title: "Reservations", href: "/consumer/reservations", icon: Package },
       { title: "Payments", href: "/consumer/payments", icon: CreditCard },
+      { title: "Profile", href: "/consumer/profile", icon: User },
     ],
   },
 ];

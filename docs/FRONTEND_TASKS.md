@@ -15,76 +15,76 @@ First task to execute: **P0-01**.
 | ID | Phase | Status | Title |
 | --- | --- | --- | --- |
 | P0-01 | 0 | DONE | Scaffold the Next.js app |
-| P0-02 | 0 | TODO | Shared UI primitives |
-| P0-03 | 0 | TODO | Environment split |
-| P0-04 | 0 | TODO | API envelope client |
-| P0-05 | 0 | TODO | BFF session routes |
-| P0-06 | 0 | TODO | BFF proxy |
-| P0-07 | 0 | TODO | Query client, keys, enums |
-| P0-08 | 0 | TODO | Root shell files |
-| P0-09 | 0 | TODO | Shared Zod mirrors |
-| P1-01 | 1 | TODO | Middleware navigation guards |
-| P1-02 | 1 | TODO | Marketing home |
-| P1-03 | 1 | TODO | Login |
-| P1-04 | 1 | TODO | Demo login |
-| P1-05 | 1 | TODO | Consumer registration |
-| P1-06 | 1 | TODO | Consumer OTP verify |
-| P1-07 | 1 | TODO | Provider application |
-| P1-08 | 1 | TODO | Provider OTP verify |
-| P1-09 | 1 | TODO | Google consumer login |
-| P1-10 | 1 | TODO | Logout |
-| P1-11 | 1 | TODO | Session profile from users/me |
-| P1-12 | 1 | TODO | Role shells and navigation |
-| P2-01 | 2 | TODO | View profile |
-| P2-02 | 2 | TODO | Edit profile |
-| P2-03 | 2 | TODO | Profile photo upload |
-| P3-01 | 3 | TODO | Available events |
-| P3-02 | 3 | TODO | Event detail and offers |
-| P3-03 | 3 | TODO | Create capacity request |
-| P3-04 | 3 | TODO | Update or cancel a request |
-| P3-05 | 3 | TODO | My requests |
-| P3-06 | 3 | TODO | Create reservation |
-| P3-07 | 3 | TODO | My reservations and cancel |
-| P3-08 | 3 | TODO | Consumer home |
-| P4-01 | 4 | TODO | Provider approval gate |
-| P4-02 | 4 | TODO | My offers |
-| P4-03 | 4 | TODO | Create offer |
-| P4-04 | 4 | TODO | Update or soft-delete an offer |
-| P4-05 | 4 | TODO | Provider reservations |
-| P5-01 | 5 | TODO | Operator events list |
-| P5-02 | 5 | TODO | Create event |
-| P5-03 | 5 | TODO | Update event |
-| P5-04 | 5 | TODO | Event status transitions |
-| P5-05 | 5 | TODO | Soft-delete event |
-| P5-06 | 5 | TODO | Provider queue |
-| P5-07 | 5 | TODO | Approve or reject a provider |
-| P5-08 | 5 | TODO | Allocation preview and approve |
-| P5-09 | 5 | TODO | Reservation status override |
-| P5-10 | 5 | TODO | Operator payment list |
-| P5-11 | 5 | TODO | Operator request list |
-| P6-01 | 6 | TODO | Initiate bKash payment |
-| P6-02 | 6 | TODO | Redirect to bkashURL |
-| P6-03 | 6 | TODO | Payment return page |
-| P6-04 | 6 | TODO | Consumer payment history |
-| P7-01 | 7 | TODO | Provider check-in |
-| P7-02 | 7 | TODO | Provider delivered-kW report |
-| P7-03 | 7 | TODO | Consumer confirm delivery |
-| P7-04 | 7 | TODO | Consumer dispute |
-| P7-05 | 7 | TODO | Delivery detail |
-| P8-01 | 8 | TODO | Admin dashboard stats |
-| P8-02 | 8 | TODO | Admin user list |
-| P8-03 | 8 | TODO | Admin user detail |
-| P8-04 | 8 | TODO | Block or unblock a user |
-| P8-05 | 8 | TODO | Soft-delete a user |
-| P8-06 | 8 | TODO | Audit log |
-| P8-07 | 8 | TODO | Admin allocation without event writes |
-| P8-08 | 8 | TODO | Admin provider approval entry |
-| P9-01 | 9 | TODO | Mobile navigation and accessibility |
-| P9-02 | 9 | TODO | Empty, error, and loading states |
-| P9-03 | 9 | TODO | Cross-role browser pass |
-| P9-04 | 9 | TODO | API error mapping |
-| P9-05 | 9 | TODO | Token exposure review |
-| P10-01 | 10 | TODO | Production build and env checklist |
+| P0-02 | 0 | DONE | Shared UI primitives |
+| P0-03 | 0 | DONE | Environment split |
+| P0-04 | 0 | DONE | API envelope client |
+| P0-05 | 0 | DONE | BFF session routes |
+| P0-06 | 0 | DONE | BFF proxy |
+| P0-07 | 0 | DONE | Query client, keys, enums |
+| P0-08 | 0 | DONE | Root shell files |
+| P0-09 | 0 | DONE | Shared Zod mirrors |
+| P1-01 | 1 | DONE | Middleware navigation guards |
+| P1-02 | 1 | DONE | Marketing home |
+| P1-03 | 1 | DONE | Login |
+| P1-04 | 1 | DONE | Demo login |
+| P1-05 | 1 | DONE | Consumer registration |
+| P1-06 | 1 | DONE | Consumer OTP verify |
+| P1-07 | 1 | DONE | Provider application |
+| P1-08 | 1 | DONE | Provider OTP verify |
+| P1-09 | 1 | DONE | Google consumer login |
+| P1-10 | 1 | DONE | Logout |
+| P1-11 | 1 | DONE | Session profile from users/me |
+| P1-12 | 1 | DONE | Role shells and navigation |
+| P2-01 | 2 | DONE | View profile |
+| P2-02 | 2 | DONE | Edit profile |
+| P2-03 | 2 | DONE | Profile photo upload |
+| P3-01 | 3 | DONE | Available events |
+| P3-02 | 3 | DONE | Event detail and offers |
+| P3-03 | 3 | DONE | Create capacity request |
+| P3-04 | 3 | DONE | Update or cancel a request |
+| P3-05 | 3 | DONE | My requests |
+| P3-06 | 3 | DONE | Create reservation |
+| P3-07 | 3 | DONE | My reservations and cancel |
+| P3-08 | 3 | DONE | Consumer home |
+| P4-01 | 4 | DONE | Provider approval gate |
+| P4-02 | 4 | DONE | My offers |
+| P4-03 | 4 | DONE | Create offer |
+| P4-04 | 4 | DONE | Update or soft-delete an offer |
+| P4-05 | 4 | DONE | Provider reservations |
+| P5-01 | 5 | DONE | Operator events list |
+| P5-02 | 5 | DONE | Create event |
+| P5-03 | 5 | DONE | Update event |
+| P5-04 | 5 | DONE | Event status transitions |
+| P5-05 | 5 | DONE | Soft-delete event |
+| P5-06 | 5 | DONE | Provider queue |
+| P5-07 | 5 | DONE | Approve or reject a provider |
+| P5-08 | 5 | DONE | Allocation preview and approve |
+| P5-09 | 5 | DONE | Reservation status override |
+| P5-10 | 5 | DONE | Operator payment list |
+| P5-11 | 5 | DONE | Operator request list |
+| P6-01 | 6 | DONE | Initiate bKash payment |
+| P6-02 | 6 | DONE | Redirect to bkashURL |
+| P6-03 | 6 | DONE | Payment return page |
+| P6-04 | 6 | DONE | Consumer payment history |
+| P7-01 | 7 | DONE | Provider check-in |
+| P7-02 | 7 | DONE | Provider delivered-kW report |
+| P7-03 | 7 | DONE | Consumer confirm delivery |
+| P7-04 | 7 | DONE | Consumer dispute |
+| P7-05 | 7 | DONE | Delivery detail |
+| P8-01 | 8 | DONE | Admin dashboard stats |
+| P8-02 | 8 | DONE | Admin user list |
+| P8-03 | 8 | DONE | Admin user detail |
+| P8-04 | 8 | DONE | Block or unblock a user |
+| P8-05 | 8 | DONE | Soft-delete a user |
+| P8-06 | 8 | DONE | Audit log |
+| P8-07 | 8 | DONE | Admin allocation without event writes |
+| P8-08 | 8 | DONE | Admin provider approval entry |
+| P9-01 | 9 | DONE | Mobile navigation and accessibility |
+| P9-02 | 9 | DONE | Empty, error, and loading states |
+| P9-03 | 9 | DONE | Cross-role browser pass |
+| P9-04 | 9 | DONE | API error mapping |
+| P9-05 | 9 | DONE | Token exposure review |
+| P10-01 | 10 | DONE | Production build and env checklist |
 | P10-02 | 10 | TODO | Deploy the frontend |
 | P10-03 | 10 | TODO | Production cookie and CORS check |
 | BX-01 | — | BLOCKED | Password reset and change |
@@ -122,7 +122,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 0
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-01
 - **Backend dependency:** none
 - **Description:** Add shadcn/ui primitives used by later tasks (button, input, label, form, dialog, table, badge, sonner or equivalent toast), `next/font`, and the empty/error/skeleton presentational components.
@@ -135,7 +135,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 0
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-01
 - **Backend dependency:** API base URL only
 - **Description:** Add server-only `API_URL` and public `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `NEXT_PUBLIC_DEMO_LOGIN`. Document placeholders in `.env.example` at this repository root.
@@ -148,7 +148,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 0
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-03
 - **Backend dependency:** `sendResponse` and `globalErrorHandler` shapes
 - **Description:** Add `src/api` with typed success `{ success, statusCode, message, data, meta }` and error `{ success, message, errors }`. Server fetch attaches the bearer token from the first-party cookie and does not import React. Thin `src/app/api/**/route.ts` files call these modules.
@@ -161,7 +161,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 0
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-04
 - **Backend dependency:** `POST /api/v1/auth/login`, `POST /api/v1/auth/refresh-token`, `POST /api/v1/auth/logout`. API cookies are `SameSite=None; Secure=false` and are not relied on.
 - **Description:** Add `app/api/auth/login`, `refresh`, and `logout`. Login and refresh read tokens from the Express JSON, set first-party `httpOnly` cookies (`sameSite: lax`, `secure` in production, `path: /`), and return a body with no tokens. Logout clears those cookies with the same options and calls the API logout.
@@ -174,7 +174,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 0
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-04, P0-05
 - **Backend dependency:** all `/api/v1` routes the UI will call
 - **Description:** Add `app/api/proxy/[...path]` that forwards method, query, JSON body, and bearer token to `API_URL`, and returns the upstream status and body.
@@ -188,7 +188,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 0
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-01
 - **Backend dependency:** Prisma enums in `../power-mesh-server/prisma/schema/enums.prisma`
 - **Description:** Add the TanStack Query provider in `src/providers`, a `ListQuery` type, query-key helpers, and enums in `src/types` copied from the live enums. Do not add a Zustand store. Sidebar state stays local to the shell client component.
@@ -201,7 +201,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 0
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-02, P0-07
 - **Backend dependency:** none
 - **Description:** Root `layout.tsx` mounts font, query provider, and toaster, with no role logic. Add root `not-found.tsx`.
@@ -213,7 +213,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 0
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-01
 - **Backend dependency:** `../power-mesh-server/src/modules/**/**.validation.ts` bodies that are actually mounted
 - **Description:** Add Zod schemas under `src/validation` for login, consumer register, consumer verify, provider apply, provider verify, and the password rules. Comments must point at the backend file they mirror.
@@ -232,7 +232,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 1
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-05
 - **Backend dependency:** JWT payload includes `role` and expiry. Middleware is not authorization.
 - **Description:** `middleware.ts` protects `/consumer`, `/provider`, `/operator`, `/admin`, and `/my-payments`. Missing or expired cookies go to `/login`. A signed-in user hitting `/login` goes to that role's home. Wrong-role prefixes redirect to the signed-in home.
@@ -246,7 +246,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 1
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-02, P0-08
 - **Backend dependency:** none
 - **Description:** Public page that explains the marketplace using the real flow: event, offer, request, allocation, bKash, delivery. Link to login, consumer register, and provider apply.
@@ -259,7 +259,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 1
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-05, P0-09, P1-01
 - **Backend dependency:** `POST /api/v1/auth/login`
 - **Description:** Login form posts to the BFF. Errors show the API message. Success navigates to the role home.
@@ -272,7 +272,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 1
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-03
 - **Backend dependency:** development seeds from `SEED_*` (admin, operator, provider, consumer). Provider offer create stays blocked by BX-07 even after this login works.
 - **Description:** Four buttons, rendered only when `NEXT_PUBLIC_DEMO_LOGIN=true`, submit the documented development accounts through the same login route.
@@ -286,7 +286,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 1
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-06, P0-09
 - **Backend dependency:** `POST /api/v1/auth/register`. User row is not created yet.
 - **Description:** Form for name, email, password, and optional consumer profile fields. On `emailSent` or a returned OTP, go to verify and keep the email. If `data.otp` is present, show it once on the verify step without logging it.
@@ -299,7 +299,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 1
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-05, P0-05
 - **Backend dependency:** `POST /api/v1/auth/verify-email` creates the consumer and returns tokens.
 - **Description:** Six-digit OTP form. The BFF must establish the session from this response the same way as login, still without exposing tokens to the page, then open the consumer home.
@@ -312,7 +312,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 1
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-09, P0-06
 - **Backend dependency:** `POST /api/v1/provider/apply-as-provider`
 - **Description:** Form for names (3–50), email, password, company, license, resource type, capacity, address, and contacts.
@@ -325,7 +325,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 1
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-07, P0-05
 - **Backend dependency:** `POST /api/v1/provider/verify-email` creates `PENDING_APPROVAL` and issues tokens.
 - **Description:** Verify provider email and start a provider session.
@@ -337,7 +337,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 1
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-03, P0-05
 - **Backend dependency:** `POST /api/v1/auth/google-login` with `{ idToken }`. Consumer role only.
 - **Description:** Google Identity button requests an ID token and posts it through the BFF. The client secret never appears in the frontend.
@@ -350,7 +350,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 1
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-05, P1-12
 - **Backend dependency:** `POST /api/v1/auth/logout` does not revoke refresh tokens (BX-10).
 - **Description:** Shell logout calls the BFF, clears the first-party cookies, clears the `me` query, and returns to `/login`.
@@ -362,7 +362,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 1
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-06, P0-07
 - **Backend dependency:** `GET /api/v1/users/me`. Do not use `GET /api/v1/auth/me` for the shell.
 - **Description:** `['me']` query returns the user plus consumer, provider, and operator profiles. `staleTime` 5 minutes.
@@ -375,7 +375,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 1
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-01, P1-11, P0-02
 - **Backend dependency:** role matrix in `FRONTEND_PLAN.md`
 - **Description:** Dashboard layout reads the session on the server, renders a mobile-first sidebar, and links only to routes that role can call. Add `loading.tsx` and `error.tsx` for the dashboard segment. Placeholder homes are enough until later phases fill them.
@@ -393,7 +393,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 2
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-11, P1-12
 - **Backend dependency:** `GET /api/v1/users/me`
 - **Description:** Profile page for every role showing identity, role, and the matching profile block.
@@ -406,7 +406,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 2
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P2-01
 - **Backend dependency:** `PATCH /api/v1/users/me` (name limits on this schema differ from registration)
 - **Description:** Edit the fields that `UpdateMe` accepts, including nested consumer or provider strings when that profile exists.
@@ -419,7 +419,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 2
 - **Priority:** Low
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P2-01, P0-06
 - **Backend dependency:** `PATCH /api/v1/users/me/profile-picture`, multipart field `profilePicture` (JPEG, PNG, WEBP, AVIF)
 - **Description:** File input uploads through a BFF path that forwards multipart. Show the Cloudinary URL with `next/image` after configuring remote patterns.
@@ -436,7 +436,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-12, P0-06, P0-07
 - **Backend dependency:** `GET /api/v1/event/available` (any role; `SCHEDULED` or `CONFIRMED`; `scheduledEnd` in the future)
 - **Description:** Paginated event list using URL search params. Default sort matches the API (`scheduledStart` asc) unless the user changes it.
@@ -449,7 +449,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-01
 - **Backend dependency:** `GET /api/v1/event/:id`, `GET /api/v1/offer/event/:eventId` (consumer is allowed; provider is not)
 - **Description:** Event detail and the offers on that event. The static page renders the headings. A client island loads both reads together, not in a waterfall of effects.
@@ -462,7 +462,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-02
 - **Backend dependency:** `POST /api/v1/request/create`. Event must be `SCHEDULED` or `CONFIRMED`. One row per consumer and event.
 - **Description:** Form for `requestedKw`, `maxPricePerKwh`, and `priorityTier`.
@@ -475,7 +475,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-03, P3-05
 - **Backend dependency:** update and cancel only while `PENDING`. Cancel sets `CANCELLED` and does not free the unique pair.
 - **Description:** Edit and cancel controls on the caller's pending request.
@@ -488,7 +488,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-12, P0-07
 - **Backend dependency:** `GET /api/v1/request/my-requests`
 - **Description:** List the consumer's requests with status and priority filters in the URL.
@@ -500,7 +500,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-02, P3-03
 - **Backend dependency:** `POST /api/v1/reservation/create` with `{ offerId, requestId }`. This path does not update `OutageEvent.allocatedKw` and does not check price. Operator allocation is a different path (P5-08).
 - **Description:** From an offer and the caller's pending request, create a reservation.
@@ -513,7 +513,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-06
 - **Backend dependency:** `GET /api/v1/reservation/my-reservations`, `PATCH /api/v1/reservation/cancel/:id` only from `ALLOCATED` or `PAYMENT_PENDING`
 - **Description:** Reservation list and detail from the owned list. Cancel when the status allows it. Do not rely on `GET /reservation/:id` for authorization; that route does not check ownership.
@@ -526,7 +526,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 3
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-01, P3-05, P3-07
 - **Backend dependency:** the consumer list endpoints above, not admin stats
 - **Description:** Consumer landing with counts or latest rows from the consumer's own lists, plus links into events, requests, and reservations.
@@ -542,7 +542,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 4
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-11, P1-12
 - **Backend dependency:** `createOffer` requires `Provider.status === APPROVED`. Seeded demo user is not approved (BX-07).
 - **Description:** Provider home reads status from `['me']`. `PENDING_EMAIL_VERIFICATION`, `PENDING_APPROVAL`, and `REJECTED` each get honest copy. Offer create links render only when `APPROVED`.
@@ -555,7 +555,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 4
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P4-01
 - **Backend dependency:** `GET /api/v1/offer/my-offers`
 - **Description:** Paginated offers for the signed-in provider.
@@ -568,7 +568,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 4
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P4-01, P4-02
 - **Backend dependency:** `POST /api/v1/offer/create`. Event id required. Capacity cannot exceed provider `capacityKw`. Delivery end after start. Approved providers only. Providers may load events via `GET /event/available` and `GET /event/:id`.
 - **Description:** Offer form bound to an available event. Submit stays disabled with an explanation when status is not `APPROVED`.
@@ -582,7 +582,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 4
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P4-02
 - **Backend dependency:** update only from `AVAILABLE` or `PARTIALLY_AVAILABLE`. Soft-delete sets `CANCELLED` and fails when blocking reservations exist.
 - **Description:** Edit price, capacity, and window when the API allows. Soft-delete with a confirm dialog.
@@ -595,7 +595,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 4
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-11, P4-01
 - **Backend dependency:** `GET /api/v1/reservation/provider/:providerId` using the provider id from `users/me`
 - **Description:** List reservations for this provider so delivery actions have a target.
@@ -612,7 +612,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-12
 - **Backend dependency:** `GET /api/v1/event/my-events` (owner). `GET /event/all` is available but my-events is the operator's own book.
 - **Description:** List the operator's events with status filters.
@@ -624,7 +624,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-01
 - **Backend dependency:** `POST /api/v1/event/create`. End after start. `survivalQuotaKw <= totalCapacityKw`. Initial status `SCHEDULED`. Quota is stored and not used by allocation; the form may still collect it because the API requires it.
 - **Description:** Create form. Helper text states that survival quota is recorded and not applied by the allocator.
@@ -637,7 +637,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-02
 - **Backend dependency:** update only while `SCHEDULED` and only for the owning operator
 - **Description:** Edit schedule, capacity, quota, and notes on the operator's scheduled event.
@@ -649,7 +649,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-01
 - **Backend dependency:** `SCHEDULED` to `CONFIRMED` or `CANCELLED`; `CONFIRMED` to `IN_PROGRESS` or `CANCELLED`; `IN_PROGRESS` to `COMPLETED`
 - **Description:** Actions that offer only the legal next statuses.
@@ -662,7 +662,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** Low
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-01
 - **Backend dependency:** soft-delete only from `SCHEDULED` when no active offers or pending/allocated requests exist. It sets `CANCELLED`.
 - **Description:** Confirm dialog for soft-delete on scheduled events.
@@ -674,7 +674,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-12
 - **Backend dependency:** `GET /api/v1/provider/all-providers`. Paging is not applied (BX-08). Do not build page controls that pretend skip works.
 - **Description:** Operator and, later, admin view of providers. Show status. If the array is large, still render it with a note that the API returns an unpaged list.
@@ -687,7 +687,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-06
 - **Backend dependency:** `PATCH /api/v1/provider/approve-provider` and `reject-provider`. Reject reason 3–500 characters. A rejected provider has no re-apply API.
 - **Description:** Approve and reject actions. Reject requires a reason.
@@ -700,7 +700,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-01
 - **Backend dependency:** `POST /api/v1/admin/events/:id/allocate` writes nothing. `POST /api/v1/admin/events/:id/approve-allocation` creates reservations. Event must be `SCHEDULED` or `CONFIRMED`. Whole-request match only.
 - **Description:** Preview panel, then a separate approve button. Show skipped requests and allocated kilowatts from the approve response.
@@ -714,7 +714,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-01
 - **Backend dependency:** `PATCH /api/v1/admin/reservations/:id/status`. `FAILED` or `REFUNDED` tries bKash refund only when gateway id and trx id exist, and still writes a local refund if the gateway errors. `CANCELLED` releases capacity only when no payment row exists.
 - **Description:** Operator form for status, optional payment status, and resolution text. Copy states the gateway refund is best-effort.
@@ -727,7 +727,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-12
 - **Backend dependency:** `GET /api/v1/payments/all`
 - **Description:** Read-only payment table for operators with gateway status filters.
@@ -739,7 +739,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 5
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-12
 - **Backend dependency:** `GET /api/v1/request/all`
 - **Description:** Cross-tenant request list to support allocation review.
@@ -755,7 +755,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 6
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-07
 - **Backend dependency:** `POST /api/v1/payments/initiate` for an owned reservation in `ALLOCATED` or `PAYMENT_PENDING`. Response includes `bkashURL` and `paymentID`. Provider is bKash only (ADR-007).
 - **Description:** Pay action on an eligible consumer reservation. Store nothing about the gateway except navigating with the returned URL in P6-02.
@@ -768,7 +768,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 6
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P6-01
 - **Backend dependency:** hosted bKash URL from initiate. Sandbox credentials live only on the API.
 - **Description:** Client assigns `window.location` to `data.bkashURL`.
@@ -780,7 +780,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 6
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-06, P1-01, P6-01
 - **Backend dependency:** API redirects to `{FRONTEND_URL}/my-payments?status=success|cancel|failure` after `GET /api/v1/payments/callback`. Query status is not proof. No webhook.
 - **Description:** Route exactly `/my-payments`. On load, refetch `GET /payments/my-payments` (or a specific id when known) with `staleTime` 0 and focus refetch enabled on this view. Render the verified gateway status. Show the query value only as "the gateway sent you back with …".
@@ -793,7 +793,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 6
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P6-03
 - **Backend dependency:** `GET /api/v1/payments/my-payments`
 - **Description:** List the consumer's payments with gateway status.
@@ -809,7 +809,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 7
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P4-05
 - **Backend dependency:** `POST /api/v1/delivery/:reservationId/provider-check-in` while reservation is `PAYMENT_COMPLETED` or `DELIVERY_PENDING`
 - **Description:** Check-in action on the provider's reservation.
@@ -821,7 +821,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 7
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P4-05
 - **Backend dependency:** `POST /api/v1/delivery/:reservationId/provider-report` with integer `actualDeliveredKw` ≥ 0. Allowed before check-in. Does not by itself change delivery status.
 - **Description:** Numeric report form.
@@ -834,7 +834,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 7
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-07, P7-02
 - **Backend dependency:** `POST /api/v1/delivery/:reservationId/consumer-confirm`. Requires a report. Full delivery confirms. Shortfall sets partial delivery, an open incident, and a local refund without calling bKash (BX-09).
 - **Description:** Confirm button. When the report is below allocated kW, the copy says a refund record was created and that bKash is not called.
@@ -847,7 +847,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 7
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P3-07
 - **Backend dependency:** `POST /api/v1/delivery/:reservationId/consumer-dispute` with `disputeReason` at least 5 characters. Delivery becomes `DISPUTED`. Reservation status is unchanged. No incident row is written.
 - **Description:** Dispute dialog.
@@ -860,7 +860,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 7
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P7-01, P7-03
 - **Backend dependency:** `GET /api/v1/delivery/:reservationId`. Consumer and provider must own it. Admin and operator may read it.
 - **Description:** Shared detail used by the owner role pages. Staff may open it from a reservation row.
@@ -876,7 +876,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 8
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-12
 - **Backend dependency:** `GET /api/v1/admin/dashboard-stats`. Do not also require `/overview` unless a field is missing. No chart library.
 - **Description:** Stat cards for the numbers the payload actually returns (users, providers, events, reservations, payments, revenue, open incidents, refunds total).
@@ -889,7 +889,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 8
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P8-01
 - **Backend dependency:** `GET /api/v1/admin/users` with `searchTerm`, `role`, `status`, pagination
 - **Description:** User table bound to URL params.
@@ -902,7 +902,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 8
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P8-02
 - **Backend dependency:** `GET /api/v1/admin/users/:id`
 - **Description:** Detail page for one user.
@@ -914,7 +914,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 8
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P8-03
 - **Backend dependency:** `PATCH /api/v1/admin/users/:id/block` with `{ isBlocked, reason? }`. Cannot target another admin.
 - **Description:** Block and unblock with optional reason (max 500).
@@ -927,7 +927,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 8
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P8-03
 - **Backend dependency:** `PATCH /api/v1/admin/users/:id/soft-delete`. Sets deleted status. `checkAuth` does not reject `DELETED`, only `BLOCKED`.
 - **Description:** Confirm dialog for soft-delete. The copy must say this marks the account deleted and is not, by itself, a session kill on the API.
@@ -939,7 +939,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 8
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P8-01
 - **Backend dependency:** `GET /api/v1/admin/audit-logs`. Audit rows are not written for every mutation.
 - **Description:** Paginated audit table with action and entity filters.
@@ -952,7 +952,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 8
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-08, P5-09, P8-01
 - **Backend dependency:** admin may call allocate, approve-allocation, and reservation status. Admin may `GET /event/all` and must not call event create, update, or status.
 - **Description:** Mount the shared allocation and override UI on admin routes. Event list is read-only.
@@ -965,7 +965,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 8
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P5-06, P5-07, P8-01
 - **Backend dependency:** same provider approve routes as the operator
 - **Description:** Link the provider queue into the admin shell, reusing P5-06 and P5-07 components.
@@ -982,7 +982,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 9
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-12 and the role pages that exist when this runs
 - **Backend dependency:** none
 - **Description:** Pass the shells and the primary forms at a phone width and with keyboard only. Status badges include text. Form errors tie to inputs.
@@ -995,7 +995,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 9
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** the list pages in phases 3–8
 - **Backend dependency:** none
 - **Description:** Each list and detail view uses the shared empty, error, and skeleton components. Query `isError` stays inside the page.
@@ -1007,7 +1007,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 9
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P1-04, role features through phase 8 that are `DONE`
 - **Backend dependency:** role middleware
 - **Description:** With demo logins, walk consumer, provider, operator, and admin through their primary path, then open another role's URL.
@@ -1020,7 +1020,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 9
 - **Priority:** Medium
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-04
 - **Backend dependency:** error envelope, 409 unique conflicts, 429 rate limits
 - **Description:** Confirm forms and lists show 400 validation text, 401 session loss, 403 permission, 409 conflicts (request uniqueness, duplicate license), and 429 without a retry loop.
@@ -1033,7 +1033,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 9
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P0-05, P1-03, P1-10
 - **Backend dependency:** tokens in the Express JSON body must be stripped at the BFF
 - **Description:** Review the client bundle and browser storage after login, refresh, Google login, and both OTP verifies.
@@ -1050,7 +1050,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
 
 - **Phase:** 10
 - **Priority:** High
-- **Status:** TODO
+- **Status:** DONE
 - **Dependencies:** P9-05
 - **Backend dependency:** `FRONTEND_URL` must equal the deployed Next origin. `BKASH_CALLBACK_URL` stays on the API.
 - **Description:** `next build` succeeds. Document the production env names, not secret values, in the frontend README or the root README deployment section.
@@ -1058,6 +1058,7 @@ Buildable tasks: 73. P0-01 is `DONE`. The rest are `TODO`. Blocked tasks: 10.
   - Build output has no type errors.
   - The checklist names `API_URL`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, and `NEXT_PUBLIC_DEMO_LOGIN=false`.
   - Demo login is off in the production example.
+  - `npm run build` and the production env checklist are documented in this repository's README.
 
 ### P10-02 Deploy the frontend
 

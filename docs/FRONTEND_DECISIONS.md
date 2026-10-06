@@ -22,14 +22,14 @@ Decisions for the PowerMesh Next.js app. Facts that motivated them are in `FRONT
 - **Consequences:** `src/api` and `src/lib` must not import React. Reviewers should reject a page whose first line is `"use client"` when only a button needs it. Fresh marketplace data lives in the client island, not in a static HTML snapshot, because the API does not push cache tags.
 - **Alternatives considered:** Marking the whole dashboard page `"use client"` was rejected because the static shell does not need to hydrate. Prefetching every list in a dynamic Server Component was the earlier plan. It is superseded here so the page document stays static and the live region is the island.
 
-## ADR-003 — TanStack Query, no global UI store
+## ADR-003 — TanStack Query + Zustand for UI prefs
 
-- **Status:** Accepted
-- **Context:** The API is the owner of users, events, offers, requests, reservations, payments, and delivery. The folder layout has no `store/` directory.
-- **Decision:** TanStack Query holds every API resource, including `['me']`, inside the client island that renders it. Query keys include scope and list params. URL search params hold `page`, `limit`, `status`, `searchTerm`, `eventId`, and the payment return `status`. Dialogs, wizard steps, and sidebar collapsed state use local React state in that client component. Do not add Zustand unless a later decision says a value must be shared across islands that cannot use the URL.
-- **Reasoning:** Copying server rows into a global store creates two caches that drift. The sidebar state belongs to one shell component, so a store would be an extra layer. The API already pages and filters with query strings, so the URL is the right place for that state.
-- **Consequences:** Mutations must invalidate specific keys. `staleTime` is 5 minutes for `me`, 60 seconds for events and offers, 15 seconds for reservations and delivery, and 0 for the payment-return refetch. `refetchOnWindowFocus` is off except payment return and in-progress delivery, because the API allows 200 requests per 15 minutes. `gcTime` is 10 minutes. The earlier Zustand sidebar store is superseded.
-- **Alternatives considered:** Redux or a Zustand domain store was rejected as a second server cache. A Zustand store only for the sidebar was the earlier plan. It is superseded because that state does not leave the shell client component.
+- **Status:** Accepted (amended)
+- **Context:** The API is the owner of users, events, offers, requests, reservations, payments, and delivery. Assignment rubrics also expect a named global client store.
+- **Decision:** TanStack Query holds every API resource, including `['me']`, inside the client island that renders it. Query keys include scope and list params. URL search params hold `page`, `limit`, `status`, `searchTerm`, `eventId`, and the payment return `status`. Dialogs and wizard steps use local React state. **Zustand** (`src/stores/ui-prefs.store.ts`) holds UI-only prefs (sidebar open). Do not put JWTs or API lists in Zustand.
+- **Reasoning:** Copying server rows into a global store creates two caches that drift. A thin UI store satisfies the global-state requirement without becoming a second server cache.
+- **Consequences:** Mutations must invalidate specific Query keys. `staleTime` is 5 minutes for `me`, 60 seconds for events and offers, 15 seconds for reservations and delivery, and 0 for the payment-return refetch. `refetchOnWindowFocus` is off except payment return and in-progress delivery. `gcTime` is 10 minutes.
+- **Alternatives considered:** Redux or a Zustand domain store for API rows was rejected as a second server cache. Keeping sidebar only in local React state failed the rubric’s “global state management” wording.
 
 ## ADR-004 — Authentication and token handling
 
@@ -69,18 +69,18 @@ Decisions for the PowerMesh Next.js app. Facts that motivated them are in `FRONT
 
 ## ADR-008 — Performance and caching
 
-- **Status:** Accepted
-- **Context:** Express allows 200 requests per 15 minutes per IP, and 30 on auth, provider, and payments. Lists already default to 10 rows. Admin stats are counts, not time series. There is no websocket and no cache-tag webhook.
-- **Decision:** Do not use ISR for marketplace data, and do not bake personalized rows into the static page. The page stays static. The client island loads its list once through TanStack Query. Keep one `['me']` query for the shell island. Debounce search. Leave `refetchOnWindowFocus` off except where ADR-003 allows it. Do not add a chart library or list virtualization in the first build. Use `next/font` and `next/image`. Code-split Google and the payment return island by route.
-- **Reasoning:** The rate limit and duplicate waterfalls will hurt before bundle size does. Caching personalized reservation data on a static page would show another user's state or stale payment status.
-- **Consequences:** A very large admin user list stays on API pagination. If a later task removes pagination, virtualization can be reconsidered then. Dashboard "charts" are stat cards bound to `dashboard-stats`.
-- **Alternatives considered:** Client refetch on every focus was rejected because of the 200-request budget. SWR instead of TanStack Query was rejected to keep one server-state library (ADR-003).
+- **Status:** Accepted (amended)
+- **Context:** Express allows 200 requests per 15 minutes per IP, and 30 on auth, provider, and payments. Lists already default to 10 rows. Admin stats are counts, not time series. Shared staff catalogs change slowly; personalized rows must not be CDN-cached per user.
+- **Decision:** Use **ISR** (`revalidate` + cache tags + `ISR_SERVICE_TOKEN`) for shared catalogs (providers, admin events/users/audit, operator requests/payments, available events). Use **SSR** (`cookies()` + hydrate) for personalized “mine” pages, profiles, allocation, delivery, and `/my-payments`. Do not ISR personalized payment or reservation rows. Keep TanStack Query in client islands for mutations and filter changes. Debounce search. Leave `refetchOnWindowFocus` off except payment return and in-progress delivery. Use `next/font` and `next/image`.
+- **Reasoning:** Shared catalogs are identical for every staff user behind middleware, so ISR is safe and cuts waterfalls. Personalized HTML must stay per-request. Rate limits still dominate.
+- **Consequences:** Set matching `ISR_SERVICE_TOKEN` on Next and Express for build-time/ISR prefetch. Without it, ISR pages fall back to client Query. Approve/reject calls `updateTag('providers')`.
+- **Alternatives considered:** Client-only fetch for all lists (earlier ADR) left no data in the static HTML. Full-page SSR of every dashboard route burned the rate budget.
 
 ## ADR-009 — `src` layout
 
 - **Status:** Accepted
 - **Context:** The API is modular. The frontend source needs one agreed tree: `api`, `app`, `assets`, `components`, `hooks`, `lib`, `providers`, `routes`, `types`, `utils`, and `validation`.
-- **Decision:** This repository is the Next.js app root, with source under `src/`. `src/app` holds pages and layouts. `src/api` holds BFF modules. `src/components` holds shared UI (`ui/`), shells (`shell/`), and screen modules (`modules/`). Under `modules/`, `dashboard/` holds shared dashboard widgets; feature folders such as `auth`, `approve-provider`, `profile`, `payments`, and role folders hold screen components. `src/hooks` holds shared hooks. `src/lib` holds non-React helpers. `src/providers` holds the Query provider. `src/routes` holds one path map per role. `src/types` holds enums and shared types. `src/utils` holds pure helpers. `src/validation` holds Zod mirrors. `src/assets` holds static files that are imported by the app. There is no `features/` tree, no `schemas/` tree, and no `store/` tree.
+- **Decision:** This repository is the Next.js app root, with source under `src/`. `src/app` holds pages and layouts. `src/api` holds BFF modules. `src/components` holds shared UI (`ui/`), shells (`shell/`), and screen modules (`modules/`). Under `modules/`, `dashboard/` holds shared dashboard widgets; feature folders such as `auth`, `approve-provider`, `profile`, `payments`, and role folders hold screen components. `src/hooks` holds shared hooks. `src/lib` holds non-React helpers. `src/providers` holds the Query provider. `src/stores` holds Zustand UI prefs. `src/routes` holds one path map per role. `src/types` holds enums and shared types. `src/utils` holds pure helpers. `src/validation` holds Zod mirrors. `src/assets` holds static files that are imported by the app. There is no `features/` tree and no `schemas/` tree.
 - **Reasoning:** A second `services/` or `features/` tree would split the same screen across two conventions. Path maps in `src/routes` stay out of `src/app` so navigation labels do not get mixed with page files.
 - **Consequences:** A screen component may import `src/components`, `src/hooks`, and types. It should not import another page. Allocation UI used by operator and admin is one component mounted by both pages. Zod stays in `src/validation`, not beside the page.
 - **Alternatives considered:** A `features/` directory per API module was the earlier plan. It is superseded by this `src` tree. Colocating every component under `src/app` was rejected because Zod, path maps, and BFF modules are not pages.

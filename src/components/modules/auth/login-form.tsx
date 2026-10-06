@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
+import { DemoLoginButtons } from "@/components/modules/auth/demo-login-buttons";
 import { GoogleSignInButton } from "@/components/modules/auth/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,7 +122,12 @@ export function LoginForm() {
             googleLogin.reset();
           }}
         />
-      ) : null}
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Google sign-in is hidden until `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is set.
+        </p>
+      )}
+      <DemoLoginButtons />
       <p className="text-sm text-muted-foreground">
         New here?{" "}
         <Link href="/register" className="font-medium text-foreground underline-offset-4 hover:underline">

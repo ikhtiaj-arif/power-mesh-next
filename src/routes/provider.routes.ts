@@ -3,6 +3,7 @@ import {
   Package,
   PlugZap,
   Truck,
+  User,
 } from "lucide-react";
 
 import type { NavGroup } from "./types";
@@ -17,6 +18,7 @@ export const providerNav: NavGroup[] = [
       { title: "Offers", href: "/provider/offers", icon: PlugZap },
       { title: "Reservations", href: "/provider/reservations", icon: Package },
       { title: "Delivery", href: "/provider/delivery", icon: Truck },
+      { title: "Profile", href: "/provider/profile", icon: User },
     ],
   },
 ];
