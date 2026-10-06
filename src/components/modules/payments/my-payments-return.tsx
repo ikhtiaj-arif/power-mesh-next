@@ -60,7 +60,7 @@ export function MyPaymentsReturn() {
     <div className="space-y-6">
       <OverviewHeader
         title="Payment return"
-        description="bKash sends the browser here after checkout. Status below comes from the API."
+        description="After bKash or Stripe checkout you land here. Status below comes from the API (Stripe uses webhooks)."
       />
 
       {gatewayHint ? (
@@ -135,7 +135,7 @@ export function MyPaymentsReturn() {
             ) : (
               <p className="text-sm text-muted-foreground">
                 Start payment from an allocated reservation, then return here
-                after bKash redirects through the API callback.
+                after bKash or Stripe redirects you back.
               </p>
             )}
 
