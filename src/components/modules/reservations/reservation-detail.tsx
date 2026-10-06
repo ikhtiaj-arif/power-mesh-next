@@ -21,9 +21,14 @@ import {
   useCancelReservation,
   useGetMe,
   useGetMyReservations,
+  useInitiatePayment,
 } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
-import { CANCELABLE_RESERVATION_STATUSES } from "@/types";
+import {
+  CANCELABLE_RESERVATION_STATUSES,
+  CONSUMER_DELIVERY_LINK_STATUSES,
+  PAYABLE_RESERVATION_STATUSES,
+} from "@/types";
 
 /**
  * Consumer detail is resolved from the owned my-reservations list, not the
@@ -40,6 +45,7 @@ export function ReservationDetail({
   const me = useGetMe();
   const list = useGetMyReservations({ page: 1, limit: 50 });
   const cancel = useCancelReservation();
+  const initiatePayment = useInitiatePayment();
 
   const reservation = useMemo(
     () => list.data?.data.find((row) => row.id === reservationId),
@@ -53,6 +59,14 @@ export function ReservationDetail({
     owned &&
     reservation &&
     CANCELABLE_RESERVATION_STATUSES.includes(reservation.status);
+  const canPay =
+    owned &&
+    reservation &&
+    PAYABLE_RESERVATION_STATUSES.includes(reservation.status);
+  const canOpenDelivery =
+    owned &&
+    reservation &&
+    CONSUMER_DELIVERY_LINK_STATUSES.includes(reservation.status);
 
   return (
     <div className="space-y-6">
@@ -116,12 +130,79 @@ export function ReservationDetail({
                 label="Provider"
                 value={reservation.offer?.provider?.companyName ?? "—"}
               />
-              <DetailItem
-                label="Pay"
-                value="Payment initiate lands in a later phase (disabled for now)."
-              />
             </CardContent>
           </Card>
+
+          {canPay ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Pay with bKash</CardTitle>
+                <CardDescription>
+                  Starts hosted checkout via POST /payments/initiate. You leave
+                  this site for bKash; return lands on /my-payments.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  type="button"
+                  disabled={initiatePayment.isPending}
+                  onClick={() => {
+                    initiatePayment.mutate(
+                      { reservationId: reservation.id },
+                      {
+                        onSuccess: (result) => {
+                          if (result.bkashURL) {
+                            window.location.href = result.bkashURL;
+                          } else {
+                            toast.add({
+                              title: "Missing checkout URL",
+                              description:
+                                "The API did not return bkashURL.",
+                              type: "error",
+                            });
+                          }
+                        },
+                        onError: (error) => {
+                          toast.add({
+                            title: "Could not start payment",
+                            description: getApiErrorMessage(
+                              error,
+                              "Try again.",
+                            ),
+                            type: "error",
+                          });
+                        },
+                      },
+                    );
+                  }}
+                >
+                  {initiatePayment.isPending ? "Starting checkout…" : "Pay now"}
+                </Button>
+              </CardContent>
+            </Card>
+          ) : null}
+
+          {canOpenDelivery ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Delivery</CardTitle>
+                <CardDescription>
+                  Confirm or dispute after the provider reports delivered kW.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  type="button"
+                  variant="outline"
+                  render={
+                    <Link href={`/consumer/delivery/${reservation.id}`} />
+                  }
+                >
+                  Open delivery
+                </Button>
+              </CardContent>
+            </Card>
+          ) : null}
 
           {canCancel ? (
             <Card>
