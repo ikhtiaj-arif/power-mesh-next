@@ -50,10 +50,46 @@ export async function getProviderByIdISR(
   return envelope.data;
 }
 
+/**
+ * Used by generateStaticParams so `next build` emits one ● page per provider id
+ * (same shape as /doctors/[id] with nested UUIDs).
+ */
 export async function getProviderStaticParams(): Promise<Array<{ id: string }>> {
-  const list = await getProvidersISR({ page: 1, limit: 50 });
-  if (!list?.data?.length) {
+  if (!process.env.API_URL || !process.env.ISR_SERVICE_TOKEN) {
+    console.warn(
+      "[ISR] Skipping provider static params: set API_URL and ISR_SERVICE_TOKEN so /providers/[id] prerenders at build.",
+    );
     return [];
   }
-  return list.data.map((provider) => ({ id: provider.id }));
+
+  const ids = new Set<string>();
+  const pageSize = 50;
+  let page = 1;
+  let totalPages = 1;
+
+  while (page <= totalPages && page <= 20) {
+    const list = await getProvidersISR({ page, limit: pageSize });
+    if (!list?.data?.length) {
+      break;
+    }
+
+    for (const provider of list.data) {
+      if (provider.id) {
+        ids.add(provider.id);
+      }
+    }
+
+    totalPages = Math.max(1, list.meta?.totalPages ?? 1);
+    page += 1;
+  }
+
+  if (ids.size === 0) {
+    console.warn(
+      "[ISR] generateStaticParams found 0 providers. Is the API running with matching ISR_SERVICE_TOKEN?",
+    );
+  } else {
+    console.info(`[ISR] generateStaticParams prerendering ${ids.size} provider page(s).`);
+  }
+
+  return [...ids].map((id) => ({ id }));
 }
