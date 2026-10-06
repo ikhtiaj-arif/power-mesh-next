@@ -23,6 +23,8 @@ type OverviewTableProps = {
   columns: [string, string, string, string];
   rows: OverviewRow[];
   className?: string;
+  emptyMessage?: string;
+  statusRenderer?: (status: string) => React.ReactNode;
 };
 
 export function OverviewTable({
@@ -31,6 +33,8 @@ export function OverviewTable({
   columns,
   rows,
   className,
+  emptyMessage = "No rows yet.",
+  statusRenderer,
 }: OverviewTableProps) {
   return (
     <div
@@ -59,18 +63,30 @@ export function OverviewTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell className="font-medium">{row.primary}</TableCell>
-              <TableCell>{row.secondary}</TableCell>
-              <TableCell>
-                <span className="rounded-md bg-muted px-2 py-0.5 text-xs">
-                  {row.status}
-                </span>
+          {rows.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-sm text-muted-foreground">
+                {emptyMessage}
               </TableCell>
-              <TableCell className="text-muted-foreground">{row.meta}</TableCell>
             </TableRow>
-          ))}
+          ) : (
+            rows.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell className="font-medium">{row.primary}</TableCell>
+                <TableCell>{row.secondary}</TableCell>
+                <TableCell>
+                  {statusRenderer ? (
+                    statusRenderer(row.status)
+                  ) : (
+                    <span className="rounded-md bg-muted px-2 py-0.5 text-xs">
+                      {row.status}
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell className="text-muted-foreground">{row.meta}</TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>
