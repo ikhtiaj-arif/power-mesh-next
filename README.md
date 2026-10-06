@@ -200,7 +200,11 @@ The seeded provider can log in and still cannot create an offer until an operato
 
 ### Rendering (SSG / ISR / SSR)
 
-Set matching `ISR_SERVICE_TOKEN` on both the Next app and the Express API so ISR catalog pages can prefetch at build/revalidate time. Without it, those pages still work via client TanStack Query.
+Set matching `ISR_SERVICE_TOKEN` on both the Next app and the Express API (default local value in `.env.example`: `powermesh-isr-dev-token`).
+
+**Why a token here (unlike a public `/doctors` ISR demo):** Healthcare-style catalogs usually hit a **public** list API at build time, so no auth header is needed. PowerMesh `GET /provider/all-providers` and `GET /provider/:id` require ADMIN/OPERATOR. Using the browser session cookie inside `page.tsx` would force SSR/dynamic and break ISR. The shared service token lets Next prefetch those catalogs at build/`revalidate` without calling `cookies()`.
+
+Without the token, those pages still work via client TanStack Query, but `generateStaticParams` will not emit nested `● /providers/<uuid>` routes.
 
 | Method | Routes |
 | --- | --- |
