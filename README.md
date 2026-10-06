@@ -2,7 +2,7 @@
 
 PowerMesh is a marketplace for backup power during scheduled outages. Consumers request kilowatts, providers offer generation or storage capacity, and operators match them for a specific outage event. Payment uses bKash. Delivery is confirmed by the people on each side of the reservation.
 
-The backend API is the sibling repository [`power-mesh-server`](../power-mesh-server). This repository is the frontend. The Next.js app is planned and not scaffolded yet.
+The backend API is the sibling repository [`power-mesh-server`](../power-mesh-server). This repository is the Next.js frontend: it talks to the live API through a BFF that sets first-party session cookies, with role dashboards and flows for events, capacity requests, offers, reservations, bKash payments, delivery, and admin tooling.
 
 ## Problem it solves
 
@@ -45,14 +45,14 @@ Public visitors can read the marketing page and create an account. Event and off
 - Admin stats, user block and soft-delete, audit log read.
 - Demo users seeded in development.
 
-### Planned (frontend)
+### Implemented (frontend)
 
-- Next.js app with role-specific dashboards, documented in [`docs/FRONTEND_PLAN.md`](docs/FRONTEND_PLAN.md).
-- Same-origin session so the browser does not store JWTs in JavaScript.
-- One-click development login for the seeded admin, provider, consumer, and operator accounts.
-- bKash payment start and a `/my-payments` return page that checks payment status with the API.
+- Next.js App Router UI with consumer, provider, operator, and admin shells (see [`docs/FRONTEND_PLAN.md`](docs/FRONTEND_PLAN.md)).
+- BFF login, refresh, logout, and proxy routes so JWTs stay in `httpOnly` cookies, not JavaScript storage.
+- Marketing, registration, OTP verify, Google consumer sign-in, and optional one-click demo login when `NEXT_PUBLIC_DEMO_LOGIN=true`.
+- Events, requests, offers, reservations, operator allocation, bKash initiate and `/my-payments` return handling, delivery actions, and admin user or audit screens.
 
-Nothing in the planned frontend list is built yet.
+Remaining frontend work is deployment (see [`docs/FRONTEND_TASKS.md`](docs/FRONTEND_TASKS.md): P10-02, P10-03).
 
 ### Backend-dependent (do not present as available)
 
@@ -67,7 +67,7 @@ Nothing in the planned frontend list is built yet.
 
 **Backend (implemented):** Node.js, Express 5, TypeScript, PostgreSQL, Prisma 7, Redis, Zod, JWT, Google ID tokens, bKash Tokenized Checkout, Nodemailer, Cloudinary, Helmet, CORS, rate limiting.
 
-**Frontend (planned):** Next.js App Router under `src/`, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query inside client islands, React Hook Form, Zod, bKash hosted checkout via the existing initiate URL.
+**Frontend (this repo):** Next.js App Router under `src/`, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query inside client islands, React Hook Form, Zod, bKash hosted checkout via the existing initiate URL.
 
 ## Architecture
 
@@ -97,7 +97,7 @@ Frontend environment variables are `API_URL` (server only), `NEXT_PUBLIC_APP_URL
 
 The running payment provider is **bKash Tokenized Checkout**.
 
-Older assignment drafts in `../files/` and the unused `../prisma-schema.prisma` mention SSLCommerz, and some of those drafts also mention Stripe as an alternative. Those drafts were not what the server implemented. The server README, video guide, Postman collection, `.env.example`, and `../power-mesh-server/src/app/lib/bkash.ts` all use bKash. The frontend will follow the server.
+Older assignment drafts in `../files/` and the unused `../prisma-schema.prisma` mention SSLCommerz, and some of those drafts also mention Stripe as an alternative. Those drafts were not what the server implemented. The server README, video guide, Postman collection, `.env.example`, and `../power-mesh-server/src/app/lib/bkash.ts` all use bKash. The frontend follows the server.
 
 The consumer starts payment with `POST /api/v1/payments/initiate`. The UI navigates to `bkashURL`. bKash returns the browser to the API callback, which executes the payment and redirects to `{FRONTEND_URL}/my-payments?status=success|cancel|failure`. The page must confirm status with the payments API. Currency is BDT. There is no inbound webhook route.
 
@@ -135,7 +135,7 @@ power-mesh-client/                 # this repository
 
 Older assignment drafts live beside this repo in `../files/` and `../prisma-schema.prisma`. They are not authoritative.
 
-The Next.js app is not scaffolded yet. Phase 0 adds it at the root of this repository. Do not create a nested `frontend/` package.
+The app lives at the root of this repository (no nested `frontend/` package).
 
 ## Local development
 
@@ -151,16 +151,35 @@ npm run dev
 
 When `NODE_ENV=development`, the server seeds demo users. The example API port is `5000`. Set `FRONTEND_URL=http://localhost:3000` so CORS and the bKash return URL match the Next.js app. Set `BKASH_CALLBACK_URL` to the API callback, for example `http://localhost:5000/api/v1/payments/callback`.
 
-When Phase 0 lands in this repository, the app uses placeholders like:
+From this repository, copy `.env.example` to `.env.local` (or `.env`) and set:
 
 ```bash
-API_URL=http://localhost:5000
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
-NEXT_PUBLIC_DEMO_LOGIN=true
+cd power-mesh-client
+npm install
+npm run dev
 ```
 
-`NEXT_PUBLIC_GOOGLE_CLIENT_ID` must be the same public client id the API expects. The client secret stays on the API.
+Example values (placeholders only; do not commit secrets):
+
+| Variable | Scope | Purpose |
+| --- | --- | --- |
+| `API_URL` | server only | Express base URL (e.g. `http://localhost:5000`) |
+| `NEXT_PUBLIC_APP_URL` | browser | Public origin of this app (e.g. `http://localhost:3000`) |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | browser | Google Identity client id (same as the API expects) |
+| `NEXT_PUBLIC_DEMO_LOGIN` | browser | `true` shows seeded one-click login buttons in development; use `false` in production |
+
+`NEXT_PUBLIC_GOOGLE_CLIENT_ID` must match the API configuration. The Google client secret, JWT secrets, database URLs, SMTP, and `BKASH_*` variables stay on the API only.
+
+### Production build and env checklist
+
+Before deploy, run `npm run build` from this repository. On the host, set at least:
+
+- `API_URL` — deployed Express API origin (server-only).
+- `NEXT_PUBLIC_APP_URL` — deployed Next.js origin; must match `FRONTEND_URL` on the API.
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` — production Google client id, or leave empty to hide Google sign-in.
+- `NEXT_PUBLIC_DEMO_LOGIN=false` — demo login buttons must stay off in production.
+
+Confirm the API's `FRONTEND_URL` and bKash callback configuration point at the real origins. Deployment steps themselves are tracked as P10-02 and P10-03 in [`docs/FRONTEND_TASKS.md`](docs/FRONTEND_TASKS.md).
 
 ## Demo accounts
 
@@ -188,15 +207,13 @@ The frontend history should contain at least 20 meaningful commits (foundation, 
 | Area | Status |
 | --- | --- |
 | Express API, schema, bKash, seeds, Postman | Implemented in the sibling `power-mesh-server` repo |
-| Frontend architecture and task tracker | Written in this repository under `docs/` |
-| Next.js UI, BFF, dashboards, payment screens | Not started |
-| Frontend deployment | Not deployed |
-
-No frontend task is `IN_PROGRESS`.
+| Next.js UI, BFF, role dashboards, marketplace flows | Implemented in this repository |
+| Frontend hardening and production build checklist | Done (see task tracker) |
+| Hosted frontend deploy and production cookie/CORS verification | Not done (P10-02, P10-03) |
 
 ## Known limitations
 
-- API auth cookies use `SameSite=None` and `Secure=false`, so browsers reject them. Tokens are also in the JSON body. The planned BFF exists because of that.
+- API auth cookies use `SameSite=None` and `Secure=false`, so browsers reject them. Tokens are also in the JSON body. This app's BFF reads tokens on the server and sets first-party cookies instead.
 - Logout does not revoke refresh tokens. Cookie clearing does not match the original `SameSite` and `Secure` options.
 - Auth middleware blocks `BLOCKED` users and does not block `DELETED` users. Role is read from the JWT, not from the user row.
 - `GET /api/v1/auth/me` is the wrong profile endpoint for provider and operator shells.
@@ -211,7 +228,7 @@ No frontend task is `IN_PROGRESS`.
 
 ## Deployment
 
-The API is what the server video guide deploys. The frontend has no host yet. The intended shape is a separate Next.js deployment whose public origin is `FRONTEND_URL` on the API, with bKash still calling the API callback. Do not treat the frontend as deployed.
+The API is what the server video guide deploys. The Next.js app is ready to build (`npm run build`) but is not hosted yet. Deploy it as a separate origin that matches `FRONTEND_URL` on the API; bKash still returns through the API callback. Record the live URL in this README only after P10-02 is complete.
 
 ## Documentation
 
