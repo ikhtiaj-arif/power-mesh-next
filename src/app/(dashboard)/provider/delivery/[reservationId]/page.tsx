@@ -1,5 +1,7 @@
 import { DeliveryDetail } from "@/components/modules/delivery";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProviderDeliveryDetailPage({
   params,
 }: {
