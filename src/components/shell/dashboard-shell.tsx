@@ -34,6 +34,7 @@ import { toast } from "@/components/ui/toast";
 import { AuthGuard } from "@/components/shell/auth-guard";
 import { useGetMe, useLogout } from "@/hooks";
 import { getRoleLabel, getRoleNav } from "@/routes";
+import { useUiPrefsStore } from "@/stores/ui-prefs.store";
 import type { UserRole } from "@/types";
 
 function initials(firstName: string, lastName: string) {
@@ -53,9 +54,14 @@ function DashboardFrame({
   const logout = useLogout();
   const user = data?.data;
   const nav = getRoleNav(role);
+  const sidebarOpen = useUiPrefsStore((state) => state.sidebarOpen);
+  const setSidebarOpen = useUiPrefsStore((state) => state.setSidebarOpen);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider
+      open={sidebarOpen}
+      onOpenChange={setSidebarOpen}
+    >
       <Sidebar collapsible="icon" variant="inset">
         <SidebarHeader>
           <SidebarMenu>
