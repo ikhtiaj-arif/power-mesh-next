@@ -1,3 +1,5 @@
+import type { ProviderProfile } from "./provider";
+
 export type UserRole = "CONSUMER" | "PROVIDER" | "OPERATOR" | "ADMIN";
 
 export type UserStatus = "ACTIVE" | "BLOCKED" | "DELETED";
@@ -53,6 +55,30 @@ export type ConsumerProfile = {
   deletedAt: string | null;
 };
 
+export type UpdateMeConsumerPayload = {
+  organizationName?: string;
+  criticalLoadKw?: number;
+  address?: string;
+  contactPerson?: string;
+  contactPhone?: string;
+};
+
+export type UpdateMeProviderPayload = {
+  companyName?: string;
+  address?: string;
+  contactPerson?: string;
+  contactPhone?: string;
+  bankAccountNumber?: string;
+};
+
+export type UpdateMePayload = {
+  firstName?: string;
+  lastName?: string;
+  imageUrl?: string;
+  consumer?: UpdateMeConsumerPayload;
+  provider?: UpdateMeProviderPayload;
+};
+
 export type User = {
   id: string;
   email: string;
@@ -74,12 +100,7 @@ export type User = {
   updatedAt: string;
   status: UserStatus;
   consumer: ConsumerProfile | null;
-  provider?: {
-    id: string;
-    status: string;
-    companyName: string;
-    verified: boolean;
-  } | null;
+  provider: ProviderProfile | null;
   operator?: {
     id: string;
     isAdmin: boolean;

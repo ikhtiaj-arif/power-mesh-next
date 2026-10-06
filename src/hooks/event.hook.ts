@@ -40,17 +40,19 @@ export function useGetAvailableEvents(params: EventListParams = {}) {
   });
 }
 
-export function useGetMyEvents(params: EventListParams = {}) {
+export function useGetMyEvents(params: EventListParams = {}, enabled = true) {
   return useQuery({
     queryKey: myEventsKey(params),
     queryFn: () => getMyEvents(params),
+    enabled,
   });
 }
 
-export function useGetAllEvents(params: EventListParams = {}) {
+export function useGetAllEvents(params: EventListParams = {}, enabled = true) {
   return useQuery({
     queryKey: allEventsKey(params),
     queryFn: () => getAllEvents(params),
+    enabled,
   });
 }
 

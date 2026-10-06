@@ -22,6 +22,30 @@ export type CapacityOffer = {
     id: string;
     companyName: string;
   };
+  event?: {
+    id: string;
+    scheduledStart: string;
+    scheduledEnd: string;
+    status: string;
+    totalCapacityKw: number;
+    notes: string | null;
+  };
+};
+
+export type CreateOfferPayload = {
+  eventId: string;
+  capacityKw: number;
+  pricePerKwh: number;
+  deliveryStart: string;
+  deliveryEnd: string;
+};
+
+export type UpdateOfferPayload = {
+  capacityKw?: number;
+  pricePerKwh?: number;
+  deliveryStart?: string;
+  deliveryEnd?: string;
+  status?: OfferStatus;
 };
 
 export type OfferListParams = {
@@ -30,4 +54,6 @@ export type OfferListParams = {
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   status?: OfferStatus;
+  eventId?: string;
+  searchTerm?: string;
 };

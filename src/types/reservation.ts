@@ -62,6 +62,9 @@ export type ReservationListParams = {
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   status?: ReservationStatus;
+  paymentStatus?: PaymentStatus;
+  eventId?: string;
+  searchTerm?: string;
 };
 
 export type CreateReservationPayload = {

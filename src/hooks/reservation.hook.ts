@@ -43,10 +43,14 @@ export function useGetMyReservations(params: ReservationListParams = {}) {
   });
 }
 
-export function useGetAllReservations(params: ReservationListParams = {}) {
+export function useGetAllReservations(
+  params: ReservationListParams = {},
+  enabled = true,
+) {
   return useQuery({
     queryKey: allReservationsKey(params),
     queryFn: () => getAllReservations(params),
+    enabled,
   });
 }
 

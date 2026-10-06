@@ -3,6 +3,8 @@ import {
   CalendarDays,
   FileText,
   LayoutDashboard,
+  Scale,
+  User,
   Users,
 } from "lucide-react";
 
@@ -18,7 +20,9 @@ export const adminNav: NavGroup[] = [
       { title: "Users", href: "/admin/users", icon: Users },
       { title: "Providers", href: "/admin/providers", icon: Building2 },
       { title: "Events", href: "/admin/events", icon: CalendarDays },
+      { title: "Allocation", href: "/admin/allocation", icon: Scale },
       { title: "Audit log", href: "/admin/audit", icon: FileText },
+      { title: "Profile", href: "/admin/profile", icon: User },
     ],
   },
 ];
