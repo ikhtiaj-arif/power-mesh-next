@@ -1,10 +1,5 @@
-import { ComingSoon } from "@/components/modules/dashboard/coming-soon";
+import { AdminUsersList } from "@/components/modules/admin/admin-users-list";
 
 export default function AdminUsersPage() {
-  return (
-    <ComingSoon
-      title="Users"
-      description="List, block, and soft-delete platform users."
-    />
-  );
+  return <AdminUsersList />;
 }

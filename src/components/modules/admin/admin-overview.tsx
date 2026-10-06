@@ -1,50 +1,28 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-
-import apiClient from "@/lib/api-client";
-import type { ApiResponse } from "@/types";
 import { BarChart } from "@/components/modules/dashboard/bar-chart";
-import { LineChart } from "@/components/modules/dashboard/line-chart";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { OverviewTable } from "@/components/modules/dashboard/overview-table";
 import { ProgressList } from "@/components/modules/dashboard/progress-list";
 import { StatCard } from "@/components/modules/dashboard/stat-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetDashboardStats } from "@/hooks";
+import { getApiErrorMessage } from "@/lib/api-error";
 
-type DashboardStats = {
-  users: { total: number; active: number; blocked: number };
-  providers: { total: number; approved: number; pending: number };
-  consumers: { total: number };
-  events: { total: number; active: number };
-  capacity: { offers: number; requests: number; pendingRequests: number };
-  reservations: { total: number; completed: number; failed: number };
-  payments: { total: number; completed: number; revenue: number };
-  incidents: { open: number };
-  refunds: { totalAmount: number };
-};
-
-function formatMoney(value: number) {
-  return `৳${value.toLocaleString()}`;
+function formatMoney(value: number | string) {
+  const n = typeof value === "string" ? Number(value) : value;
+  return `৳${Number.isFinite(n) ? n.toLocaleString() : "0"}`;
 }
 
 export function AdminOverview() {
-  const stats = useQuery({
-    queryKey: ["admin", "dashboard-stats"],
-    queryFn: () =>
-      apiClient<ApiResponse<DashboardStats>>("/admin/dashboard-stats", {
-        method: "GET",
-      }),
-    retry: false,
-  });
-
-  const data = stats.data?.data;
+  const stats = useGetDashboardStats();
+  const data = stats.data;
 
   return (
     <div className="space-y-6">
       <OverviewHeader
         title="Admin overview"
-        description="Platform users, marketplace volume, and settlement health."
+        description="Platform users, marketplace volume, and settlement health from dashboard-stats."
       />
       {stats.isPending ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -76,44 +54,95 @@ export function AdminOverview() {
           />
         </div>
       )}
-      <div className="grid gap-4 xl:grid-cols-2">
-        <BarChart
-          title="Marketplace pipeline"
-          subtitle="Offers and requests currently on the platform"
-          primaryLabel="Offers"
-          secondaryLabel="Requests"
-          series={[
-            {
-              label: "Now",
-              primary: data?.capacity.offers ?? 12,
-              secondary: data?.capacity.requests ?? 18,
-            },
-            {
-              label: "Pending",
-              primary: data?.providers.pending ?? 4,
-              secondary: data?.capacity.pendingRequests ?? 7,
-            },
-            {
-              label: "Done",
-              primary: data?.reservations.completed ?? 9,
-              secondary: data?.payments.completed ?? 8,
-            },
-            {
-              label: "Failed",
-              primary: data?.reservations.failed ?? 2,
-              secondary: data?.incidents.open ?? 1,
-            },
-          ]}
-        />
-        <LineChart
-          title="Settlement trend"
-          subtitle="Illustrative weekly completed payments"
-          labels={["W1", "W2", "W3", "W4", "W5", "W6"]}
-          current={[4, 6, 5, 9, 8, 11]}
-          previous={[3, 4, 5, 6, 7, 8]}
-        />
-      </div>
-      <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+
+      {!stats.isPending && data ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            title="Open incidents"
+            value={String(data.incidents.open)}
+            description="Aggregate open count (no incident inbox)"
+          />
+          <StatCard
+            title="Refund total"
+            value={formatMoney(data.refunds.totalAmount)}
+            description="Recorded refund amounts (local ledger)"
+          />
+          <StatCard
+            title="Pending requests"
+            value={String(data.capacity.pendingRequests)}
+            description={`${data.capacity.requests} requests total`}
+          />
+          <StatCard
+            title="Reservations"
+            value={String(data.reservations.total)}
+            description={`${data.reservations.completed} delivery confirmed · ${data.reservations.failed} failed/cancelled/refunded`}
+          />
+        </div>
+      ) : null}
+
+      {stats.isPending ? null : data ? (
+        <div className="grid gap-4 xl:grid-cols-2">
+          <BarChart
+            title="Marketplace pipeline"
+            subtitle="Live counts from dashboard-stats"
+            primaryLabel="Offers"
+            secondaryLabel="Requests"
+            series={[
+              {
+                label: "Listed",
+                primary: data.capacity.offers,
+                secondary: data.capacity.requests,
+              },
+              {
+                label: "Pending",
+                primary: data.providers.pending,
+                secondary: data.capacity.pendingRequests,
+              },
+              {
+                label: "Done",
+                primary: data.reservations.completed,
+                secondary: data.payments.completed,
+              },
+              {
+                label: "Failed",
+                primary: data.reservations.failed,
+                secondary: data.incidents.open,
+              },
+            ]}
+          />
+          <ProgressList
+            title="Control plane"
+            subtitle="Operational completeness"
+            items={[
+              {
+                label: "Approved providers",
+                value:
+                  data.providers.total > 0
+                    ? Math.round((data.providers.approved / data.providers.total) * 100)
+                    : 0,
+              },
+              {
+                label: "Completed reservations",
+                value:
+                  data.reservations.total > 0
+                    ? Math.round(
+                        (data.reservations.completed / data.reservations.total) * 100,
+                      )
+                    : 0,
+              },
+              {
+                label: "Completed payments",
+                value:
+                  data.payments.total > 0
+                    ? Math.round((data.payments.completed / data.payments.total) * 100)
+                    : 0,
+              },
+            ]}
+          />
+        </div>
+      ) : null}
+
+      {!stats.isPending && data ? (
         <OverviewTable
           title="Platform snapshot"
           subtitle="Counts from dashboard-stats"
@@ -124,58 +153,29 @@ export function AdminOverview() {
               primary: "Consumers",
               secondary: "Registered profiles",
               status: "ACTIVE",
-              meta: String(data?.consumers.total ?? 0),
+              meta: String(data.consumers.total),
             },
             {
               id: "2",
-              primary: "Reservations",
-              secondary: "All bookings",
+              primary: "Offers",
+              secondary: "Capacity listings",
               status: "TRACKED",
-              meta: String(data?.reservations.total ?? 0),
+              meta: String(data.capacity.offers),
             },
             {
               id: "3",
-              primary: "Refunds",
-              secondary: "Recorded amount",
-              status: "LOCAL",
-              meta: formatMoney(data?.refunds.totalAmount ?? 0),
+              primary: "Payments",
+              secondary: "All gateway rows",
+              status: "TRACKED",
+              meta: String(data.payments.total),
             },
           ]}
         />
-        <ProgressList
-          title="Control plane"
-          subtitle="Operational completeness"
-          items={[
-            {
-              label: "Approved providers",
-              value:
-                data && data.providers.total
-                  ? Math.round((data.providers.approved / data.providers.total) * 100)
-                  : 0,
-            },
-            {
-              label: "Completed reservations",
-              value:
-                data && data.reservations.total
-                  ? Math.round(
-                      (data.reservations.completed / data.reservations.total) * 100,
-                    )
-                  : 0,
-            },
-            {
-              label: "Completed payments",
-              value:
-                data && data.payments.total
-                  ? Math.round((data.payments.completed / data.payments.total) * 100)
-                  : 0,
-            },
-          ]}
-        />
-      </div>
+      ) : null}
+
       {stats.isError ? (
-        <p className="text-sm text-muted-foreground">
-          Live admin stats are unavailable right now. The layout still mirrors
-          the dashboard shell so you can continue building screens.
+        <p className="text-sm text-destructive" role="alert">
+          {getApiErrorMessage(stats.error, "Live admin stats are unavailable right now.")}
         </p>
       ) : null}
     </div>
