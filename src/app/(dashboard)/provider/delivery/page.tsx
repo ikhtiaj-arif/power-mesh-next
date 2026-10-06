@@ -1,10 +1,5 @@
-import { ComingSoon } from "@/components/modules/dashboard/coming-soon";
+import { ProviderDeliveryList } from "@/components/modules/delivery";
 
 export default function ProviderDeliveryPage() {
-  return (
-    <ComingSoon
-      title="Delivery"
-      description="Check in and report delivered kilowatts."
-    />
-  );
+  return <ProviderDeliveryList />;
 }
