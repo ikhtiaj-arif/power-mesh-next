@@ -59,7 +59,8 @@ export async function getProviderStaticParams(): Promise<Array<{ id: string }>> 
     console.warn(
       "[ISR] Skipping provider static params: set API_URL and ISR_SERVICE_TOKEN so /providers/[id] prerenders at build.",
     );
-    return [];
+    // Static export requires at least one entry; real IDs resolve client-side.
+    return [{ id: "_" }];
   }
 
   const ids = new Set<string>();
@@ -85,11 +86,12 @@ export async function getProviderStaticParams(): Promise<Array<{ id: string }>> 
 
   if (ids.size === 0) {
     console.warn(
-      "[ISR] generateStaticParams found 0 providers. Is the API running with matching ISR_SERVICE_TOKEN?",
+      "[ISR] generateStaticParams found 0 providers. Falling back to placeholder. Is the API running with ISR_SERVICE_TOKEN?",
     );
-  } else {
-    console.info(`[ISR] generateStaticParams prerendering ${ids.size} provider page(s).`);
+    // Static export requires at least one entry.
+    return [{ id: "_" }];
   }
 
+  console.info(`[ISR] generateStaticParams prerendering ${ids.size} provider page(s).`);
   return [...ids].map((id) => ({ id }));
 }

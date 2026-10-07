@@ -1,5 +1,10 @@
 import { EventDetail } from "@/components/modules/events";
 
+// Static export requires at least one entry; real IDs are resolved client-side.
+export function generateStaticParams() {
+  return [{ id: "_" }];
+}
+
 export default async function AdminEventDetailPage({
   params,
 }: {

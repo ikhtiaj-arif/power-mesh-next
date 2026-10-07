@@ -1,6 +1,6 @@
-# Deployment checklist for PowerMesh (Next.js client + Express API)
+# Deployment checklist for PowerMesh (Next.js static export + Express API)
 
-Use this when configuring host dashboards. Secret **values** stay in the host UI — only names are documented here.
+Mirrors **Healthcare-Client**: `output: "export"`, `npm run build` writes `out/`, `npm start` serves it with `npx serve@latest out`.
 
 Templates:
 
@@ -12,11 +12,12 @@ Templates:
 | App | Variable | Example |
 | --- | --- | --- |
 | Next | `NEXT_PUBLIC_APP_URL` | `https://app.example.com` |
-| Next | `API_URL` | `https://api.example.com` |
+| Next | `NEXT_PUBLIC_API_BASE_URL` | `https://api.example.com/api/v1` (absolute) |
+| Next | `API_URL` | `https://api.example.com` (build-time ISR only) |
 | Express | `FRONTEND_URL` | `https://app.example.com` (same as Next public URL) |
 | Express | `BKASH_CALLBACK_URL` | `https://api.example.com/api/v1/payments/callback` |
 
-Mismatch symptoms: CORS failures, cookies set for the wrong host, bKash return landing on the wrong site.
+The browser calls Express **directly** — there is no Next `/api` BFF in the static `out/` folder. Relative `/api/v1` will 404 under `serve`.
 
 ## 2. Shared ISR token
 
@@ -25,26 +26,33 @@ Mismatch symptoms: CORS failures, cookies set for the wrong host, bKash return l
 | Next | `ISR_SERVICE_TOKEN` |
 | Express | `ISR_SERVICE_TOKEN` |
 
-Same long random string on both. Required at **Next build time** for `● /admin/providers/<id>` prerender. Restart Express after changing it.
+Same long random string on both. Required at **Next build time** for provider detail prerender. Restart Express after changing it.
 
 ## 3. Production safety
 
 - `NEXT_PUBLIC_DEMO_LOGIN=false` on Next
 - `NODE_ENV=production` on Express
 - `EMAIL_FAIL_OPEN=false` once mail works
-- Strong unique `JWT_*` and `ISR_SERVICE_TOKEN` (not local `powermesh-isr-dev-token`)
+- Strong unique `JWT_*` and `ISR_SERVICE_TOKEN`
 - `RUN_SEEDS=false` unless the demo host intentionally needs seed accounts
 
-## 4. Cookies (Next BFF)
+## 4. Cookies + CORS
 
-On HTTPS, the BFF sets `httpOnly` session cookies with `Secure` when `NODE_ENV=production`. Confirm after deploy: login works, refresh works, `/my-payments` return works.
+Express sets `httpOnly` auth cookies. With a separate static origin, configure CORS `FRONTEND_URL` to the static site origin and ensure cookie `SameSite`/`Secure` match HTTPS production.
 
-## 5. Build order
+## 5. Build + run (local prod static)
 
-1. Deploy / migrate Express (`npx prisma migrate deploy`, `npm run build`, `npm start`).
-2. Set Next env (including `API_URL` + `ISR_SERVICE_TOKEN`).
-3. Ensure the API is reachable from the Next build machine, then `npm run build` / host build.
-4. Smoke-test: login as each role, open `/admin/providers`, initiate a sandbox payment if credentials exist.
+```bash
+# API
+cd power-mesh-server && npm run dev
+
+# Client — bake env, then serve out/
+cd power-mesh-client
+npm run build
+npm start
+```
+
+Open `http://localhost:3000`. API must be on `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:5000/api/v1`).
 
 ## 6. Google OAuth
 

@@ -11,8 +11,8 @@ import {
 /** Must be a numeric literal for Next.js segment config static analysis. */
 export const revalidate = 120;
 
-/** Unknown ids after build still render on demand. */
-export const dynamicParams = true;
+// Static export cannot serve unknown params on demand; 404 for unknown ids.
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   return getProviderStaticParams();

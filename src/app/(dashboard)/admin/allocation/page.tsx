@@ -1,7 +1,5 @@
 import { AllocationWorkbench } from "@/components/modules/allocation";
 
-export const dynamic = "force-dynamic";
-
 export default function AdminAllocationPage() {
   return (
     <AllocationWorkbench

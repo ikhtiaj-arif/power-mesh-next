@@ -1,35 +1,10 @@
-"use server";
+// Server actions that called updateTag/revalidateTag are no-ops in static
+// export: there is no ISR runtime on a static host. The functions are kept so
+// call-sites compile without changes; they simply do nothing at runtime.
 
-import { updateTag } from "next/cache";
-
-import { AUDIT_CACHE_TAG, USERS_CACHE_TAG } from "@/lib/isr/admin";
-import { EVENTS_CACHE_TAG } from "@/lib/isr/events";
-import { PROVIDERS_CACHE_TAG } from "@/lib/isr/providers";
-import {
-  PAYMENTS_CACHE_TAG,
-  REQUESTS_CACHE_TAG,
-} from "@/lib/isr/requests-payments";
-
-export async function revalidateProvidersCache() {
-  updateTag(PROVIDERS_CACHE_TAG);
-}
-
-export async function revalidateEventsCache() {
-  updateTag(EVENTS_CACHE_TAG);
-}
-
-export async function revalidateUsersCache() {
-  updateTag(USERS_CACHE_TAG);
-}
-
-export async function revalidateAuditCache() {
-  updateTag(AUDIT_CACHE_TAG);
-}
-
-export async function revalidateRequestsCache() {
-  updateTag(REQUESTS_CACHE_TAG);
-}
-
-export async function revalidatePaymentsCache() {
-  updateTag(PAYMENTS_CACHE_TAG);
-}
+export async function revalidateProvidersCache() {}
+export async function revalidateEventsCache() {}
+export async function revalidateUsersCache() {}
+export async function revalidateAuditCache() {}
+export async function revalidateRequestsCache() {}
+export async function revalidatePaymentsCache() {}
