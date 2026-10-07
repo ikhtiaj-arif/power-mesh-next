@@ -172,14 +172,24 @@ Example values (placeholders only; do not commit secrets):
 
 ### Production build and env checklist
 
-Before deploy, run `npm run build` from this repository. On the host, set at least:
+Templates:
 
-- `API_URL` — deployed Express API origin (server-only).
-- `NEXT_PUBLIC_APP_URL` — deployed Next.js origin; must match `FRONTEND_URL` on the API.
-- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` — production Google client id, or leave empty to hide Google sign-in.
-- `NEXT_PUBLIC_DEMO_LOGIN=false` — demo login buttons must stay off in production.
+- Local: [`.env.example`](.env.example) → copy to `.env.local`
+- Production: [`.env.production.example`](.env.production.example) → set on the host dashboard
+- Full deploy steps: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 
-Confirm the API's `FRONTEND_URL` and bKash callback configuration point at the real origins. Deployment steps themselves are tracked as P10-02 and P10-03 in [`docs/FRONTEND_TASKS.md`](docs/FRONTEND_TASKS.md).
+Before deploy, run `npm run build` from this repository (API must be reachable if you want ISR provider ids prerendered). On the host, set at least:
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `API_URL` | yes | Deployed Express origin (server-only) |
+| `NEXT_PUBLIC_APP_URL` | yes | Deployed Next origin; must match API `FRONTEND_URL` |
+| `NEXT_PUBLIC_API_BASE_URL` | yes | Usually `/api/v1` |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | optional | Empty hides Google sign-in |
+| `NEXT_PUBLIC_DEMO_LOGIN` | yes | Must be `false` in production |
+| `ISR_SERVICE_TOKEN` | recommended | Same long secret as the API; needed for build-time provider SSG |
+
+Confirm the API's `FRONTEND_URL` and `BKASH_CALLBACK_URL` point at the real origins. Cookie `Secure` is applied by the BFF when `NODE_ENV=production` on the Next host.
 
 ## Demo accounts
 

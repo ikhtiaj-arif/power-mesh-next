@@ -29,6 +29,7 @@ import {
   CONSUMER_DELIVERY_LINK_STATUSES,
   PAYABLE_RESERVATION_STATUSES,
 } from "@/types";
+import type { PaymentProvider } from "@/types";
 
 /**
  * Consumer detail is resolved from the owned my-reservations list, not the
@@ -67,6 +68,34 @@ export function ReservationDetail({
     owned &&
     reservation &&
     CONSUMER_DELIVERY_LINK_STATUSES.includes(reservation.status);
+
+  const startCheckout = (provider: PaymentProvider) => {
+    if (!reservation) return;
+    initiatePayment.mutate(
+      { reservationId: reservation.id, provider },
+      {
+        onSuccess: (result) => {
+          const url = result.checkoutURL || result.bkashURL;
+          if (url) {
+            window.location.href = url;
+          } else {
+            toast.add({
+              title: "Missing checkout URL",
+              description: "The API did not return a checkout URL.",
+              type: "error",
+            });
+          }
+        },
+        onError: (error) => {
+          toast.add({
+            title: "Could not start payment",
+            description: getApiErrorMessage(error, "Try again."),
+            type: "error",
+          });
+        },
+      },
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -136,47 +165,32 @@ export function ReservationDetail({
           {canPay ? (
             <Card>
               <CardHeader>
-                <CardTitle>Pay with bKash</CardTitle>
+                <CardTitle>Pay for reservation</CardTitle>
                 <CardDescription>
-                  Starts hosted checkout via POST /payments/initiate. You leave
-                  this site for bKash; return lands on /my-payments.
+                  Choose bKash (BDT) or Stripe Checkout (USD equivalent on the
+                  Stripe page; our ledger stays BDT). Return lands on
+                  /my-payments; Stripe completion is confirmed by webhook.
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-wrap gap-3">
                 <Button
                   type="button"
                   disabled={initiatePayment.isPending}
-                  onClick={() => {
-                    initiatePayment.mutate(
-                      { reservationId: reservation.id },
-                      {
-                        onSuccess: (result) => {
-                          if (result.bkashURL) {
-                            window.location.href = result.bkashURL;
-                          } else {
-                            toast.add({
-                              title: "Missing checkout URL",
-                              description:
-                                "The API did not return bkashURL.",
-                              type: "error",
-                            });
-                          }
-                        },
-                        onError: (error) => {
-                          toast.add({
-                            title: "Could not start payment",
-                            description: getApiErrorMessage(
-                              error,
-                              "Try again.",
-                            ),
-                            type: "error",
-                          });
-                        },
-                      },
-                    );
-                  }}
+                  onClick={() => startCheckout("BKASH")}
                 >
-                  {initiatePayment.isPending ? "Starting checkout…" : "Pay now"}
+                  {initiatePayment.isPending
+                    ? "Starting checkout…"
+                    : "Pay with bKash"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={initiatePayment.isPending}
+                  onClick={() => startCheckout("STRIPE")}
+                >
+                  {initiatePayment.isPending
+                    ? "Starting checkout…"
+                    : "Pay with Stripe"}
                 </Button>
               </CardContent>
             </Card>

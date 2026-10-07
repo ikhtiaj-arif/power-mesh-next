@@ -1,5 +1,9 @@
 import { EventDetail } from "@/components/modules/events";
 
+export function generateStaticParams() {
+  return [{ id: "_" }];
+}
+
 export default async function ConsumerEventDetailPage({
   params,
 }: {

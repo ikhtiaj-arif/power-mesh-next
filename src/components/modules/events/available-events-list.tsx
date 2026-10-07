@@ -29,13 +29,36 @@ import {
 import { useGetAvailableEvents } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
 
-export function AvailableEventsList({ basePath }: { basePath: string }) {
+type AvailableEventsListProps = {
+  basePath: string;
+  /** Override the default "Open" detail link (e.g. create offer with eventId). */
+  rowAction?: {
+    label: string;
+    href: (eventId: string) => string;
+  };
+  title?: string;
+  description?: string;
+  showHeader?: boolean;
+  /** Query param keys when embedded next to another paginated list. */
+  pageParamKey?: string;
+  limitParamKey?: string;
+};
+
+export function AvailableEventsList({
+  basePath,
+  rowAction,
+  title = "Available events",
+  description = "Upcoming scheduled and confirmed outage windows you can use.",
+  showHeader = true,
+  pageParamKey = "page",
+  limitParamKey = "limit",
+}: AvailableEventsListProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const page = Number(searchParams.get("page") ?? "1") || 1;
-  const limit = Number(searchParams.get("limit") ?? "10") || 10;
+  const page = Number(searchParams.get(pageParamKey) ?? "1") || 1;
+  const limit = Number(searchParams.get(limitParamKey) ?? "10") || 10;
 
   const params = useMemo(
     () => ({
@@ -53,24 +76,29 @@ export function AvailableEventsList({ basePath }: { basePath: string }) {
 
   function setPage(nextPage: number) {
     const next = new URLSearchParams(searchParams.toString());
-    next.set("page", String(nextPage));
-    next.set("limit", String(limit));
+    next.set(pageParamKey, String(nextPage));
+    next.set(limitParamKey, String(limit));
     router.push(`${pathname}?${next.toString()}`);
   }
 
+  const actionLabel = rowAction?.label ?? "Open";
+  const actionHref =
+    rowAction?.href ?? ((eventId: string) => `${basePath}/${eventId}`);
+
   return (
     <div className="space-y-6">
-      <OverviewHeader
-        title="Available events"
-        description="Upcoming scheduled and confirmed outage windows you can use."
-      />
+      {showHeader ? (
+        <OverviewHeader title={title} description={description} />
+      ) : null}
 
       <Card>
         <CardHeader>
-          <CardTitle>Events</CardTitle>
+          <CardTitle>{showHeader ? "Events" : title}</CardTitle>
           <CardDescription>
-            Sorted by scheduled start. Pagination uses API meta.
-            {meta ? ` Showing page ${meta.page} of ${meta.totalPages} (${meta.total} total).` : null}
+            {description}
+            {meta
+              ? ` Showing page ${meta.page} of ${meta.totalPages} (${meta.total} total).`
+              : null}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -131,9 +159,9 @@ export function AvailableEventsList({ basePath }: { basePath: string }) {
                           <Button
                             size="sm"
                             variant="outline"
-                            render={<Link href={`${basePath}/${event.id}`} />}
+                            render={<Link href={actionHref(event.id)} />}
                           >
-                            Open
+                            {actionLabel}
                           </Button>
                         </TableCell>
                       </TableRow>

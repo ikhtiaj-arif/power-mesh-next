@@ -37,7 +37,7 @@ export function ConsumerPaymentsList() {
     <div className="space-y-6">
       <OverviewHeader
         title="Payments"
-        description="Your bKash checkout history from GET /payments/my-payments."
+        description="Your checkout history from GET /payments/my-payments (bKash and Stripe)."
       />
 
       <Card>
@@ -68,8 +68,8 @@ export function ConsumerPaymentsList() {
           {!payments.isPending && !payments.isError ? (
             rows.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No payments yet. Pay an allocated reservation to start a bKash
-                checkout.
+                No payments yet. Pay an allocated reservation with bKash or
+                Stripe to start checkout.
               </p>
             ) : (
               <>

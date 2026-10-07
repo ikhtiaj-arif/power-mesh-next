@@ -1,6 +1,9 @@
 import { DeliveryDetail } from "@/components/modules/delivery";
 
-export const dynamic = "force-dynamic";
+// Static export: no IDs are known at build time.
+export function generateStaticParams() {
+  return [{ reservationId: "_" }];
+}
 
 export default async function ConsumerDeliveryDetailPage({
   params,

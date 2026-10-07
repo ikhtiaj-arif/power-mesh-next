@@ -96,10 +96,11 @@ export type {
   Payment,
   PaymentListParams,
   PaymentMethod,
+  PaymentProvider,
   PaymentRecord,
   WebhookStatus,
 } from "./payment";
-export { PAYMENT_GATEWAY_STATUSES } from "./payment";
+export { PAYMENT_GATEWAY_STATUSES, PAYMENT_PROVIDERS } from "./payment";
 export type {
   ConsumerConfirmResult,
   ConsumerDisputePayload,

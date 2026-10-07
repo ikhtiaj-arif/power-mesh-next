@@ -1,6 +1,13 @@
 import type { PaymentStatus } from "./reservation";
 
-export type PaymentMethod = "CASH_OUT" | "SEND_MONEY" | "UNKNOWN";
+export type PaymentMethod =
+  | "CASH_OUT"
+  | "SEND_MONEY"
+  | "BKASH"
+  | "STRIPE"
+  | "UNKNOWN";
+
+export type PaymentProvider = "BKASH" | "STRIPE";
 
 export type WebhookStatus = "PENDING" | "RECEIVED" | "PROCESSED" | "FAILED";
 
@@ -55,12 +62,17 @@ export type GatewayPaymentStatus = PaymentStatus;
 
 export type InitiatePaymentPayload = {
   reservationId: string;
+  provider: PaymentProvider;
 };
 
 export type InitiatePaymentResult = {
   payment: PaymentRecord;
-  bkashURL: string;
-  paymentID: string;
+  provider: PaymentProvider;
+  checkoutURL: string;
+  /** Present for bKash (legacy alias of checkoutURL). */
+  bkashURL?: string;
+  paymentID?: string;
+  sessionId?: string;
 };
 
 export type PaymentListParams = {
@@ -82,3 +94,5 @@ export const PAYMENT_GATEWAY_STATUSES: PaymentStatus[] = [
   "FAILED",
   "REFUNDED",
 ];
+
+export const PAYMENT_PROVIDERS: PaymentProvider[] = ["BKASH", "STRIPE"];

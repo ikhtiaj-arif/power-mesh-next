@@ -1,5 +1,9 @@
 import { RequestDetail } from "@/components/modules/requests";
 
+export function generateStaticParams() {
+  return [{ id: "_" }];
+}
+
 export default async function ConsumerRequestDetailPage({
   params,
 }: {

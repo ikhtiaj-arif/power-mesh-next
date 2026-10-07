@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
@@ -44,8 +44,18 @@ function providerGateMessage(status: string | undefined): string | undefined {
   }
 }
 
-export function CreateOfferForm({ basePath }: { basePath: string }) {
+export function CreateOfferForm({
+  basePath,
+  defaultEventId,
+}: {
+  basePath: string;
+  defaultEventId?: string;
+}) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const preselectedEventId =
+    defaultEventId || searchParams.get("eventId") || "";
+
   const me = useGetMe();
   const provider = me.data?.data.provider;
   const disabledReason = providerGateMessage(provider?.status);
@@ -64,7 +74,7 @@ export function CreateOfferForm({ basePath }: { basePath: string }) {
   } = useForm<CreateOfferValues>({
     resolver: zodResolver(createOfferSchema),
     defaultValues: {
-      eventId: "",
+      eventId: preselectedEventId,
       capacityKw: 10,
       pricePerKwh: 12,
       deliveryStartLocal: "",
@@ -76,13 +86,22 @@ export function CreateOfferForm({ basePath }: { basePath: string }) {
   const selectedEvent = eventRows.find((event) => event.id === selectedEventId);
 
   useEffect(() => {
+    if (!preselectedEventId || events.isPending) {
+      return;
+    }
+    const exists = eventRows.some((event) => event.id === preselectedEventId);
+    if (exists) {
+      setValue("eventId", preselectedEventId);
+    }
+  }, [preselectedEventId, events.isPending, eventRows, setValue]);
+
+  useEffect(() => {
     if (!selectedEvent) {
       return;
     }
     setValue("deliveryStartLocal", toDateTimeLocalValue(selectedEvent.scheduledStart));
     setValue("deliveryEndLocal", toDateTimeLocalValue(selectedEvent.scheduledEnd));
   }, [selectedEvent, setValue]);
-
   if (me.isPending) {
     return (
       <div className="space-y-3">
@@ -117,8 +136,12 @@ export function CreateOfferForm({ basePath }: { basePath: string }) {
       <CardHeader>
         <CardTitle>Create offer</CardTitle>
         <CardDescription>
-          Bind capacity to an available event. Your registered maximum is{" "}
-          {maxCapacityKw != null ? `${maxCapacityKw} kW` : "set on your provider profile"}.
+          Select an event, then set capacity and price. Your registered maximum
+          is{" "}
+          {maxCapacityKw != null
+            ? `${maxCapacityKw} kW`
+            : "set on your provider profile"}
+          .
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -172,9 +195,10 @@ export function CreateOfferForm({ basePath }: { basePath: string }) {
                 <option value="">Select an event</option>
                 {eventRows.map((event) => (
                   <option key={event.id} value={event.id}>
-                    {formatEventDate(event.scheduledStart)} →{" "}
+                    {event.status} · {formatEventDate(event.scheduledStart)} →{" "}
                     {formatEventDate(event.scheduledEnd)}
                     {event.notes ? ` — ${event.notes}` : ""}
+                    {` · ${event.totalCapacityKw} kW`}
                   </option>
                 ))}
               </select>

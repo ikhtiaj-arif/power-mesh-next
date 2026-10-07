@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { CreateOfferForm } from "@/components/modules/offers";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProviderCreateOfferPage() {
   return (
@@ -10,7 +12,7 @@ export default function ProviderCreateOfferPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <OverviewHeader
           title="New offer"
-          description="Publish capacity for an available outage event."
+          description="Choose an available event and publish capacity for that window."
         />
         <Button
           variant="outline"
@@ -20,7 +22,9 @@ export default function ProviderCreateOfferPage() {
           Back to offers
         </Button>
       </div>
-      <CreateOfferForm basePath="/provider/offers" />
+      <Suspense fallback={<Skeleton className="h-64 w-full rounded-xl" />}>
+        <CreateOfferForm basePath="/provider/offers" />
+      </Suspense>
     </div>
   );
 }

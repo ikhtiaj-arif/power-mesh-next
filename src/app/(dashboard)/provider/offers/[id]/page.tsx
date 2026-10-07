@@ -1,5 +1,9 @@
 import { UpdateOfferForm } from "@/components/modules/offers";
 
+export function generateStaticParams() {
+  return [{ id: "_" }];
+}
+
 export default async function ProviderOfferDetailPage({
   params,
 }: {

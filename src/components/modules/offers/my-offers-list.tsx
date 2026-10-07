@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { AvailableEventsList } from "@/components/modules/events/available-events-list";
 import { formatEventDate } from "@/components/modules/events/event-datetime";
 import { OfferStatusBadge } from "@/components/modules/offers/offer-status-badge";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
@@ -44,8 +45,13 @@ export function MyOffersList({ basePath }: { basePath: string }) {
   const me = useGetMe();
   const isApproved = me.data?.data.provider?.status === "APPROVED";
 
-  const page = Number(searchParams.get("page") ?? "1") || 1;
-  const limit = Number(searchParams.get("limit") ?? "10") || 10;
+  const page =
+    Number(searchParams.get("offersPage") ?? searchParams.get("page") ?? "1") ||
+    1;
+  const limit =
+    Number(
+      searchParams.get("offersLimit") ?? searchParams.get("limit") ?? "10",
+    ) || 10;
   const status = (searchParams.get("status") as OfferStatus | null) ?? undefined;
 
   const params = useMemo(() => ({ page, limit, status }), [page, limit, status]);
@@ -67,7 +73,7 @@ export function MyOffersList({ basePath }: { basePath: string }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <OverviewHeader
           title="My offers"
-          description="Capacity you published for outage events."
+          description="Select an available event, then publish capacity for it."
         />
         {isApproved ? (
           <Button size="sm" render={<Link href={`${basePath}/new`} />}>
@@ -83,11 +89,26 @@ export function MyOffersList({ basePath }: { basePath: string }) {
         </p>
       ) : null}
 
+      {isApproved ? (
+        <AvailableEventsList
+          basePath={basePath}
+          showHeader={false}
+          title="Select an event"
+          description="Pick an upcoming outage window to create an offer on."
+          pageParamKey="eventsPage"
+          limitParamKey="eventsLimit"
+          rowAction={{
+            label: "Create offer",
+            href: (eventId) => `${basePath}/new?eventId=${eventId}`,
+          }}
+        />
+      ) : null}
+
       <Card>
         <CardHeader>
-          <CardTitle>Offers</CardTitle>
+          <CardTitle>Your published offers</CardTitle>
           <CardDescription>
-            Loaded from `GET /offer/my-offers` only.
+            Loaded from GET /offer/my-offers.
             {meta
               ? ` Page ${meta.page} of ${meta.totalPages} (${meta.total} total).`
               : null}
@@ -104,8 +125,9 @@ export function MyOffersList({ basePath }: { basePath: string }) {
                 onClick={() =>
                   patchParams({
                     status: filter.value,
-                    page: "1",
-                    limit: String(limit),
+                    offersPage: "1",
+                    page: undefined,
+                    offersLimit: String(limit),
                   })
                 }
               >
@@ -131,9 +153,7 @@ export function MyOffersList({ basePath }: { basePath: string }) {
             rows.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 No offers match these filters.
-                {isApproved
-                  ? " Create one for an available event."
-                  : null}
+                {isApproved ? " Select an event above to create one." : null}
               </p>
             ) : (
               <>
@@ -190,7 +210,10 @@ export function MyOffersList({ basePath }: { basePath: string }) {
                       variant="outline"
                       disabled={page <= 1}
                       onClick={() =>
-                        patchParams({ page: String(page - 1), limit: String(limit) })
+                        patchParams({
+                          offersPage: String(page - 1),
+                          offersLimit: String(limit),
+                        })
                       }
                     >
                       Previous
@@ -201,7 +224,10 @@ export function MyOffersList({ basePath }: { basePath: string }) {
                       variant="outline"
                       disabled={page >= meta.totalPages}
                       onClick={() =>
-                        patchParams({ page: String(page + 1), limit: String(limit) })
+                        patchParams({
+                          offersPage: String(page + 1),
+                          offersLimit: String(limit),
+                        })
                       }
                     >
                       Next
