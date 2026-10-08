@@ -45,8 +45,8 @@ export function ProviderOverview() {
   return (
     <div className="space-y-6">
       <OverviewHeader
-        title="Provider overview"
-        description="Approval status from `/users/me` controls whether you can publish offers."
+        title="Home"
+        description="Your approval status and the next step to publish backup capacity."
       />
 
       {me.isPending ? (

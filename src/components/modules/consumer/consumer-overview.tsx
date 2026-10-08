@@ -59,8 +59,8 @@ export function ConsumerOverview() {
   return (
     <div className="space-y-6">
       <OverviewHeader
-        title="Consumer overview"
-        description="Your open events, requests, and reservations from live list endpoints."
+        title="Home"
+        description="See open outage windows, your requests, and reservations that need action."
       />
 
       {isLoading ? (

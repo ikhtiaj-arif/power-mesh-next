@@ -53,8 +53,8 @@ export function EventReservationPanel({ eventId }: { eventId: string }) {
       <CardHeader>
         <CardTitle>Offers on this event</CardTitle>
         <CardDescription>
-          Reserve against your PENDING request for this event. Payment comes in
-          a later phase.
+          Reserve against your pending request for this event. Pay from the
+          reservation detail once you are allocated.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

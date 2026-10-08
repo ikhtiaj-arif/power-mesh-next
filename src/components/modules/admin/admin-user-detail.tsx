@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -7,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Card,
   CardContent,
@@ -34,10 +36,13 @@ export function AdminUserDetail({ userId }: { userId: string }) {
   const user = detail.data;
   const block = useBlockAdminUser(userId);
   const softDelete = useSoftDeleteAdminUser(userId);
+  const [blockOpen, setBlockOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const {
     register,
     handleSubmit,
     reset,
+    getValues,
     formState: { errors },
   } = useForm<BlockUserValues>({
     resolver: zodResolver(blockUserSchema),
@@ -50,34 +55,8 @@ export function AdminUserDetail({ userId }: { userId: string }) {
     if (!user) {
       return;
     }
-    const nextBlocked = !isBlocked;
-    if (nextBlocked) {
-      const confirmed = window.confirm(
-        "Block this user? They will fail later API calls with 403 while blocked.",
-      );
-      if (!confirmed) {
-        return;
-      }
-      void handleSubmit((values) => {
-        block.mutate(
-          {
-            isBlocked: true,
-            ...(values.reason?.trim() ? { reason: values.reason.trim() } : {}),
-          },
-          {
-            onSuccess: () => {
-              toast.add({ title: "User blocked", type: "success" });
-            },
-            onError: (error) => {
-              toast.add({
-                title: "Action failed",
-                description: getApiErrorMessage(error, "Could not update user."),
-                type: "error",
-              });
-            },
-          },
-        );
-      })();
+    if (!isBlocked) {
+      setBlockOpen(true);
       return;
     }
 
@@ -99,24 +78,53 @@ export function AdminUserDetail({ userId }: { userId: string }) {
     );
   }
 
-  function runSoftDelete() {
-    const confirmed = window.confirm(
-      "Soft-delete this account? This marks the user deleted in the database and is not, by itself, a session kill on the API.",
-    );
-    if (!confirmed) {
-      return;
-    }
-    softDelete.mutate(undefined, {
-      onSuccess: () => {
-        toast.add({ title: "User soft-deleted", type: "success" });
-      },
-      onError: (error) => {
-        toast.add({
-          title: "Soft-delete failed",
-          description: getApiErrorMessage(error, "Could not delete user."),
-          type: "error",
-        });
-      },
+  function confirmBlock() {
+    return new Promise<void>((resolve, reject) => {
+      void handleSubmit((values) => {
+        block.mutate(
+          {
+            isBlocked: true,
+            ...(values.reason?.trim() ? { reason: values.reason.trim() } : {}),
+          },
+          {
+            onSuccess: () => {
+              toast.add({ title: "User blocked", type: "success" });
+              resolve();
+            },
+            onError: (error) => {
+              toast.add({
+                title: "Action failed",
+                description: getApiErrorMessage(error, "Could not update user."),
+                type: "error",
+              });
+              reject(error);
+            },
+          },
+        );
+      })();
+      // Ensure form validation failure does not hang the dialog action.
+      if (Object.keys(errors).length > 0 && !getValues("reason")) {
+        // no-op; handleSubmit already surfaces field errors
+      }
+    });
+  }
+
+  function confirmSoftDelete() {
+    return new Promise<void>((resolve, reject) => {
+      softDelete.mutate(undefined, {
+        onSuccess: () => {
+          toast.add({ title: "User deleted", type: "success" });
+          resolve();
+        },
+        onError: (error) => {
+          toast.add({
+            title: "Delete failed",
+            description: getApiErrorMessage(error, "Could not delete user."),
+            type: "error",
+          });
+          reject(error);
+        },
+      });
     });
   }
 
@@ -204,11 +212,31 @@ export function AdminUserDetail({ userId }: { userId: string }) {
                     type="button"
                     variant="destructive"
                     disabled={softDelete.isPending || user.isDeleted}
-                    onClick={runSoftDelete}
+                    onClick={() => setDeleteOpen(true)}
                   >
-                    {softDelete.isPending ? "Deleting…" : "Soft-delete user"}
+                    {softDelete.isPending ? "Deleting…" : "Delete user"}
                   </Button>
                 </div>
+                <ConfirmDialog
+                  open={blockOpen}
+                  onOpenChange={setBlockOpen}
+                  title="Block this user?"
+                  description="They will not be able to use the platform while blocked."
+                  confirmLabel="Block user"
+                  variant="destructive"
+                  loading={block.isPending}
+                  onConfirm={confirmBlock}
+                />
+                <ConfirmDialog
+                  open={deleteOpen}
+                  onOpenChange={setDeleteOpen}
+                  title="Delete this account?"
+                  description="The account is marked deleted. This cannot be undone from here."
+                  confirmLabel="Delete user"
+                  variant="destructive"
+                  loading={softDelete.isPending}
+                  onConfirm={confirmSoftDelete}
+                />
               </CardContent>
             </Card>
           ) : (

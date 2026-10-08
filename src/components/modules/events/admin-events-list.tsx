@@ -58,7 +58,7 @@ export function AdminEventsList({ basePath }: { basePath: string }) {
         <CardHeader>
           <CardTitle>Events</CardTitle>
           <CardDescription>
-            Uses `GET /event/all`. Create and status changes stay operator-only.
+            All outage windows on the platform. Operators own create and status changes.
             {meta
               ? ` Page ${meta.page} of ${meta.totalPages} (${meta.total} total).`
               : null}

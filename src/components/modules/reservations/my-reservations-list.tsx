@@ -72,7 +72,7 @@ export function MyReservationsList({ basePath }: { basePath: string }) {
         <CardHeader>
           <CardTitle>Reservations</CardTitle>
           <CardDescription>
-            Loaded from `GET /reservation/my-reservations` only.
+            Open a reservation to pay or follow delivery.
             {meta
               ? ` Page ${meta.page} of ${meta.totalPages} (${meta.total} total).`
               : null}

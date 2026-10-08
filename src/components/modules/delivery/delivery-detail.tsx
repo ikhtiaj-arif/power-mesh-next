@@ -117,7 +117,7 @@ export function DeliveryDetail({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <OverviewHeader
           title="Delivery detail"
-          description={`Reservation ${reservationId.slice(0, 8)}… from GET /delivery/:reservationId.`}
+          description={`Delivery for reservation ${reservationId.slice(0, 8)}…`}
         />
         <Button variant="outline" size="sm" render={<Link href={backHref} />}>
           Back

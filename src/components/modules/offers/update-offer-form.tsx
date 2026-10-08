@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +14,7 @@ import {
 import { OfferStatusBadge } from "@/components/modules/offers/offer-status-badge";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Card,
   CardContent,
@@ -52,6 +54,7 @@ export function UpdateOfferForm({
   const update = useUpdateOffer(offerId);
   const softDelete = useSoftDeleteOffer();
   const editable = offer ? canEditOffer(offer.status) : false;
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   const {
     register,
@@ -74,7 +77,7 @@ export function UpdateOfferForm({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <OverviewHeader
           title="Offer detail"
-          description="Edit capacity, price, and delivery window when the API allows."
+          description="Update capacity, price, and delivery window while this offer is still available."
         />
         <Button variant="outline" size="sm" render={<Link href={basePath} />}>
           Back to offers
@@ -231,8 +234,8 @@ export function UpdateOfferForm({
                 <CardHeader>
                   <CardTitle>Cancel offer</CardTitle>
                   <CardDescription>
-                    Soft-delete sets status to CANCELLED. The API rejects this
-                    when active reservations block removal.
+                    Cancels this offer. Blocked if active reservations still
+                    depend on it.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -240,38 +243,45 @@ export function UpdateOfferForm({
                     type="button"
                     variant="destructive"
                     disabled={softDelete.isPending}
-                    onClick={() => {
-                      const confirmed = window.confirm(
-                        "Cancel this offer? It will be soft-deleted and marked CANCELLED.",
-                      );
-                      if (!confirmed) {
-                        return;
-                      }
-
-                      softDelete.mutate(offer.id, {
-                        onSuccess: () => {
-                          toast.add({
-                            title: "Offer cancelled",
-                            description: "The offer was soft-deleted.",
-                            type: "success",
-                          });
-                          router.push(basePath);
-                        },
-                        onError: (error) => {
-                          toast.add({
-                            title: "Could not cancel offer",
-                            description: getApiErrorMessage(
-                              error,
-                              "Active reservations may block cancellation.",
-                            ),
-                            type: "error",
-                          });
-                        },
-                      });
-                    }}
+                    onClick={() => setCancelOpen(true)}
                   >
                     {softDelete.isPending ? "Cancelling…" : "Cancel offer"}
                   </Button>
+                  <ConfirmDialog
+                    open={cancelOpen}
+                    onOpenChange={setCancelOpen}
+                    title="Cancel this offer?"
+                    description="The offer will be marked cancelled and removed from matching."
+                    confirmLabel="Cancel offer"
+                    variant="destructive"
+                    loading={softDelete.isPending}
+                    onConfirm={() =>
+                      new Promise<void>((resolve, reject) => {
+                        softDelete.mutate(offer.id, {
+                          onSuccess: () => {
+                            toast.add({
+                              title: "Offer cancelled",
+                              description: "The offer was cancelled.",
+                              type: "success",
+                            });
+                            router.push(basePath);
+                            resolve();
+                          },
+                          onError: (error) => {
+                            toast.add({
+                              title: "Could not cancel offer",
+                              description: getApiErrorMessage(
+                                error,
+                                "Active reservations may block cancellation.",
+                              ),
+                              type: "error",
+                            });
+                            reject(error);
+                          },
+                        });
+                      })
+                    }
+                  />
                 </CardContent>
               </Card>
             </div>

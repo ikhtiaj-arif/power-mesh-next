@@ -58,8 +58,7 @@ export function ProfileView() {
     <div className="space-y-6">
       <OverviewHeader
         title="Profile"
-        description="Your account identity and role-specific details from the live API."
-        rangeLabel="Account"
+        description="Your account identity and role-specific details."
       />
 
       {me.isPending ? (

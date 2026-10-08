@@ -37,7 +37,7 @@ export function ConsumerPaymentsList() {
     <div className="space-y-6">
       <OverviewHeader
         title="Payments"
-        description="Your checkout history from GET /payments/my-payments (bKash and Stripe)."
+        description="Your bKash and card checkout history for reserved capacity."
       />
 
       <Card>

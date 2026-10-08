@@ -108,7 +108,7 @@ export function MyOffersList({ basePath }: { basePath: string }) {
         <CardHeader>
           <CardTitle>Your published offers</CardTitle>
           <CardDescription>
-            Loaded from GET /offer/my-offers.
+            Offers you published for upcoming outage windows.
             {meta
               ? ` Page ${meta.page} of ${meta.totalPages} (${meta.total} total).`
               : null}

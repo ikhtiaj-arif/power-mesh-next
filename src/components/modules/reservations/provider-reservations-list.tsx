@@ -64,8 +64,7 @@ export function ProviderReservationsList() {
         <CardHeader>
           <CardTitle>Reservations</CardTitle>
           <CardDescription>
-            Uses `GET /reservation/provider/:providerId` with your provider id
-            from `/users/me`.
+            Reservations allocated against your offers.
             {meta
               ? ` Page ${meta.page} of ${meta.totalPages} (${meta.total} total).`
               : null}
