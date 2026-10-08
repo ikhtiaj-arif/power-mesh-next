@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { formatEventDate } from "@/components/modules/events/event-datetime";
 import { ReservationStatusBadge } from "@/components/modules/reservations/reservation-status-badge";
+import { ReservationStatusStepper } from "@/components/modules/reservations/reservation-status-stepper";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -101,8 +102,8 @@ export function ReservationDetail({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <OverviewHeader
-          title="Reservation detail"
-          description="Owned reservation from your my-reservations list."
+          title="Reservation"
+          description="Pay, track delivery, or cancel while the status allows it."
         />
         <Button variant="outline" size="sm" render={<Link href={basePath} />}>
           Back to reservations
@@ -138,27 +139,30 @@ export function ReservationDetail({
               </div>
               <ReservationStatusBadge status={reservation.status} />
             </CardHeader>
-            <CardContent className="grid gap-3 sm:grid-cols-2">
-              <DetailItem
-                label="Allocated"
-                value={`${reservation.allocatedKw} kW`}
-              />
-              <DetailItem
-                label="Unit price"
-                value={`৳${String(reservation.unitPrice)}/kWh`}
-              />
-              <DetailItem
-                label="Total"
-                value={`৳${String(reservation.totalAmount)}`}
-              />
-              <DetailItem
-                label="Payment status"
-                value={reservation.paymentStatus}
-              />
-              <DetailItem
-                label="Provider"
-                value={reservation.offer?.provider?.companyName ?? "—"}
-              />
+            <CardContent className="space-y-4">
+              <ReservationStatusStepper status={reservation.status} />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <DetailItem
+                  label="Allocated"
+                  value={`${reservation.allocatedKw} kW`}
+                />
+                <DetailItem
+                  label="Unit price"
+                  value={`৳${String(reservation.unitPrice)}/kWh`}
+                />
+                <DetailItem
+                  label="Total"
+                  value={`৳${String(reservation.totalAmount)}`}
+                />
+                <DetailItem
+                  label="Payment status"
+                  value={reservation.paymentStatus}
+                />
+                <DetailItem
+                  label="Provider"
+                  value={reservation.offer?.provider?.companyName ?? "—"}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -167,9 +171,8 @@ export function ReservationDetail({
               <CardHeader>
                 <CardTitle>Pay for reservation</CardTitle>
                 <CardDescription>
-                  Choose bKash (BDT) or Stripe Checkout (USD equivalent on the
-                  Stripe page; our ledger stays BDT). Return lands on
-                  /my-payments; Stripe completion is confirmed by webhook.
+                  Pay with bKash (BDT) or card checkout. You return to payment
+                  status when the gateway finishes.
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-3">
