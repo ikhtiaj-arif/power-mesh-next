@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { formatEventDate } from "@/components/modules/events/event-datetime";
 import { PaymentStatusBadge } from "@/components/modules/payments/payment-status-badge";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
+import { RecordSheet } from "@/components/modules/shell/record-sheet";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,9 +26,11 @@ import {
 } from "@/components/ui/table";
 import { useGetMyPayments } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
+import type { PaymentRecord } from "@/types";
 
 export function ConsumerPaymentsList() {
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<PaymentRecord | null>(null);
   const params = useMemo(() => ({ page, limit: 10 }), [page]);
   const payments = useGetMyPayments(params);
   const rows = payments.data?.data ?? [];
@@ -44,8 +47,7 @@ export function ConsumerPaymentsList() {
         <CardHeader>
           <CardTitle>Payment history</CardTitle>
           <CardDescription>
-            Amounts are in BDT. Status reflects the gateway record, not the URL
-            query on return.
+            Amounts are in BDT. Preview a row for receipt details.
             {meta
               ? ` Page ${meta.page} of ${meta.totalPages} (${meta.total} total).`
               : null}
@@ -68,8 +70,7 @@ export function ConsumerPaymentsList() {
           {!payments.isPending && !payments.isError ? (
             rows.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No payments yet. Pay an allocated reservation with bKash or
-                Stripe to start checkout.
+                No payments yet. Pay an allocated reservation to start checkout.
               </p>
             ) : (
               <>
@@ -78,9 +79,8 @@ export function ConsumerPaymentsList() {
                     <TableRow>
                       <TableHead>Date</TableHead>
                       <TableHead>Amount</TableHead>
-                      <TableHead>Currency</TableHead>
-                      <TableHead>Gateway status</TableHead>
-                      <TableHead>Reservation</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -90,21 +90,17 @@ export function ConsumerPaymentsList() {
                           {formatEventDate(payment.createdAt)}
                         </TableCell>
                         <TableCell>৳{String(payment.amount)}</TableCell>
-                        <TableCell>{payment.currency}</TableCell>
                         <TableCell>
                           <PaymentStatusBadge status={payment.gatewayStatus} />
                         </TableCell>
-                        <TableCell>
-                          {payment.reservation ? (
-                            <Link
-                              href={`/consumer/reservations/${payment.reservation.id}`}
-                              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-                            >
-                              View reservation
-                            </Link>
-                          ) : (
-                            "—"
-                          )}
+                        <TableCell className="text-right">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setSelected(payment)}
+                          >
+                            Receipt
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -138,6 +134,69 @@ export function ConsumerPaymentsList() {
           ) : null}
         </CardContent>
       </Card>
+
+      <RecordSheet
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+        title="Payment receipt"
+        description={
+          selected ? formatEventDate(selected.createdAt) : undefined
+        }
+        size="md"
+        fullPageHref={
+          selected?.reservation
+            ? `/consumer/reservations/${selected.reservation.id}`
+            : undefined
+        }
+        fullPageLabel="Open reservation"
+      >
+        {selected ? (
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Status</span>
+              <PaymentStatusBadge status={selected.gatewayStatus} />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Amount</span>
+              <span className="font-medium">
+                ৳{String(selected.amount)} {selected.currency}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Method</span>
+              <span className="font-medium">{selected.paymentMethod}</span>
+            </div>
+            {selected.bkashTrxId ? (
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-muted-foreground">bKash trx</span>
+                <span className="font-mono text-xs">{selected.bkashTrxId}</span>
+              </div>
+            ) : null}
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Invoice</span>
+              <span className="font-mono text-xs">
+                {selected.merchantInvoiceNumber}
+              </span>
+            </div>
+            {selected.reservation ? (
+              <Button
+                className="w-full"
+                variant="outline"
+                render={
+                  <Link
+                    href={`/consumer/reservations/${selected.reservation.id}`}
+                  />
+                }
+                onClick={() => setSelected(null)}
+              >
+                Continue to reservation
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
+      </RecordSheet>
     </div>
   );
 }

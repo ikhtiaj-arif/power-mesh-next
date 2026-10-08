@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import {
-  formatEventDate,
-} from "@/components/modules/events/event-datetime";
+import { formatEventDate } from "@/components/modules/events/event-datetime";
 import { EventStatusBadge } from "@/components/modules/events/event-status-badge";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
+import { RecordSheet } from "@/components/modules/shell/record-sheet";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,6 +27,7 @@ import {
 } from "@/components/ui/table";
 import { useGetAvailableEvents } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
+import type { OutageEvent } from "@/types";
 
 type AvailableEventsListProps = {
   basePath: string;
@@ -56,6 +56,7 @@ export function AvailableEventsList({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [selected, setSelected] = useState<OutageEvent | null>(null);
 
   const page = Number(searchParams.get(pageParamKey) ?? "1") || 1;
   const limit = Number(searchParams.get(limitParamKey) ?? "10") || 10;
@@ -81,7 +82,7 @@ export function AvailableEventsList({
     router.push(`${pathname}?${next.toString()}`);
   }
 
-  const actionLabel = rowAction?.label ?? "Open";
+  const actionLabel = rowAction?.label ?? "Open event";
   const actionHref =
     rowAction?.href ?? ((eventId: string) => `${basePath}/${eventId}`);
 
@@ -146,7 +147,8 @@ export function AvailableEventsList({
                         <TableCell>
                           {event.totalCapacityKw} kW
                           <div className="text-xs text-muted-foreground">
-                            allocated {event.allocatedKw} kW
+                            {Math.max(0, event.totalCapacityKw - event.allocatedKw)}{" "}
+                            kW remaining
                           </div>
                         </TableCell>
                         <TableCell>
@@ -159,9 +161,9 @@ export function AvailableEventsList({
                           <Button
                             size="sm"
                             variant="outline"
-                            render={<Link href={actionHref(event.id)} />}
+                            onClick={() => setSelected(event)}
                           >
-                            {actionLabel}
+                            Preview
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -196,6 +198,62 @@ export function AvailableEventsList({
           ) : null}
         </CardContent>
       </Card>
+
+      <RecordSheet
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+        title="Outage window"
+        description={
+          selected
+            ? `${formatEventDate(selected.scheduledStart)} → ${formatEventDate(selected.scheduledEnd)}`
+            : undefined
+        }
+        size="md"
+        fullPageHref={selected ? actionHref(selected.id) : undefined}
+        fullPageLabel={actionLabel}
+        footer={
+          selected && !rowAction ? (
+            <Button
+              render={<Link href={`${basePath}/${selected.id}`} />}
+              onClick={() => setSelected(null)}
+            >
+              Request or reserve
+            </Button>
+          ) : null
+        }
+      >
+        {selected ? (
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Status</span>
+              <EventStatusBadge status={selected.status} />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Total capacity</span>
+              <span className="font-medium">{selected.totalCapacityKw} kW</span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Remaining</span>
+              <span className="font-medium">
+                {Math.max(0, selected.totalCapacityKw - selected.allocatedKw)} kW
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Offers</span>
+              <span className="font-medium">
+                {selected._count?.capacityOffers ?? 0}
+              </span>
+            </div>
+            {selected.notes ? (
+              <p className="rounded-lg border bg-muted/40 p-3 text-muted-foreground">
+                {selected.notes}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </RecordSheet>
     </div>
   );
 }

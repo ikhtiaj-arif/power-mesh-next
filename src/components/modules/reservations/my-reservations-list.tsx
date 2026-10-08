@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { formatEventDate } from "@/components/modules/events/event-datetime";
 import { ReservationStatusBadge } from "@/components/modules/reservations/reservation-status-badge";
+import { ReservationStatusStepper } from "@/components/modules/reservations/reservation-status-stepper";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
+import { RecordSheet } from "@/components/modules/shell/record-sheet";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,7 +28,7 @@ import {
 } from "@/components/ui/table";
 import { useGetMyReservations } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
-import type { ReservationStatus } from "@/types";
+import type { Reservation, ReservationStatus } from "@/types";
 
 const STATUS_FILTERS: Array<{ label: string; value?: ReservationStatus }> = [
   { label: "All" },
@@ -41,6 +43,7 @@ export function MyReservationsList({ basePath }: { basePath: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [selected, setSelected] = useState<Reservation | null>(null);
 
   const page = Number(searchParams.get("page") ?? "1") || 1;
   const limit = Number(searchParams.get("limit") ?? "10") || 10;
@@ -64,7 +67,7 @@ export function MyReservationsList({ basePath }: { basePath: string }) {
   return (
     <div className="space-y-6">
       <OverviewHeader
-        title="My reservations"
+        title="Reservations"
         description="Allocated capacity bookings from your requests and offers."
       />
 
@@ -155,11 +158,9 @@ export function MyReservationsList({ basePath }: { basePath: string }) {
                           <Button
                             size="sm"
                             variant="outline"
-                            render={
-                              <Link href={`${basePath}/${reservation.id}`} />
-                            }
+                            onClick={() => setSelected(reservation)}
                           >
-                            Open
+                            Preview
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -204,6 +205,66 @@ export function MyReservationsList({ basePath }: { basePath: string }) {
           ) : null}
         </CardContent>
       </Card>
+
+      <RecordSheet
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+        title="Reservation"
+        description={
+          selected
+            ? `${formatEventDate(selected.deliveryStart)} → ${formatEventDate(selected.deliveryEnd)}`
+            : undefined
+        }
+        size="lg"
+        fullPageHref={selected ? `${basePath}/${selected.id}` : undefined}
+        footer={
+          selected ? (
+            <>
+              {["ALLOCATED", "PAYMENT_PENDING"].includes(selected.status) ? (
+                <Button
+                  render={<Link href={`${basePath}/${selected.id}`} />}
+                  onClick={() => setSelected(null)}
+                >
+                  Pay now
+                </Button>
+              ) : null}
+              {["PAYMENT_COMPLETED", "DELIVERY_PENDING"].includes(
+                selected.status,
+              ) ? (
+                <Button
+                  variant="outline"
+                  render={
+                    <Link href={`/consumer/delivery/${selected.id}`} />
+                  }
+                  onClick={() => setSelected(null)}
+                >
+                  Open delivery
+                </Button>
+              ) : null}
+            </>
+          ) : null
+        }
+      >
+        {selected ? (
+          <div className="space-y-4 text-sm">
+            <ReservationStatusStepper status={selected.status} />
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Status</span>
+              <ReservationStatusBadge status={selected.status} />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Allocated</span>
+              <span className="font-medium">{selected.allocatedKw} kW</span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Amount</span>
+              <span className="font-medium">৳{String(selected.totalAmount)}</span>
+            </div>
+          </div>
+        ) : null}
+      </RecordSheet>
     </div>
   );
 }

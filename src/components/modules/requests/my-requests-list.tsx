@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { formatEventDate } from "@/components/modules/events/event-datetime";
 import { RequestStatusBadge } from "@/components/modules/requests/request-status-badge";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
+import { RecordSheet } from "@/components/modules/shell/record-sheet";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,7 +27,7 @@ import {
 } from "@/components/ui/table";
 import { useGetMyRequests } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
-import type { PriorityTier, RequestStatus } from "@/types";
+import type { CapacityRequest, PriorityTier, RequestStatus } from "@/types";
 import { PRIORITY_TIERS } from "@/types";
 
 const STATUS_FILTERS: Array<{ label: string; value?: RequestStatus }> = [
@@ -42,6 +43,7 @@ export function MyRequestsList({ basePath }: { basePath: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [selected, setSelected] = useState<CapacityRequest | null>(null);
 
   const page = Number(searchParams.get("page") ?? "1") || 1;
   const limit = Number(searchParams.get("limit") ?? "10") || 10;
@@ -72,7 +74,7 @@ export function MyRequestsList({ basePath }: { basePath: string }) {
   return (
     <div className="space-y-6">
       <OverviewHeader
-        title="My requests"
+        title="Requests"
         description="Capacity requests you submitted for outage events."
       />
 
@@ -80,7 +82,7 @@ export function MyRequestsList({ basePath }: { basePath: string }) {
         <CardHeader>
           <CardTitle>Requests</CardTitle>
           <CardDescription>
-            Filters use URL search params (`status`, `priorityTier`, `page`).
+            Filter by status or priority, then preview a request.
             {meta
               ? ` Page ${meta.page} of ${meta.totalPages} (${meta.total} total).`
               : null}
@@ -196,11 +198,9 @@ export function MyRequestsList({ basePath }: { basePath: string }) {
                           <Button
                             size="sm"
                             variant="outline"
-                            render={
-                              <Link href={`${basePath}/${request.id}`} />
-                            }
+                            onClick={() => setSelected(request)}
                           >
-                            Open
+                            Preview
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -239,6 +239,54 @@ export function MyRequestsList({ basePath }: { basePath: string }) {
           ) : null}
         </CardContent>
       </Card>
+
+      <RecordSheet
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+        title="Capacity request"
+        description={
+          selected?.event
+            ? `${formatEventDate(selected.event.scheduledStart)} → ${formatEventDate(selected.event.scheduledEnd)}`
+            : undefined
+        }
+        size="md"
+        fullPageHref={selected ? `${basePath}/${selected.id}` : undefined}
+        footer={
+          selected ? (
+            <Button
+              render={<Link href={`${basePath}/${selected.id}`} />}
+              onClick={() => setSelected(null)}
+            >
+              Manage request
+            </Button>
+          ) : null
+        }
+      >
+        {selected ? (
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Status</span>
+              <RequestStatusBadge status={selected.status} />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Requested</span>
+              <span className="font-medium">{selected.requestedKw} kW</span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Max price</span>
+              <span className="font-medium">
+                ৳{String(selected.maxPricePerKwh)}/kWh
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Priority</span>
+              <span className="font-medium">{selected.priorityTier}</span>
+            </div>
+          </div>
+        ) : null}
+      </RecordSheet>
     </div>
   );
 }

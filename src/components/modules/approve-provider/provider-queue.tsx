@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { ProviderStatusBadge } from "@/components/modules/approve-provider/provider-status-badge";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
+import { RecordSheet } from "@/components/modules/shell/record-sheet";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,7 +25,7 @@ import {
 } from "@/components/ui/table";
 import { useGetAllProviders } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
-import type { ProviderStatus } from "@/types";
+import type { ProviderStatus, ProviderWithUser } from "@/types";
 
 const STATUS_FILTERS: Array<{ label: string; value?: ProviderStatus }> = [
   { label: "All" },
@@ -36,6 +37,7 @@ const STATUS_FILTERS: Array<{ label: string; value?: ProviderStatus }> = [
 
 export function ProviderQueue({ basePath }: { basePath: string }) {
   const [status, setStatus] = useState<ProviderStatus | undefined>(undefined);
+  const [selected, setSelected] = useState<ProviderWithUser | null>(null);
   const params = useMemo(() => ({ page: 1, limit: 50, status }), [status]);
   const providers = useGetAllProviders(params);
 
@@ -47,15 +49,14 @@ export function ProviderQueue({ basePath }: { basePath: string }) {
     <div className="space-y-6">
       <OverviewHeader
         title="Providers"
-        description="Review provider applications, open a record, then approve or reject."
+        description="Review provider applications, then approve or reject."
       />
 
       <Card>
         <CardHeader>
           <CardTitle>Provider queue</CardTitle>
           <CardDescription>
-            Status filter is sent to the API. Page skip is not applied server-side
-            (BX-08), so this list is the first {params.limit} matching rows
+            Showing the first {params.limit} matching rows
             {meta ? ` of ${total} total` : ""}.
           </CardDescription>
         </CardHeader>
@@ -135,11 +136,9 @@ export function ProviderQueue({ basePath }: { basePath: string }) {
                         <Button
                           size="sm"
                           variant="outline"
-                          render={
-                            <Link href={`${basePath}/${provider.id}`} />
-                          }
+                          onClick={() => setSelected(provider)}
                         >
-                          Open
+                          Preview
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -150,6 +149,62 @@ export function ProviderQueue({ basePath }: { basePath: string }) {
           ) : null}
         </CardContent>
       </Card>
+
+      <RecordSheet
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+        title={selected?.companyName ?? "Provider"}
+        description={
+          selected
+            ? `${selected.licenseNumber} · ${selected.resourceType}`
+            : undefined
+        }
+        size="lg"
+        fullPageHref={selected ? `${basePath}/${selected.id}` : undefined}
+        fullPageLabel="Review & decide"
+        footer={
+          selected ? (
+            <Button
+              render={<Link href={`${basePath}/${selected.id}`} />}
+              onClick={() => setSelected(null)}
+            >
+              Open full review
+            </Button>
+          ) : null
+        }
+      >
+        {selected ? (
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Status</span>
+              <ProviderStatusBadge status={selected.status} />
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Capacity</span>
+              <span className="font-medium">{selected.capacityKw} kW</span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Contact</span>
+              <span className="font-medium text-right">
+                {selected.user.firstName} {selected.user.lastName}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Email</span>
+              <span className="font-medium text-right">{selected.user.email}</span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Phone</span>
+              <span className="font-medium">{selected.contactPhone}</span>
+            </div>
+            <p className="rounded-lg border bg-muted/40 p-3 text-muted-foreground">
+              {selected.address}
+            </p>
+          </div>
+        ) : null}
+      </RecordSheet>
     </div>
   );
 }
