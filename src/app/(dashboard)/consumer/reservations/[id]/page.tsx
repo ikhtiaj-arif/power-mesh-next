@@ -1,19 +1,9 @@
-import { ReservationDetail } from "@/components/modules/reservations";
-import { StaticIdPage } from "@/components/shell/static-id-page";
+import Client from "./client";
 
 export function generateStaticParams() {
   return [{ id: "_" }];
 }
 
 export default function ConsumerReservationDetailPage() {
-  return (
-    <StaticIdPage>
-      {(id) => (
-        <ReservationDetail
-          reservationId={id}
-          basePath="/consumer/reservations"
-        />
-      )}
-    </StaticIdPage>
-  );
+  return <Client />;
 }
