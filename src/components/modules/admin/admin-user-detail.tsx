@@ -31,7 +31,14 @@ import {
   type BlockUserValues,
 } from "@/validation/admin";
 
-export function AdminUserDetail({ userId }: { userId: string }) {
+export function AdminUserDetail({
+  userId,
+  embedded = false,
+}: {
+  userId: string;
+  /** Hide page chrome when rendered inside a preview sheet. */
+  embedded?: boolean;
+}) {
   const detail = useGetAdminUserById(userId);
   const user = detail.data;
   const block = useBlockAdminUser(userId);
@@ -130,15 +137,17 @@ export function AdminUserDetail({ userId }: { userId: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <OverviewHeader
-          title="User detail"
-          description="Identity and moderation actions. Passwords are never shown."
-        />
-        <Button variant="outline" size="sm" render={<Link href="/admin/users" />}>
-          Back to users
-        </Button>
-      </div>
+      {embedded ? null : (
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <OverviewHeader
+            title="User detail"
+            description="Identity and moderation actions. Passwords are never shown."
+          />
+          <Button variant="outline" size="sm" render={<Link href="/admin/users" />}>
+            Back to users
+          </Button>
+        </div>
+      )}
 
       {detail.isPending ? <Skeleton className="h-40 w-full rounded-xl" /> : null}
 

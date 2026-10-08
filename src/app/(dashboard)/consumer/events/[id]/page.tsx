@@ -1,14 +1,14 @@
 import { EventDetail } from "@/components/modules/events";
+import { StaticIdPage } from "@/components/shell/static-id-page";
 
 export function generateStaticParams() {
   return [{ id: "_" }];
 }
 
-export default async function ConsumerEventDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  return <EventDetail eventId={id} basePath="/consumer/events" />;
+export default function ConsumerEventDetailPage() {
+  return (
+    <StaticIdPage>
+      {(id) => <EventDetail eventId={id} basePath="/consumer/events" />}
+    </StaticIdPage>
+  );
 }

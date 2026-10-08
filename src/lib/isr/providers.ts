@@ -93,5 +93,6 @@ export async function getProviderStaticParams(): Promise<Array<{ id: string }>> 
   }
 
   console.info(`[ISR] generateStaticParams prerendering ${ids.size} provider page(s).`);
-  return [...ids].map((id) => ({ id }));
+  // Always include `_` so Vercel can rewrite unknown ids to a static HTML shell.
+  return [{ id: "_" }, ...[...ids].map((id) => ({ id }))];
 }

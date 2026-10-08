@@ -1,34 +1,17 @@
-import { HydrationBoundary } from "@tanstack/react-query";
-
 import { ProviderDetail } from "@/components/modules/approve-provider";
-import { providerDetailKey } from "@/hooks/provider.hook";
-import { dehydratePrefetchedQuery } from "@/lib/isr/hydrate";
-import {
-  getProviderByIdISR,
-  getProviderStaticParams,
-} from "@/lib/isr/providers";
+import { StaticIdPage } from "@/components/shell/static-id-page";
+import { getProviderStaticParams } from "@/lib/isr/providers";
 
-/** Must be a numeric literal for Next.js segment config static analysis. */
 export const revalidate = 120;
-
-// Static export cannot serve unknown params on demand; 404 for unknown ids.
-export const dynamicParams = false;
 
 export async function generateStaticParams() {
   return getProviderStaticParams();
 }
 
-export default async function AdminProviderDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const data = await getProviderByIdISR(id);
-
+export default function AdminProviderDetailPage() {
   return (
-    <HydrationBoundary state={dehydratePrefetchedQuery(providerDetailKey(id), data)}>
-      <ProviderDetail providerId={id} basePath="/admin/providers" />
-    </HydrationBoundary>
+    <StaticIdPage>
+      {(id) => <ProviderDetail providerId={id} basePath="/admin/providers" />}
+    </StaticIdPage>
   );
 }

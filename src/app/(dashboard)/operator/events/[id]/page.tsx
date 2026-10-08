@@ -1,16 +1,16 @@
 import { EventDetail } from "@/components/modules/events";
+import { StaticIdPage } from "@/components/shell/static-id-page";
 
 export function generateStaticParams() {
   return [{ id: "_" }];
 }
 
-export default async function OperatorEventDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default function OperatorEventDetailPage() {
   return (
-    <EventDetail eventId={id} basePath="/operator/events" canManage />
+    <StaticIdPage>
+      {(id) => (
+        <EventDetail eventId={id} basePath="/operator/events" canManage />
+      )}
+    </StaticIdPage>
   );
 }

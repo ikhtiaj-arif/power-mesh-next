@@ -1,11 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { formatEventDate } from "@/components/modules/events/event-datetime";
+import { EventDetail } from "@/components/modules/events/event-detail";
 import { EventStatusBadge } from "@/components/modules/events/event-status-badge";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
+import { RecordSheet } from "@/components/modules/shell/record-sheet";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,7 +26,7 @@ import {
 } from "@/components/ui/table";
 import { useGetAllEvents } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
-import type { OutageEventStatus } from "@/types";
+import type { OutageEvent, OutageEventStatus } from "@/types";
 
 const STATUS_FILTERS: Array<{ label: string; value?: OutageEventStatus }> = [
   { label: "All" },
@@ -39,6 +40,7 @@ const STATUS_FILTERS: Array<{ label: string; value?: OutageEventStatus }> = [
 export function AdminEventsList({ basePath }: { basePath: string }) {
   const [status, setStatus] = useState<OutageEventStatus | undefined>(undefined);
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<OutageEvent | null>(null);
   const params = useMemo(
     () => ({ page, limit: 10, status }),
     [page, status],
@@ -133,9 +135,9 @@ export function AdminEventsList({ basePath }: { basePath: string }) {
                           <Button
                             size="sm"
                             variant="outline"
-                            render={<Link href={`${basePath}/${event.id}`} />}
+                            onClick={() => setSelected(event)}
                           >
-                            View
+                            Preview
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -170,6 +172,29 @@ export function AdminEventsList({ basePath }: { basePath: string }) {
           ) : null}
         </CardContent>
       </Card>
+
+      <RecordSheet
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+        title="Outage window"
+        description={
+          selected
+            ? `${formatEventDate(selected.scheduledStart)} → ${formatEventDate(selected.scheduledEnd)}`
+            : undefined
+        }
+        size="lg"
+      >
+        {selected ? (
+          <EventDetail
+            eventId={selected.id}
+            basePath={basePath}
+            canManage={false}
+            embedded
+          />
+        ) : null}
+      </RecordSheet>
     </div>
   );
 }

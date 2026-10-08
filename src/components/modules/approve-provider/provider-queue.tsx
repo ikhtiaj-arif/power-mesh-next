@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { ProviderDetail } from "@/components/modules/approve-provider/provider-detail";
 import { ProviderStatusBadge } from "@/components/modules/approve-provider/provider-status-badge";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { RecordSheet } from "@/components/modules/shell/record-sheet";
@@ -162,47 +162,13 @@ export function ProviderQueue({ basePath }: { basePath: string }) {
             : undefined
         }
         size="lg"
-        fullPageHref={selected ? `${basePath}/${selected.id}` : undefined}
-        fullPageLabel="Review & decide"
-        footer={
-          selected ? (
-            <Button
-              render={<Link href={`${basePath}/${selected.id}`} />}
-              onClick={() => setSelected(null)}
-            >
-              Open full review
-            </Button>
-          ) : null
-        }
       >
         {selected ? (
-          <div className="space-y-3 text-sm">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Status</span>
-              <ProviderStatusBadge status={selected.status} />
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Capacity</span>
-              <span className="font-medium">{selected.capacityKw} kW</span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Contact</span>
-              <span className="font-medium text-right">
-                {selected.user.firstName} {selected.user.lastName}
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Email</span>
-              <span className="font-medium text-right">{selected.user.email}</span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Phone</span>
-              <span className="font-medium">{selected.contactPhone}</span>
-            </div>
-            <p className="rounded-lg border bg-muted/40 p-3 text-muted-foreground">
-              {selected.address}
-            </p>
-          </div>
+          <ProviderDetail
+            providerId={selected.id}
+            basePath={basePath}
+            embedded
+          />
         ) : null}
       </RecordSheet>
     </div>

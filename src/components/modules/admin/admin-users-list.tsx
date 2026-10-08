@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { AdminUserDetail } from "@/components/modules/admin/admin-user-detail";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { RecordSheet } from "@/components/modules/shell/record-sheet";
 import { Badge } from "@/components/ui/badge";
@@ -237,39 +237,10 @@ export function AdminUsersList() {
             : "User"
         }
         description={selected?.email}
-        size="md"
-        fullPageHref={
-          selected ? `/admin/users/${selected.id}` : undefined
-        }
-        fullPageLabel="Moderate user"
-        footer={
-          selected ? (
-            <Button
-              render={<Link href={`/admin/users/${selected.id}`} />}
-              onClick={() => setSelected(null)}
-            >
-              Open full profile
-            </Button>
-          ) : null
-        }
+        size="lg"
       >
         {selected ? (
-          <div className="space-y-3 text-sm">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Role</span>
-              <span className="font-medium">{selected.role}</span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Status</span>
-              <Badge variant="outline">{selected.status}</Badge>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Active</span>
-              <span className="font-medium">
-                {selected.isActive ? "Yes" : "No"}
-              </span>
-            </div>
-          </div>
+          <AdminUserDetail userId={selected.id} embedded />
         ) : null}
       </RecordSheet>
     </div>

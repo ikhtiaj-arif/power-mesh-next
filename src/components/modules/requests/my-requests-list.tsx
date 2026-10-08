@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { formatEventDate } from "@/components/modules/events/event-datetime";
+import { RequestDetail } from "@/components/modules/requests/request-detail";
 import { RequestStatusBadge } from "@/components/modules/requests/request-status-badge";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { RecordSheet } from "@/components/modules/shell/record-sheet";
@@ -251,40 +251,14 @@ export function MyRequestsList({ basePath }: { basePath: string }) {
             ? `${formatEventDate(selected.event.scheduledStart)} → ${formatEventDate(selected.event.scheduledEnd)}`
             : undefined
         }
-        size="md"
-        fullPageHref={selected ? `${basePath}/${selected.id}` : undefined}
-        footer={
-          selected ? (
-            <Button
-              render={<Link href={`${basePath}/${selected.id}`} />}
-              onClick={() => setSelected(null)}
-            >
-              Manage request
-            </Button>
-          ) : null
-        }
+        size="lg"
       >
         {selected ? (
-          <div className="space-y-3 text-sm">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Status</span>
-              <RequestStatusBadge status={selected.status} />
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Requested</span>
-              <span className="font-medium">{selected.requestedKw} kW</span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Max price</span>
-              <span className="font-medium">
-                ৳{String(selected.maxPricePerKwh)}/kWh
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Priority</span>
-              <span className="font-medium">{selected.priorityTier}</span>
-            </div>
-          </div>
+          <RequestDetail
+            requestId={selected.id}
+            basePath={basePath}
+            embedded
+          />
         ) : null}
       </RecordSheet>
     </div>
