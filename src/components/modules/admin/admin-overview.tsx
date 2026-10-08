@@ -1,10 +1,20 @@
 "use client";
 
+import Link from "next/link";
+
 import { BarChart } from "@/components/modules/dashboard/bar-chart";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { OverviewTable } from "@/components/modules/dashboard/overview-table";
 import { ProgressList } from "@/components/modules/dashboard/progress-list";
 import { StatCard } from "@/components/modules/dashboard/stat-card";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetDashboardStats } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
@@ -23,7 +33,47 @@ export function AdminOverview() {
       <OverviewHeader
         title="Home"
         description="Platform users, marketplace volume, and settlement health."
+        actions={
+          <Button size="sm" variant="outline" render={<Link href="/admin/audit" />}>
+            Audit log
+          </Button>
+        }
       />
+
+      {!stats.isPending && data ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Needs attention</CardTitle>
+            <CardDescription>
+              Jump to moderation and provider review when counts rise.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              render={<Link href="/admin/users?status=BLOCKED" />}
+            >
+              Blocked users ({data.users.blocked})
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              render={<Link href="/admin/providers" />}
+            >
+              Pending providers ({data.providers.pending})
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              render={<Link href="/admin/allocation" />}
+            >
+              Allocation
+            </Button>
+          </CardContent>
+        </Card>
+      ) : null}
+
       {stats.isPending ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
