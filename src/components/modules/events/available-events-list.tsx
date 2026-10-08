@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { formatEventDate } from "@/components/modules/events/event-datetime";
+import { EventDetail } from "@/components/modules/events/event-detail";
 import { EventStatusBadge } from "@/components/modules/events/event-status-badge";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { RecordSheet } from "@/components/modules/shell/record-sheet";
@@ -210,48 +211,24 @@ export function AvailableEventsList({
             ? `${formatEventDate(selected.scheduledStart)} → ${formatEventDate(selected.scheduledEnd)}`
             : undefined
         }
-        size="md"
-        fullPageHref={selected ? actionHref(selected.id) : undefined}
-        fullPageLabel={actionLabel}
+        size="lg"
         footer={
-          selected && !rowAction ? (
+          selected && rowAction ? (
             <Button
-              render={<Link href={`${basePath}/${selected.id}`} />}
+              render={<Link href={actionHref(selected.id)} />}
               onClick={() => setSelected(null)}
             >
-              Request or reserve
+              {actionLabel}
             </Button>
           ) : null
         }
       >
         {selected ? (
-          <div className="space-y-3 text-sm">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Status</span>
-              <EventStatusBadge status={selected.status} />
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Total capacity</span>
-              <span className="font-medium">{selected.totalCapacityKw} kW</span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Remaining</span>
-              <span className="font-medium">
-                {Math.max(0, selected.totalCapacityKw - selected.allocatedKw)} kW
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Offers</span>
-              <span className="font-medium">
-                {selected._count?.capacityOffers ?? 0}
-              </span>
-            </div>
-            {selected.notes ? (
-              <p className="rounded-lg border bg-muted/40 p-3 text-muted-foreground">
-                {selected.notes}
-              </p>
-            ) : null}
-          </div>
+          <EventDetail
+            eventId={selected.id}
+            basePath={basePath}
+            embedded
+          />
         ) : null}
       </RecordSheet>
     </div>

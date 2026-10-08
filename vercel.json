@@ -1,0 +1,15 @@
+{
+  "rewrites": [
+    { "source": "/admin/users/:id", "destination": "/admin/users/_.html" },
+    { "source": "/admin/events/:id", "destination": "/admin/events/_.html" },
+    { "source": "/admin/providers/:id", "destination": "/admin/providers/_.html" },
+    { "source": "/operator/events/:id", "destination": "/operator/events/_.html" },
+    { "source": "/operator/providers/:id", "destination": "/operator/providers/_.html" },
+    { "source": "/consumer/events/:id", "destination": "/consumer/events/_.html" },
+    { "source": "/consumer/requests/:id", "destination": "/consumer/requests/_.html" },
+    { "source": "/consumer/reservations/:id", "destination": "/consumer/reservations/_.html" },
+    { "source": "/consumer/delivery/:reservationId", "destination": "/consumer/delivery/_.html" },
+    { "source": "/provider/offers/:id", "destination": "/provider/offers/_.html" },
+    { "source": "/provider/delivery/:reservationId", "destination": "/provider/delivery/_.html" }
+  ]
+}

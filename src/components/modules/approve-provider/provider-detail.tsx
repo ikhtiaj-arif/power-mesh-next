@@ -30,9 +30,12 @@ function canReject(status: ProviderStatus) {
 export function ProviderDetail({
   providerId,
   basePath,
+  embedded = false,
 }: {
   providerId: string;
   basePath: string;
+  /** Hide page chrome when rendered inside a preview sheet. */
+  embedded?: boolean;
 }) {
   const detail = useGetProviderById(providerId);
   const approve = useApproveProvider();
@@ -40,15 +43,17 @@ export function ProviderDetail({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <OverviewHeader
-          title={provider?.companyName ?? "Provider"}
-          description="Review capacity, contact details, and approval status."
-        />
-        <Button variant="outline" size="sm" render={<Link href={basePath} />}>
-          Back to queue
-        </Button>
-      </div>
+      {embedded ? null : (
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <OverviewHeader
+            title={provider?.companyName ?? "Provider"}
+            description="Review capacity, contact details, and approval status."
+          />
+          <Button variant="outline" size="sm" render={<Link href={basePath} />}>
+            Back to queue
+          </Button>
+        </div>
+      )}
 
       {detail.isPending ? (
         <div className="space-y-3">

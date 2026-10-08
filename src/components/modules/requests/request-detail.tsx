@@ -35,9 +35,11 @@ import {
 export function RequestDetail({
   requestId,
   basePath,
+  embedded = false,
 }: {
   requestId: string;
   basePath: string;
+  embedded?: boolean;
 }) {
   const router = useRouter();
   const detail = useGetRequestById(requestId);
@@ -63,15 +65,17 @@ export function RequestDetail({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <OverviewHeader
-          title="Request detail"
-          description="Review, update, or cancel your pending capacity request."
-        />
-        <Button variant="outline" size="sm" render={<Link href={basePath} />}>
-          Back to requests
-        </Button>
-      </div>
+      {embedded ? null : (
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <OverviewHeader
+            title="Request detail"
+            description="Review, update, or cancel your pending capacity request."
+          />
+          <Button variant="outline" size="sm" render={<Link href={basePath} />}>
+            Back to requests
+          </Button>
+        </div>
+      )}
 
       {detail.isPending ? (
         <div className="space-y-3">

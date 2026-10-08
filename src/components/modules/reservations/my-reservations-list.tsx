@@ -1,13 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { formatEventDate } from "@/components/modules/events/event-datetime";
-import { ReservationStatusBadge } from "@/components/modules/reservations/reservation-status-badge";
-import { ReservationStatusStepper } from "@/components/modules/reservations/reservation-status-stepper";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
+import { ReservationDetail } from "@/components/modules/reservations/reservation-detail";
+import { ReservationStatusBadge } from "@/components/modules/reservations/reservation-status-badge";
 import { RecordSheet } from "@/components/modules/shell/record-sheet";
 import { Button } from "@/components/ui/button";
 import {
@@ -218,51 +217,13 @@ export function MyReservationsList({ basePath }: { basePath: string }) {
             : undefined
         }
         size="lg"
-        fullPageHref={selected ? `${basePath}/${selected.id}` : undefined}
-        footer={
-          selected ? (
-            <>
-              {["ALLOCATED", "PAYMENT_PENDING"].includes(selected.status) ? (
-                <Button
-                  render={<Link href={`${basePath}/${selected.id}`} />}
-                  onClick={() => setSelected(null)}
-                >
-                  Pay now
-                </Button>
-              ) : null}
-              {["PAYMENT_COMPLETED", "DELIVERY_PENDING"].includes(
-                selected.status,
-              ) ? (
-                <Button
-                  variant="outline"
-                  render={
-                    <Link href={`/consumer/delivery/${selected.id}`} />
-                  }
-                  onClick={() => setSelected(null)}
-                >
-                  Open delivery
-                </Button>
-              ) : null}
-            </>
-          ) : null
-        }
       >
         {selected ? (
-          <div className="space-y-4 text-sm">
-            <ReservationStatusStepper status={selected.status} />
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Status</span>
-              <ReservationStatusBadge status={selected.status} />
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Allocated</span>
-              <span className="font-medium">{selected.allocatedKw} kW</span>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-muted-foreground">Amount</span>
-              <span className="font-medium">৳{String(selected.totalAmount)}</span>
-            </div>
-          </div>
+          <ReservationDetail
+            reservationId={selected.id}
+            basePath={basePath}
+            embedded
+          />
         ) : null}
       </RecordSheet>
     </div>

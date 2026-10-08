@@ -29,10 +29,13 @@ export function EventDetail({
   eventId,
   basePath,
   canManage = false,
+  embedded = false,
 }: {
   eventId: string;
   basePath: string;
   canManage?: boolean;
+  /** Hide page chrome when rendered inside a preview sheet. */
+  embedded?: boolean;
 }) {
   const detail = useGetEventById(eventId);
   const event = detail.data;
@@ -40,15 +43,17 @@ export function EventDetail({
 
   return (
     <div className="space-y-6">
-      <OverviewHeader
-        title="Outage window"
-        description="Schedule, capacity, and next actions for this event."
-        actions={
-          <Button variant="outline" size="sm" render={<Link href={basePath} />}>
-            Back to events
-          </Button>
-        }
-      />
+      {embedded ? null : (
+        <OverviewHeader
+          title="Outage window"
+          description="Schedule, capacity, and next actions for this event."
+          actions={
+            <Button variant="outline" size="sm" render={<Link href={basePath} />}>
+              Back to events
+            </Button>
+          }
+        />
+      )}
 
       {detail.isPending ? (
         <div className="space-y-3">

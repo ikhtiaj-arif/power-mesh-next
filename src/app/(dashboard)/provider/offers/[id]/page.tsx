@@ -1,14 +1,14 @@
 import { UpdateOfferForm } from "@/components/modules/offers";
+import { StaticIdPage } from "@/components/shell/static-id-page";
 
 export function generateStaticParams() {
   return [{ id: "_" }];
 }
 
-export default async function ProviderOfferDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  return <UpdateOfferForm offerId={id} basePath="/provider/offers" />;
+export default function ProviderOfferDetailPage() {
+  return (
+    <StaticIdPage>
+      {(id) => <UpdateOfferForm offerId={id} basePath="/provider/offers" />}
+    </StaticIdPage>
+  );
 }

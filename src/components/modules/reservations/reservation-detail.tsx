@@ -39,9 +39,11 @@ import type { PaymentProvider } from "@/types";
 export function ReservationDetail({
   reservationId,
   basePath,
+  embedded = false,
 }: {
   reservationId: string;
   basePath: string;
+  embedded?: boolean;
 }) {
   const router = useRouter();
   const me = useGetMe();
@@ -100,15 +102,17 @@ export function ReservationDetail({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <OverviewHeader
-          title="Reservation"
-          description="Pay, track delivery, or cancel while the status allows it."
-        />
-        <Button variant="outline" size="sm" render={<Link href={basePath} />}>
-          Back to reservations
-        </Button>
-      </div>
+      {embedded ? null : (
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <OverviewHeader
+            title="Reservation"
+            description="Pay, track delivery, or cancel while the status allows it."
+          />
+          <Button variant="outline" size="sm" render={<Link href={basePath} />}>
+            Back to reservations
+          </Button>
+        </div>
+      )}
 
       {list.isPending || me.isPending ? (
         <Skeleton className="h-40 w-full rounded-xl" />
