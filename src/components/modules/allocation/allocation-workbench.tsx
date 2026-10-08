@@ -6,6 +6,8 @@ import { formatEventDate } from "@/components/modules/events/event-datetime";
 import { EventStatusBadge } from "@/components/modules/events/event-status-badge";
 import { ReservationStatusOverride } from "@/components/modules/allocation/reservation-status-override";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
+import { ReservationStatusBadge } from "@/components/modules/reservations/reservation-status-badge";
+import { RecordSheet } from "@/components/modules/shell/record-sheet";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
@@ -55,6 +57,7 @@ export function AllocationWorkbench({
   const [selectedEventId, setSelectedEventId] = useState<string>("");
   const [preview, setPreview] = useState<AllocationPreviewResult | null>(null);
   const [approveOpen, setApproveOpen] = useState(false);
+  const [overrideId, setOverrideId] = useState<string | null>(null);
 
   const myEventsQuery = useGetMyEvents({ page: 1, limit: 50 }, eventSource === "my");
   const allEventsQuery = useGetAllEvents({ page: 1, limit: 50 }, eventSource === "all");
@@ -75,6 +78,8 @@ export function AllocationWorkbench({
     { page: 1, limit: 20, eventId: selectedEventId },
     Boolean(selectedEventId),
   );
+  const overrideReservation =
+    (reservations.data?.data ?? []).find((row) => row.id === overrideId) ?? null;
 
   function runPreview() {
     if (!selectedEventId) {
@@ -291,9 +296,7 @@ export function AllocationWorkbench({
           <CardHeader>
             <CardTitle>Reservations on this event</CardTitle>
             <CardDescription>
-              Override reservation status for support (destructive). bKash refunds on FAILED or
-              REFUNDED are best-effort when gateway IDs exist; check payment gateway status after
-              submit.
+              Open a reservation to override status for support cases.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -308,15 +311,56 @@ export function AllocationWorkbench({
                 No reservations for this event yet. Approve allocation or wait for consumer bookings.
               </p>
             ) : (
-              <div className="space-y-6">
-                {(reservations.data?.data ?? []).map((reservation) => (
-                  <ReservationStatusOverride key={reservation.id} reservation={reservation} />
-                ))}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Reservation</TableHead>
+                    <TableHead>kW</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(reservations.data?.data ?? []).map((reservation) => (
+                    <TableRow key={reservation.id}>
+                      <TableCell className="font-mono text-xs">
+                        {reservation.id.slice(0, 8)}…
+                      </TableCell>
+                      <TableCell>{reservation.allocatedKw}</TableCell>
+                      <TableCell>
+                        <ReservationStatusBadge status={reservation.status} />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setOverrideId(reservation.id)}
+                        >
+                          Override
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </CardContent>
         </Card>
       ) : null}
+
+      <RecordSheet
+        open={Boolean(overrideId)}
+        onOpenChange={(open) => {
+          if (!open) setOverrideId(null);
+        }}
+        title="Override reservation"
+        description="Change status carefully. Failed or refunded may trigger refunds."
+        size="lg"
+      >
+        {overrideReservation ? (
+          <ReservationStatusOverride reservation={overrideReservation} />
+        ) : null}
+      </RecordSheet>
     </div>
   );
 }

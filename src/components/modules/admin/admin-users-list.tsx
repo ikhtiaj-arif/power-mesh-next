@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
+import { RecordSheet } from "@/components/modules/shell/record-sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +28,7 @@ import {
 } from "@/components/ui/table";
 import { useGetAdminUsers } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
-import type { UserRole, UserStatus } from "@/types";
+import type { User, UserRole, UserStatus } from "@/types";
 
 const ROLES: UserRole[] = ["CONSUMER", "PROVIDER", "OPERATOR", "ADMIN"];
 const STATUSES: UserStatus[] = ["ACTIVE", "BLOCKED", "DELETED"];
@@ -36,6 +37,7 @@ export function AdminUsersList() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [selected, setSelected] = useState<User | null>(null);
 
   const page = Number(searchParams.get("page") ?? "1") || 1;
   const limit = Number(searchParams.get("limit") ?? "10") || 10;
@@ -67,14 +69,14 @@ export function AdminUsersList() {
     <div className="space-y-6">
       <OverviewHeader
         title="Users"
-        description="Search and filter platform accounts. Blocked users receive 403 on subsequent API calls."
+        description="Search and filter platform accounts. Blocked users cannot use the product."
       />
 
       <Card>
         <CardHeader>
           <CardTitle>User directory</CardTitle>
           <CardDescription>
-            Pagination uses `meta`. Filters: `searchTerm`, `role`, `status`.
+            Filter by role or status, then preview an account.
             {meta
               ? ` Page ${meta.page} of ${meta.totalPages} (${meta.total} total).`
               : null}
@@ -187,9 +189,9 @@ export function AdminUsersList() {
                         <Button
                           size="sm"
                           variant="outline"
-                          render={<Link href={`/admin/users/${user.id}`} />}
+                          onClick={() => setSelected(user)}
                         >
-                          View
+                          Preview
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -223,6 +225,53 @@ export function AdminUsersList() {
           )}
         </CardContent>
       </Card>
+
+      <RecordSheet
+        open={Boolean(selected)}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+        title={
+          selected
+            ? `${selected.firstName} ${selected.lastName}`
+            : "User"
+        }
+        description={selected?.email}
+        size="md"
+        fullPageHref={
+          selected ? `/admin/users/${selected.id}` : undefined
+        }
+        fullPageLabel="Moderate user"
+        footer={
+          selected ? (
+            <Button
+              render={<Link href={`/admin/users/${selected.id}`} />}
+              onClick={() => setSelected(null)}
+            >
+              Open full profile
+            </Button>
+          ) : null
+        }
+      >
+        {selected ? (
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Role</span>
+              <span className="font-medium">{selected.role}</span>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Status</span>
+              <Badge variant="outline">{selected.status}</Badge>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground">Active</span>
+              <span className="font-medium">
+                {selected.isActive ? "Yes" : "No"}
+              </span>
+            </div>
+          </div>
+        ) : null}
+      </RecordSheet>
     </div>
   );
 }

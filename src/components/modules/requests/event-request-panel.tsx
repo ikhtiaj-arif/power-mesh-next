@@ -1,7 +1,11 @@
 "use client";
 
+import Link from "next/link";
+import { useState } from "react";
+
 import { CreateRequestForm } from "@/components/modules/requests/create-request-form";
 import { RequestStatusBadge } from "@/components/modules/requests/request-status-badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,11 +13,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetMe, useGetMyRequests } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 export function EventRequestPanel({
   eventId,
@@ -25,6 +34,7 @@ export function EventRequestPanel({
   const me = useGetMe();
   const role = me.data?.data.role;
   const myRequests = useGetMyRequests({ page: 1, limit: 50 });
+  const [open, setOpen] = useState(false);
   const existing = myRequests.data?.data.find(
     (request) => request.eventId === eventId,
   );
@@ -61,9 +71,8 @@ export function EventRequestPanel({
         <CardContent className="space-y-3">
           {existing.status === "CANCELLED" || existing.status === "REJECTED" ? (
             <p className="text-sm text-muted-foreground">
-              This event already has a request row for your account. The API
-              unique pair is not freed after cancel/reject, so you cannot create
-              another request here.
+              You already have a request for this event. Cancelled or rejected
+              rows still count toward the one-request-per-event rule.
             </p>
           ) : null}
           <Button
@@ -82,13 +91,42 @@ export function EventRequestPanel({
     eventStatus === "SCHEDULED" || eventStatus === "CONFIRMED";
 
   return (
-    <CreateRequestForm
-      eventId={eventId}
-      disabledReason={
-        canCreate
-          ? undefined
-          : `Requests are only allowed while the event is SCHEDULED or CONFIRMED (current: ${eventStatus}).`
-      }
-    />
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Request capacity</CardTitle>
+          <CardDescription>
+            {canCreate
+              ? "Tell us how many kilowatts you need and your max price."
+              : `Requests are only allowed while the event is scheduled or confirmed (current: ${eventStatus}).`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            size="sm"
+            disabled={!canCreate}
+            onClick={() => setOpen(true)}
+          >
+            Request kilowatts
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Request capacity</DialogTitle>
+            <DialogDescription>
+              One request per consumer per event.
+            </DialogDescription>
+          </DialogHeader>
+          <CreateRequestForm
+            eventId={eventId}
+            onSuccess={() => setOpen(false)}
+            embedded
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

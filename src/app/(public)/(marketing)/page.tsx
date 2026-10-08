@@ -85,7 +85,7 @@ export default function HomePage() {
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-6">
       <section className="grid items-center gap-10 py-14 sm:py-20 lg:grid-cols-2 lg:gap-12">
-        <div>
+        <div className="animate-in fade-in slide-in-from-bottom-3 duration-500 fill-mode-both">
           <Badge variant="secondary" className="w-fit">
             Backup power marketplace
           </Badge>
@@ -132,7 +132,9 @@ export default function HomePage() {
             </span>
           </div>
         </div>
-        <HeroVisual />
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 fill-mode-both">
+          <HeroVisual />
+        </div>
       </section>
 
       <Separator />
@@ -146,7 +148,8 @@ export default function HomePage() {
           {steps.map((step, index) => (
             <li
               key={step.title}
-              className="rounded-xl border border-border/70 bg-card p-4 shadow-sm"
+              className="rounded-xl border border-border/70 bg-card p-4 shadow-sm transition-transform duration-200 hover:-translate-y-0.5"
+              style={{ animationDelay: `${index * 80}ms` }}
             >
               <p className="text-xs font-medium text-muted-foreground">
                 Step {index + 1}
@@ -195,7 +198,10 @@ export default function HomePage() {
         <h2 className="text-2xl font-semibold tracking-tight">What you get</h2>
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           {outcomes.map((item) => (
-            <Card key={item.title}>
+            <Card
+              key={item.title}
+              className="transition-transform duration-200 hover:-translate-y-0.5"
+            >
               <CardHeader>
                 <item.icon className="size-5 text-muted-foreground" />
                 <CardTitle className="text-base">{item.title}</CardTitle>

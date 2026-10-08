@@ -3,7 +3,7 @@ export function HeroVisual({ className }: { className?: string }) {
     <div
       className={
         className ??
-        "relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-muted/80 via-background to-muted p-6 shadow-sm"
+        "relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-muted/80 via-background to-muted p-6 shadow-sm transition-shadow duration-300 hover:shadow-md"
       }
       aria-hidden
     >

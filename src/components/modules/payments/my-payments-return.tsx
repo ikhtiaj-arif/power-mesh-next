@@ -103,8 +103,8 @@ export function MyPaymentsReturn() {
 
                 {verifiedCompleted ? (
                   <p className="text-sm text-foreground">
-                    Payment completed. Your reservation should move to payment
-                    completed on the server.
+                    Payment completed. Continue to your reservation for delivery
+                    next steps.
                   </p>
                 ) : null}
 
@@ -135,11 +135,24 @@ export function MyPaymentsReturn() {
             ) : (
               <p className="text-sm text-muted-foreground">
                 Start payment from an allocated reservation, then return here
-                after bKash or Stripe redirects you back.
+                after checkout redirects you back.
               </p>
             )}
 
             <div className="flex flex-wrap gap-2">
+              {verifiedCompleted && recent?.reservationId ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  render={
+                    <Link
+                      href={`/consumer/reservations/${recent.reservationId}`}
+                    />
+                  }
+                >
+                  Continue to reservation
+                </Button>
+              ) : null}
               {retryReservationId ? (
                 <Button
                   type="button"
