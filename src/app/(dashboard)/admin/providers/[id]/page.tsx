@@ -1,6 +1,6 @@
-import { ProviderDetail } from "@/components/modules/approve-provider";
-import { StaticIdPage } from "@/components/shell/static-id-page";
 import { getProviderStaticParams } from "@/lib/isr/providers";
+
+import Client from "./client";
 
 export const revalidate = 120;
 
@@ -9,9 +9,5 @@ export async function generateStaticParams() {
 }
 
 export default function AdminProviderDetailPage() {
-  return (
-    <StaticIdPage>
-      {(id) => <ProviderDetail providerId={id} basePath="/admin/providers" />}
-    </StaticIdPage>
-  );
+  return <Client />;
 }

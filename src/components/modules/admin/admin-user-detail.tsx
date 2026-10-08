@@ -41,6 +41,35 @@ export function AdminUserDetail({
 }) {
   const detail = useGetAdminUserById(userId);
   const user = detail.data;
+
+  // #region agent log
+  fetch("http://127.0.0.1:7698/ingest/d4a25cba-e448-4169-84a8-d32878310aea", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Debug-Session-Id": "a75d46",
+    },
+    body: JSON.stringify({
+      sessionId: "a75d46",
+      runId: "post-rsc-fix",
+      hypothesisId: "H7",
+      location: "admin-user-detail.tsx:render",
+      message: "admin user detail query state",
+      data: {
+        userId,
+        embedded,
+        status: detail.status,
+        fetchStatus: detail.fetchStatus,
+        hasUser: Boolean(user),
+        isError: detail.isError,
+        errorMessage: detail.error
+          ? getApiErrorMessage(detail.error, "unknown")
+          : null,
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
   const block = useBlockAdminUser(userId);
   const softDelete = useSoftDeleteAdminUser(userId);
   const [blockOpen, setBlockOpen] = useState(false);
