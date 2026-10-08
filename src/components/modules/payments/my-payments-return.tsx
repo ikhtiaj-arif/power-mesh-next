@@ -59,8 +59,8 @@ export function MyPaymentsReturn() {
   return (
     <div className="space-y-6">
       <OverviewHeader
-        title="Payment return"
-        description="After bKash or Stripe checkout you land here. Status below comes from the API (Stripe uses webhooks)."
+        title="Payment status"
+        description="You are back from checkout. Confirm the payment status below, then continue to your reservation."
       />
 
       {gatewayHint ? (

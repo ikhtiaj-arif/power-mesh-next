@@ -26,7 +26,6 @@ export function Header() {
           description: "You have been logged out.",
           type: "success",
         });
-        // Stay on a public page that does not mount the Google iframe.
         router.push("/");
       },
       onError: () => {
@@ -65,9 +64,14 @@ export function Header() {
               {isLoggingOut ? "Signing out..." : "Logout"}
             </Button>
           ) : (
-            <Button variant="outline" size="xs" render={<Link href="/login" />}>
-              Login
-            </Button>
+            <>
+              <Button variant="outline" size="xs" render={<Link href="/login" />}>
+                Sign in
+              </Button>
+              <Button size="xs" render={<Link href="/register" />}>
+                Create account
+              </Button>
+            </>
           )}
         </div>
       </nav>

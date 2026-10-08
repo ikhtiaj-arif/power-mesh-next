@@ -33,12 +33,16 @@ import {
 import { toast } from "@/components/ui/toast";
 import { AuthGuard } from "@/components/shell/auth-guard";
 import { useGetMe, useLogout } from "@/hooks";
-import { getRoleLabel, getRoleNav } from "@/routes";
+import { getRoleHome, getRoleLabel, getRoleNav } from "@/routes";
 import { useUiPrefsStore } from "@/stores/ui-prefs.store";
 import type { UserRole } from "@/types";
 
 function initials(firstName: string, lastName: string) {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+}
+
+function profileHref(role: UserRole) {
+  return `${getRoleHome(role)}/profile`;
 }
 
 function DashboardFrame({
@@ -66,7 +70,7 @@ function DashboardFrame({
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg" render={<Link href="/" />}>
+              <SidebarMenuButton size="lg" render={<Link href={getRoleHome(role)} />}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-semibold">
                   PM
                 </div>
@@ -129,6 +133,13 @@ function DashboardFrame({
             <DropdownMenuContent align="start" className="w-56">
               <DropdownMenuLabel>Signed in</DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push(profileHref(role));
+                }}
+              >
+                Profile
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
                   logout.mutate(undefined, {

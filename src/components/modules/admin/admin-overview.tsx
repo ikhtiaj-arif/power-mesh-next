@@ -21,8 +21,8 @@ export function AdminOverview() {
   return (
     <div className="space-y-6">
       <OverviewHeader
-        title="Admin overview"
-        description="Platform users, marketplace volume, and settlement health from dashboard-stats."
+        title="Home"
+        description="Platform users, marketplace volume, and settlement health."
       />
       {stats.isPending ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

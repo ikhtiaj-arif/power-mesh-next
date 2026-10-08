@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Card,
   CardContent,
@@ -32,6 +34,7 @@ export function EventStatusActions({
   const updateStatus = useUpdateEventStatus(event.id);
   const softDelete = useSoftDeleteEvent();
   const nextStatuses = EVENT_STATUS_TRANSITIONS[event.status];
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   if (!canManage) {
     return null;
@@ -63,18 +66,18 @@ export function EventStatusActions({
     <div className="grid gap-4 xl:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>Status transitions</CardTitle>
+          <CardTitle>Status</CardTitle>
           <CardDescription>
-            Only legal next statuses from the API are offered.
+            Move this outage window to the next stage when the schedule is ready.
             {event.status === "IN_PROGRESS" || event.status === "COMPLETED"
-              ? " Moving to IN_PROGRESS or COMPLETED can set actual start/end on the server."
+              ? " Starting or completing can set the actual start and end times."
               : null}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           {nextStatuses.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              This status is terminal. No further transitions are available.
+              This status is final. No further changes are available.
             </p>
           ) : (
             nextStatuses.map((status) => (
@@ -95,10 +98,10 @@ export function EventStatusActions({
       {event.status === "SCHEDULED" ? (
         <Card>
           <CardHeader>
-            <CardTitle>Soft delete</CardTitle>
+            <CardTitle>Cancel event</CardTitle>
             <CardDescription>
-              Allowed only while SCHEDULED and when no active offers or
-              pending/allocated requests block it. The API sets CANCELLED.
+              Only while scheduled, and only if there are no active offers or
+              pending requests. The event will be cancelled.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -106,35 +109,42 @@ export function EventStatusActions({
               type="button"
               variant="destructive"
               disabled={softDelete.isPending}
-              onClick={() => {
-                const confirmed = window.confirm(
-                  "Soft-delete this scheduled event? This cannot be undone from the UI.",
-                );
-                if (!confirmed) {
-                  return;
-                }
-
-                softDelete.mutate(event.id, {
-                  onSuccess: () => {
-                    toast.add({
-                      title: "Event deleted",
-                      description: "Event was soft-deleted and cancelled.",
-                      type: "success",
-                    });
-                    router.push(basePath);
-                  },
-                  onError: (error) => {
-                    toast.add({
-                      title: "Could not delete event",
-                      description: getApiErrorMessage(error, "Try again."),
-                      type: "error",
-                    });
-                  },
-                });
-              }}
+              onClick={() => setDeleteOpen(true)}
             >
-              {softDelete.isPending ? "Deleting…" : "Soft delete event"}
+              {softDelete.isPending ? "Deleting…" : "Cancel event"}
             </Button>
+            <ConfirmDialog
+              open={deleteOpen}
+              onOpenChange={setDeleteOpen}
+              title="Cancel this event?"
+              description="This removes the scheduled outage window. You cannot undo it from here."
+              confirmLabel="Cancel event"
+              variant="destructive"
+              loading={softDelete.isPending}
+              onConfirm={() =>
+                new Promise<void>((resolve, reject) => {
+                  softDelete.mutate(event.id, {
+                    onSuccess: () => {
+                      toast.add({
+                        title: "Event cancelled",
+                        description: "The outage window was cancelled.",
+                        type: "success",
+                      });
+                      router.push(basePath);
+                      resolve();
+                    },
+                    onError: (error) => {
+                      toast.add({
+                        title: "Could not cancel event",
+                        description: getApiErrorMessage(error, "Try again."),
+                        type: "error",
+                      });
+                      reject(error);
+                    },
+                  });
+                })
+              }
+            />
           </CardContent>
         </Card>
       ) : null}

@@ -61,7 +61,7 @@ export function OperatorEventsList({ basePath }: { basePath: string }) {
         <CardHeader>
           <CardTitle>Event book</CardTitle>
           <CardDescription>
-            Status filter is sent to `GET /event/my-events`.
+            Filter by status to find windows that need action.
             {meta
               ? ` Page ${meta.page} of ${meta.totalPages} (${meta.total} total).`
               : null}

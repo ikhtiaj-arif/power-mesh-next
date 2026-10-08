@@ -7,6 +7,7 @@ import { EventStatusBadge } from "@/components/modules/events/event-status-badge
 import { ReservationStatusOverride } from "@/components/modules/allocation/reservation-status-override";
 import { OverviewHeader } from "@/components/modules/dashboard/overview-header";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Card,
   CardContent,
@@ -45,7 +46,7 @@ function formatMoney(value: number | string) {
 export function AllocationWorkbench({
   eventSource,
   title = "Allocation",
-  description = "Preview the allocator plan, then approve to create reservations. Matching is all-or-nothing per request (full kW within budget). Survival quota on events is recorded but not enforced by the allocator.",
+  description = "Preview how requests match offers, then approve to create reservations. Each request is allocated in full within its price cap.",
 }: {
   eventSource: "my" | "all";
   title?: string;
@@ -53,6 +54,7 @@ export function AllocationWorkbench({
 }) {
   const [selectedEventId, setSelectedEventId] = useState<string>("");
   const [preview, setPreview] = useState<AllocationPreviewResult | null>(null);
+  const [approveOpen, setApproveOpen] = useState(false);
 
   const myEventsQuery = useGetMyEvents({ page: 1, limit: 50 }, eventSource === "my");
   const allEventsQuery = useGetAllEvents({ page: 1, limit: 50 }, eventSource === "all");
@@ -102,32 +104,34 @@ export function AllocationWorkbench({
     if (!selectedEventId) {
       return;
     }
-    const confirmed = window.confirm(
-      "Approve this allocation plan? This creates reservations and updates offers and requests. This cannot be undone from this screen.",
-    );
-    if (!confirmed) {
-      return;
-    }
-    approveMutation.mutate(undefined, {
-      onSuccess: (response) => {
-        setPreview({
-          ...response.data,
-          allocations: preview?.allocations ?? [],
-        });
-        void reservations.refetch();
-        toast.add({
-          title: "Allocation approved",
-          description: `Created ${response.data.allocatedRequests} reservation(s), ${response.data.totalAllocatedKw} kW total.`,
-          type: "success",
-        });
-      },
-      onError: (error) => {
-        toast.add({
-          title: "Approve failed",
-          description: getApiErrorMessage(error, "Could not approve allocation."),
-          type: "error",
-        });
-      },
+    setApproveOpen(true);
+  }
+
+  function confirmApprove() {
+    return new Promise<void>((resolve, reject) => {
+      approveMutation.mutate(undefined, {
+        onSuccess: (response) => {
+          setPreview({
+            ...response.data,
+            allocations: preview?.allocations ?? [],
+          });
+          void reservations.refetch();
+          toast.add({
+            title: "Allocation approved",
+            description: `Created ${response.data.allocatedRequests} reservation(s), ${response.data.totalAllocatedKw} kW total.`,
+            type: "success",
+          });
+          resolve();
+        },
+        onError: (error) => {
+          toast.add({
+            title: "Approve failed",
+            description: getApiErrorMessage(error, "Could not approve allocation."),
+            type: "error",
+          });
+          reject(error);
+        },
+      });
     });
   }
 
@@ -194,6 +198,19 @@ export function AllocationWorkbench({
             >
               {approveMutation.isPending ? "Approving…" : "Approve allocation"}
             </Button>
+            <ConfirmDialog
+              open={approveOpen}
+              onOpenChange={setApproveOpen}
+              title="Approve this allocation?"
+              description={
+                preview
+                  ? `This creates ${preview.allocatedRequests} reservation(s) for ${preview.totalAllocatedKw} kW and updates matching offers and requests. You cannot undo it from this screen.`
+                  : "This creates reservations and updates offers and requests. You cannot undo it from this screen."
+              }
+              confirmLabel="Approve allocation"
+              loading={approveMutation.isPending}
+              onConfirm={confirmApprove}
+            />
           </div>
         </CardContent>
       </Card>

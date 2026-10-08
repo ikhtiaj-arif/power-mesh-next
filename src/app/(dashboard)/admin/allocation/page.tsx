@@ -5,7 +5,7 @@ export default function AdminAllocationPage() {
     <AllocationWorkbench
       eventSource="all"
       title="Allocation (admin)"
-      description="Read-only event selection from GET /event/all. Preview and approve allocation without event create or status writes."
+      description="Preview and approve allocation across all events. Event create and status changes stay with operators."
     />
   );
 }
