@@ -1,4 +1,5 @@
 import {
+  confirmStripeCheckout,
   getAllPayments,
   getMyPayments,
   getPaymentById,
@@ -58,6 +59,18 @@ export function useInitiatePayment() {
 
   return useMutation({
     mutationFn: (payload: InitiatePaymentPayload) => initiatePayment(payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: PAYMENTS_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: RESERVATIONS_QUERY_KEY });
+    },
+  });
+}
+
+export function useConfirmStripeCheckout() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (sessionId: string) => confirmStripeCheckout(sessionId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: PAYMENTS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: RESERVATIONS_QUERY_KEY });

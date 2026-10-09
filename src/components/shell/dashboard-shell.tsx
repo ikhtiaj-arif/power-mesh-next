@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,6 +61,27 @@ function DashboardFrame({
   const nav = getRoleNav(role);
   const sidebarOpen = useUiPrefsStore((state) => state.sidebarOpen);
   const setSidebarOpen = useUiPrefsStore((state) => state.setSidebarOpen);
+
+  function handleLogout() {
+    logout.mutate(undefined, {
+      onSuccess: () => {
+        googleLogout();
+        toast.add({
+          title: "Signed out",
+          description: "You have been logged out.",
+          type: "success",
+        });
+        router.push("/");
+      },
+      onError: () => {
+        toast.add({
+          title: "Could not sign out",
+          description: "Something went wrong. Try again.",
+          type: "error",
+        });
+      },
+    });
+  }
 
   return (
     <SidebarProvider
@@ -140,21 +162,7 @@ function DashboardFrame({
               >
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  logout.mutate(undefined, {
-                    onSuccess: () => {
-                      googleLogout();
-                      toast.add({
-                        title: "Signed out",
-                        description: "You have been logged out.",
-                        type: "success",
-                      });
-                      router.push("/");
-                    },
-                  });
-                }}
-              >
+              <DropdownMenuItem onClick={handleLogout}>
                 Log out
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -166,7 +174,18 @@ function DashboardFrame({
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-1 h-4" />
-          <p className="text-sm font-medium">{getRoleLabel(role)} dashboard</p>
+          <p className="mr-auto text-sm font-medium">
+            {getRoleLabel(role)} dashboard
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={logout.isPending}
+            onClick={handleLogout}
+          >
+            {logout.isPending ? "Signing out…" : "Log out"}
+          </Button>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">{children}</div>
       </SidebarInset>
