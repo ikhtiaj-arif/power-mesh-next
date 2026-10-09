@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { PaymentStatusBadge } from "@/components/modules/payments/payment-status-badge";
@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetMyPayments } from "@/hooks";
+import { useConfirmStripeCheckout, useGetMyPayments } from "@/hooks";
 import { getApiErrorMessage } from "@/lib/api-error";
 import type { Payment } from "@/types";
 
@@ -32,11 +32,79 @@ function latestPayment(rows: Payment[]): Payment | undefined {
 export function MyPaymentsReturn() {
   const searchParams = useSearchParams();
   const gatewayHint = searchParams.get("status");
+  const providerHint = searchParams.get("provider");
+  const sessionId = searchParams.get("session_id");
+  const confirmedSessionRef = useRef<string | null>(null);
 
   const payments = useGetMyPayments(
     { page: 1, limit: 20, sortBy: "updatedAt", sortOrder: "desc" },
     { staleTime: 0, refetchOnWindowFocus: true },
   );
+  const confirmStripe = useConfirmStripeCheckout();
+
+  useEffect(() => {
+    if (
+      providerHint !== "stripe" ||
+      !sessionId ||
+      gatewayHint === "cancel" ||
+      confirmedSessionRef.current === sessionId
+    ) {
+      return;
+    }
+    confirmedSessionRef.current = sessionId;
+    confirmStripe.mutate(sessionId, {
+      onSuccess: (payment) => {
+        // #region agent log
+        fetch("http://127.0.0.1:7698/ingest/d4a25cba-e448-4169-84a8-d32878310aea", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "a75d46",
+          },
+          body: JSON.stringify({
+            sessionId: "a75d46",
+            runId: "stripe-logout-fix",
+            hypothesisId: "S1",
+            location: "my-payments-return.tsx:confirm",
+            message: "stripe confirm succeeded",
+            data: {
+              checkoutSessionId: sessionId,
+              gatewayStatus: payment.gatewayStatus,
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
+        void payments.refetch();
+      },
+      onError: (error) => {
+        // #region agent log
+        fetch("http://127.0.0.1:7698/ingest/d4a25cba-e448-4169-84a8-d32878310aea", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "a75d46",
+          },
+          body: JSON.stringify({
+            sessionId: "a75d46",
+            runId: "stripe-logout-fix",
+            hypothesisId: "S1",
+            location: "my-payments-return.tsx:confirm",
+            message: "stripe confirm failed",
+            data: {
+              checkoutSessionId: sessionId,
+              error: getApiErrorMessage(error, "unknown"),
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
+        void payments.refetch();
+      },
+    });
+    // mutate/refetch identities are unstable; gate with confirmedSessionRef instead.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- confirm once per session_id
+  }, [gatewayHint, providerHint, sessionId]);
 
   const recent = useMemo(
     () => latestPayment(payments.data?.data ?? []),

@@ -32,6 +32,16 @@ export async function initiatePayment(
   return response.data;
 }
 
+export async function confirmStripeCheckout(
+  sessionId: string,
+): Promise<PaymentRecord> {
+  const response = await apiClient<ApiResponse<PaymentRecord>>(
+    "/payments/stripe/confirm",
+    { method: "POST", body: { sessionId } },
+  );
+  return response.data;
+}
+
 export async function getMyPayments(
   params: PaymentListParams = {},
 ): Promise<PaginatedData<PaymentRecord[]>> {
